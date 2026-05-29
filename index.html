@@ -217,7 +217,7 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
     <div class="scan-title">Определить растение</div>
     <div class="scan-hint">Лист, кора, ветка или всё дерево<br>ИИ определит вид за 3 секунды</div>
     <div style="display:flex;gap:8px;width:100%;margin-top:4px;">
-      <button onclick="document.getElementById('input-camera').click()" style="flex:1;padding:10px 8px;border-radius:12px;background:#0c1410;border:.5px solid #2d6b42;color:#5dbb85;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+      <button onclick="openCamera()" style="flex:1;padding:10px 8px;border-radius:12px;background:#0c1410;border:.5px solid #2d6b42;color:#5dbb85;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5dbb85" stroke-width="1.8" aria-hidden="true"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
         Камера
       </button>
@@ -457,6 +457,25 @@ function switchTab(t){
   if(tg)tg.HapticFeedback?.selectionChanged();
 }
 
+
+
+function openCamera() {
+  // Пробуем через Telegram WebApp API
+  if (tg && tg.showPopup) {
+    // Создаём временный input с capture
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.capture = 'environment';
+    input.style.display = 'none';
+    input.onchange = handlePhoto;
+    document.body.appendChild(input);
+    input.click();
+    setTimeout(() => document.body.removeChild(input), 5000);
+  } else {
+    document.getElementById('input-camera').click();
+  }
+}
 
 async function compressImage(file, maxDim, quality) {
   return new Promise((resolve) => {
