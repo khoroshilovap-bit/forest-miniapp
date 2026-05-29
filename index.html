@@ -303,7 +303,7 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
   </div>
   <div class="share-card card">
     <div class="result-img-wrap">
-      <img id="share-photo" class="share-photo" src="" alt="Дерево">
+      <img id="share-photo" class="share-photo" src="" alt="Дерево" crossorigin="anonymous" referrerpolicy="no-referrer">
       <div class="share-overlay">
         <div class="share-tree-name" id="share-tree-name">Дуб черешчатый</div>
         <div class="share-project">Сохрани Лес · t.me/ForestSherlockBot</div>
@@ -443,7 +443,7 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
 <div id="tree-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(6,10,7,.95);padding:20px 16px;overflow-y:auto;" onclick="closeModal(event)">
   <div style="background:#090f0a;border:.5px solid #1a2e20;border-radius:18px;overflow:hidden;max-width:420px;margin:0 auto;">
     <div style="position:relative;">
-      <img id="modal-photo" src="" alt="" style="width:100%;height:200px;object-fit:cover;display:block;background:#060d08;">
+      <img id="modal-photo" src="" alt="" crossorigin="anonymous" referrerpolicy="no-referrer" style="width:100%;height:200px;object-fit:cover;object-position:center 20%;display:block;background:#060d08;">
       <div id="modal-rarity-badge" style="position:absolute;top:10px;left:10px;border-radius:20px;padding:4px 10px;font-size:9px;font-weight:600;letter-spacing:.03em;"></div>
       <button onclick="closeModalBtn()" style="position:absolute;top:10px;right:10px;background:rgba(6,10,7,.8);border:.5px solid #1a2e20;border-radius:50%;width:28px;height:28px;color:#5dbb85;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>
     </div>
@@ -817,7 +817,7 @@ function renderAchievements(){
     const cls=f?(d?'found discovered':r?'found rare':l?'found legendary':'found'):(r?'rare':l?'legendary':'');
     // Фото: из TREE_PHOTOS, или из каталога, или из user photo
     const photoUrl = TREE_PHOTOS[id] || t.photo_url || (state.catalog[id] && state.catalog[id].photo_url) || '';
-    const imgStyle = `width:32px;height:32px;border-radius:8px;object-fit:cover;${f?'':'filter:grayscale(1) brightness(0.25);'}`;
+    const imgStyle = `width:32px;height:32px;border-radius:8px;object-fit:cover;object-position:center 30%;${f?'':'filter:grayscale(1) brightness(0.25);'}`;
     const tilePhoto = photoUrl
       ? `<img src="${photoUrl}" alt="${t.name||id}" style="${imgStyle}" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://api.green-wallet.ru/photos/oak.jpg'">`
       : `<img src="https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Quercus_robur_1.jpg/200px-Quercus_robur_1.jpg&w=64&h=64&fit=cover" alt="${t.name||id}" style="${imgStyle}">`;
@@ -848,7 +848,15 @@ function openTreeModal(id){
 
   // Фото
   const modalPhoto = document.getElementById('modal-photo');
-  if(photoUrl){ modalPhoto.src=photoUrl; modalPhoto.style.filter=found?'':'grayscale(1) brightness(0.3)'; }
+  if(photoUrl){
+    modalPhoto.src = '';
+    modalPhoto.style.display = 'block';
+    modalPhoto.style.filter = found?'':'grayscale(1) brightness(0.3)';
+    modalPhoto.onerror = ()=>{ modalPhoto.style.display='none'; };
+    setTimeout(()=>{ modalPhoto.src = photoUrl; }, 50);
+  } else {
+    modalPhoto.style.display = 'none';
+  }
 
   // Название
   document.getElementById('modal-name').textContent = t.name||id;
