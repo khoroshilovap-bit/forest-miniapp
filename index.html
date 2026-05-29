@@ -192,6 +192,9 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
 .partners-label{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--t4);margin-bottom:6px;}
 .partners-txt{font-size:10px;color:var(--t3);line-height:1.9;}
 
+.modal-co2-chip{flex:1;background:var(--bg0);border:.5px solid var(--b1);border-radius:9px;padding:7px 4px;text-align:center;}
+.modal-co2-n{font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--g3);}
+.modal-co2-l{font-size:8px;color:var(--t4);line-height:1.4;margin-top:2px;}
 /* UTILS */
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
@@ -266,7 +269,7 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
 
   <div id="scan-home">
     <div class="stats-row" id="stats-row">
-      <div class="stat-chip"><div class="stat-n">800+</div><div class="stat-l">ДЕРЕВЬЕВ ПОСАЖЕНО</div></div>
+      <div class="stat-chip"><div class="stat-n">800к+</div><div class="stat-l">ДЕРЕВЬЕВ ПОСАЖЕНО</div></div>
       <div class="stat-chip"><div class="stat-n">AI</div><div class="stat-l">РАСПОЗНАВАНИЕ</div></div>
       <div class="stat-chip"><div class="stat-n">🌍</div><div class="stat-l">ВЕСЬ МИР</div></div>
       <div class="stat-chip"><div class="stat-n" id="global-counter">...</div><div class="stat-l">РАСПОЗНАНО ВСЕГО</div></div>
@@ -436,6 +439,33 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
 </div>
 
 <!-- NAV -->
+<!-- MODAL -->
+<div id="tree-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(6,10,7,.95);padding:20px 16px;overflow-y:auto;" onclick="closeModal(event)">
+  <div style="background:#090f0a;border:.5px solid #1a2e20;border-radius:18px;overflow:hidden;max-width:420px;margin:0 auto;">
+    <div style="position:relative;">
+      <img id="modal-photo" src="" alt="" style="width:100%;height:200px;object-fit:cover;display:block;background:#060d08;">
+      <div id="modal-rarity-badge" style="position:absolute;top:10px;left:10px;border-radius:20px;padding:4px 10px;font-size:9px;font-weight:600;letter-spacing:.03em;"></div>
+      <button onclick="closeModalBtn()" style="position:absolute;top:10px;right:10px;background:rgba(6,10,7,.8);border:.5px solid #1a2e20;border-radius:50%;width:28px;height:28px;color:#5dbb85;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>
+    </div>
+    <div style="padding:16px;">
+      <div id="modal-name" style="font-family:var(--font-head);font-size:16px;font-weight:700;color:#e4efe8;letter-spacing:-.02em;margin-bottom:3px;"></div>
+      <div id="modal-latin" style="font-size:10px;color:#1e3026;font-style:italic;margin-bottom:12px;"></div>
+      <div id="modal-co2" style="display:flex;gap:5px;margin-bottom:12px;"></div>
+      <div id="modal-facts" style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;"></div>
+      <div id="modal-threat" style="background:#1a1208;border-left:2px solid #5c3a10;border-radius:0 8px 8px 0;padding:8px 10px;margin-bottom:12px;display:none;">
+        <div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:#5c3a10;margin-bottom:3px;">Угроза вида</div>
+        <div id="modal-threat-txt" style="font-size:10px;color:#c4844a;line-height:1.5;"></div>
+      </div>
+      <div id="modal-locked" style="text-align:center;padding:12px 0;display:none;">
+        <div style="font-size:28px;margin-bottom:8px;">🔒</div>
+        <div style="font-size:12px;color:#1e3026;margin-bottom:4px;">Вид ещё не открыт</div>
+        <div style="font-size:10px;color:#141e18;">Сканируй это растение чтобы открыть</div>
+      </div>
+      <button onclick="closeModalBtn()" style="width:100%;padding:12px;border-radius:12px;background:#0d1e12;border:.5px solid #1e3828;color:#5dbb85;font-family:var(--font-head);font-size:11px;font-weight:700;cursor:pointer;">Закрыть</button>
+    </div>
+  </div>
+</div>
+
 <nav class="nav" aria-label="Навигация">
   <div class="ni on" onclick="switchTab('scan')" id="nav-scan" role="tab" aria-selected="true">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e3026" stroke-width="1.5" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -487,15 +517,28 @@ const TREES={
 };
 
 const TREE_PHOTOS={
-  oak:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Quercus_robur_1.jpg/400px-Quercus_robur_1.jpg&w=200&h=200&fit=cover',
-  birch:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/9/96/Betula_pendula_003.jpg/400px-Betula_pendula_003.jpg&w=200&h=200&fit=cover',
-  pine:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Pinus_sylvestris_Loimaa_1.jpg/400px-Pinus_sylvestris_Loimaa_1.jpg&w=200&h=200&fit=cover',
-  spruce:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Picea_abies_Soomaa.jpg/400px-Picea_abies_Soomaa.jpg&w=200&h=200&fit=cover',
-  linden:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Tilia_cordata_2.jpg/400px-Tilia_cordata_2.jpg&w=200&h=200&fit=cover',
-  cedar:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Pinus_sibirica_Altay.jpg/400px-Pinus_sibirica_Altay.jpg&w=200&h=200&fit=cover',
-  fir:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/3/35/Abies_sibirica_perm.jpg/400px-Abies_sibirica_perm.jpg&w=200&h=200&fit=cover',
-  lotus:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Nelumbo_nucifera_flower.jpg/400px-Nelumbo_nucifera_flower.jpg&w=200&h=200&fit=cover',
-  maple:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Acer_platanoides_1.jpg/400px-Acer_platanoides_1.jpg&w=200&h=200&fit=cover',
+  oak:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Quercus_robur_1.jpg/400px-Quercus_robur_1.jpg&w=64&h=64&fit=cover&output=webp&q=60',
+  birch:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/9/96/Betula_pendula_003.jpg/400px-Betula_pendula_003.jpg&w=64&h=64&fit=cover&output=webp&q=60',
+  pine:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Pinus_sylvestris_Loimaa_1.jpg/400px-Pinus_sylvestris_Loimaa_1.jpg&w=64&h=64&fit=cover&output=webp&q=60',
+  spruce:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Picea_abies_Soomaa.jpg/400px-Picea_abies_Soomaa.jpg&w=64&h=64&fit=cover&output=webp&q=60',
+  linden:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Tilia_cordata_2.jpg/400px-Tilia_cordata_2.jpg&w=64&h=64&fit=cover&output=webp&q=60',
+  cedar:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Pinus_sibirica_Altay.jpg/400px-Pinus_sibirica_Altay.jpg&w=64&h=64&fit=cover&output=webp&q=60',
+  fir:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/3/35/Abies_sibirica_perm.jpg/400px-Abies_sibirica_perm.jpg&w=64&h=64&fit=cover&output=webp&q=60',
+  lotus:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Nelumbo_nucifera_flower.jpg/400px-Nelumbo_nucifera_flower.jpg&w=64&h=64&fit=cover&output=webp&q=60',
+  maple:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Acer_platanoides_1.jpg/400px-Acer_platanoides_1.jpg&w=64&h=64&fit=cover&output=webp&q=60',
+};
+
+// Полноразмерные фото для модального окна
+const TREE_PHOTOS_FULL={
+  oak:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Quercus_robur_1.jpg/400px-Quercus_robur_1.jpg&w=400&h=300&fit=cover&output=webp&q=80',
+  birch:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/9/96/Betula_pendula_003.jpg/400px-Betula_pendula_003.jpg&w=400&h=300&fit=cover&output=webp&q=80',
+  pine:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Pinus_sylvestris_Loimaa_1.jpg/400px-Pinus_sylvestris_Loimaa_1.jpg&w=400&h=300&fit=cover&output=webp&q=80',
+  spruce:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Picea_abies_Soomaa.jpg/400px-Picea_abies_Soomaa.jpg&w=400&h=300&fit=cover&output=webp&q=80',
+  linden:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Tilia_cordata_2.jpg/400px-Tilia_cordata_2.jpg&w=400&h=300&fit=cover&output=webp&q=80',
+  cedar:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Pinus_sibirica_Altay.jpg/400px-Pinus_sibirica_Altay.jpg&w=400&h=300&fit=cover&output=webp&q=80',
+  fir:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/3/35/Abies_sibirica_perm.jpg/400px-Abies_sibirica_perm.jpg&w=400&h=300&fit=cover&output=webp&q=80',
+  lotus:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Nelumbo_nucifera_flower.jpg/400px-Nelumbo_nucifera_flower.jpg&w=400&h=300&fit=cover&output=webp&q=80',
+  maple:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Acer_platanoides_1.jpg/400px-Acer_platanoides_1.jpg&w=400&h=300&fit=cover&output=webp&q=80',
 };
 
 const RARITY_LABELS={common:'Обычный',uncommon:'Необычный',rare:'Редкий',epic:'Эпический',legendary:'Легендарный'};
@@ -791,6 +834,71 @@ function renderAchievements(){
 
 function tileClick(id){
   if(tg)tg.HapticFeedback?.impactOccurred('light');
+  openTreeModal(id);
+}
+
+function openTreeModal(id){
+  const allTrees={...TREES};
+  Object.entries(state.catalog).forEach(([tid,t])=>{
+    if(!allTrees[tid]) allTrees[tid]={name:t.name,latin:t.latin||'',pts:t.pts,rarity:t.rarity||'discovered',photo_url:t.photo_url||''};
+  });
+  const t = allTrees[id];
+  if(!t) return;
+  const found = state.scanned.includes(id);
+  const photoUrl = (TREE_PHOTOS_FULL&&TREE_PHOTOS_FULL[id]) || TREE_PHOTOS[id] || t.photo_url || '';
+
+  // Фото
+  const modalPhoto = document.getElementById('modal-photo');
+  if(photoUrl){ modalPhoto.src=photoUrl; modalPhoto.style.filter=found?'':'grayscale(1) brightness(0.3)'; }
+
+  // Название
+  document.getElementById('modal-name').textContent = t.name||id;
+  document.getElementById('modal-latin').textContent = t.latin||'';
+
+  // Редкость
+  const rb = document.getElementById('modal-rarity-badge');
+  const rarityLabels={common:'Обычный',uncommon:'Необычный',rare:'Редкий',epic:'Эпический',legendary:'Легендарный',discovered:'Открыто'};
+  const rarityColors={common:'background:rgba(6,10,7,.85);border:.5px solid #1a2e20;color:#2d6b42',uncommon:'background:rgba(6,10,7,.85);border:.5px solid #2d6b42;color:#5dbb85',epic:'background:rgba(26,18,8,.85);border:.5px solid #5c3a10;color:#c4844a',legendary:'background:rgba(20,10,32,.85);border:.5px solid #4a2080;color:#9060d0',discovered:'background:rgba(6,10,7,.85);border:.5px solid #2d6b42;color:#5dbb85'};
+  rb.textContent = rarityLabels[t.rarity]||'Вид';
+  rb.style.cssText = rarityColors[t.rarity]||rarityColors.common;
+
+  // CO2
+  const co2el = document.getElementById('modal-co2');
+  if(found && (t.co2||t.max_age)){
+    co2el.innerHTML = `
+      ${t.co2?`<div class="modal-co2-chip"><div class="modal-co2-n">${t.co2} кг</div><div class="modal-co2-l">CO₂<br>в год</div></div>`:''}
+      ${t.max_age?`<div class="modal-co2-chip"><div class="modal-co2-n">${t.max_age}</div><div class="modal-co2-l">лет<br>живёт</div></div>`:''}
+      <div class="modal-co2-chip"><div class="modal-co2-n">+${t.pts}</div><div class="modal-co2-l">очков<br>за скан</div></div>
+    `;
+  } else {
+    co2el.innerHTML = `<div class="modal-co2-chip"><div class="modal-co2-n">+${t.pts}</div><div class="modal-co2-l">очков<br>за скан</div></div>`;
+  }
+
+  // Факты
+  const factsEl = document.getElementById('modal-facts');
+  if(found && t.facts && t.facts.length){
+    factsEl.innerHTML = (t.facts||[]).map(f=>`<div class="fact"><div class="fact-bar"></div><div class="fact-txt">${f}</div></div>`).join('');
+    factsEl.style.display='flex';
+  } else { factsEl.style.display='none'; }
+
+  // Угроза
+  const threatWrap = document.getElementById('modal-threat');
+  if(found && t.threat){ document.getElementById('modal-threat-txt').textContent=t.threat; threatWrap.style.display='block'; }
+  else { threatWrap.style.display='none'; }
+
+  // Заблокировано
+  document.getElementById('modal-locked').style.display = found?'none':'block';
+
+  document.getElementById('tree-modal').style.display='block';
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(e){
+  if(e.target.id==='tree-modal') closeModalBtn();
+}
+function closeModalBtn(){
+  document.getElementById('tree-modal').style.display='none';
+  document.body.style.overflow='';
 }
 
 function copyLink(){
