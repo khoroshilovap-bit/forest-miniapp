@@ -445,17 +445,50 @@ function switchTab(t){
   if(tg)tg.HapticFeedback?.selectionChanged();
 }
 
+
+async function compressImage(file, maxDim, quality) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let w = img.width, h = img.height;
+      if (w > maxDim || h > maxDim) {
+        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+        else { w = Math.round(w * maxDim / h); h = maxDim; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', quality);
+      canvas.toBlob(blob => resolve({blob, dataUrl}), 'image/jpeg', quality);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      // Если не удалось — отправляем оригинал
+      const reader = new FileReader();
+      reader.onload = ev => {
+        file.arrayBuffer().then(ab => {
+          resolve({blob: new Blob([ab], {type:'image/jpeg'}), dataUrl: ev.target.result});
+        });
+      };
+      reader.readAsDataURL(file);
+    };
+    img.src = url;
+  });
+}
+
 async function handlePhoto(e){
   const file=e.target.files[0];
   if(!file)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{state.currentPhoto=ev.target.result;};
-  reader.readAsDataURL(file);
   document.getElementById('scan-home').style.display='none';
   document.getElementById('scan-result').style.display='none';
   document.getElementById('scan-loading').classList.add('show');
   try{
-    const fd=new FormData();fd.append('file',file);
+    // Сжимаем фото в браузере до отправки
+    const compressed = await compressImage(file, 800, 0.75);
+    state.currentPhoto = compressed.dataUrl;
+    const fd=new FormData();fd.append('file', compressed.blob, 'photo.jpg');
     const r=await fetch(SERVER_URL+'/recognize',{method:'POST',body:fd});
     const d=await r.json();
     document.getElementById('scan-loading').classList.remove('show');
@@ -580,4 +613,3 @@ renderAchievements();
 </script>
 </body>
 </html>
-
