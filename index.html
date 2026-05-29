@@ -277,17 +277,17 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
     <div class="sec-label">Последние определения</div>
     <div class="card">
       <div class="feed-item">
-        <div class="feed-icon"><img src="https://stanford-swap-spots-external.trycloudflare.com/photos/pine.jpg" alt="Сосна" style="width:32px;height:32px;border-radius:9px;object-fit:cover;" onerror="this.style.display='none'"></div>
+        <div class="feed-icon"><img src="https://api.green-wallet.ru/photos/pine.jpg" alt="Сосна" style="width:32px;height:32px;border-radius:9px;object-fit:cover;" onerror="this.style.display='none'"></div>
         <div><div class="feed-name">Сосна обыкновенная</div><div class="feed-meta">вчера · 98% · Сибирь</div></div>
         <div class="feed-pts">+4 pts</div>
       </div>
       <div class="feed-item">
-        <div class="feed-icon"><img src="https://stanford-swap-spots-external.trycloudflare.com/photos/birch.jpg" alt="Берёза" style="width:32px;height:32px;border-radius:9px;object-fit:cover;" onerror="this.style.display='none'"></div>
+        <div class="feed-icon"><img src="https://api.green-wallet.ru/photos/birch.jpg" alt="Берёза" style="width:32px;height:32px;border-radius:9px;object-fit:cover;" onerror="this.style.display='none'"></div>
         <div><div class="feed-name">Берёза повислая</div><div class="feed-meta">3 дня назад · 94% · Урал</div></div>
         <div class="feed-pts">+2 pts</div>
       </div>
       <div class="feed-item">
-        <div class="feed-icon"><img src="https://stanford-swap-spots-external.trycloudflare.com/photos/cedar.jpg" alt="Кедр" style="width:32px;height:32px;border-radius:9px;object-fit:cover;" onerror="this.style.display='none'"></div>
+        <div class="feed-icon"><img src="https://api.green-wallet.ru/photos/cedar.jpg" alt="Кедр" style="width:32px;height:32px;border-radius:9px;object-fit:cover;" onerror="this.style.display='none'"></div>
         <div><div class="feed-name" style="color:#c4844a;">Кедр сибирский</div><div class="feed-meta">неделю назад · 91% · Алтай</div></div>
         <div class="feed-pts" style="color:#c4844a;">+18 pts</div>
       </div>
@@ -502,7 +502,7 @@ const LOGO_SRC='data:image/png;base64,'+LOGO_B64;
 const la=document.getElementById('logo-about');
 if(la){la.src=LOGO_SRC;la.style.cssText='width:52px;height:52px;object-fit:contain;mix-blend-mode:screen;border-radius:8px;';}
 
-const SERVER_URL='https://stanford-swap-spots-external.trycloudflare.com';
+const SERVER_URL='https://api.green-wallet.ru';
 
 const TREES={
   oak:{name:'Дуб черешчатый',latin:'Quercus robur · семейство буковых',pts:3,rarity:'common',co2:160,age:1000,species:400,facts:['Один из самых долгоживущих деревьев Европы — до 1 000 лет','Поглощает до 160 кг углекислого газа в год','Кормит более 400 видов насекомых и 50 видов птиц','Жёлуди — основная пища кабанов, белок и косуль'],threat:'Вырубки дубрав выросли втрое за 20 лет. Под угрозой более 800 тыс. га российских дубрав.'},
@@ -517,27 +517,27 @@ const TREES={
 };
 
 const TREE_PHOTOS={
-  oak:'https://stanford-swap-spots-external.trycloudflare.com/photos/oak.jpg',
-  birch:'https://stanford-swap-spots-external.trycloudflare.com/photos/birch.jpg',
-  pine:'https://stanford-swap-spots-external.trycloudflare.com/photos/pine.jpg',
-  spruce:'https://stanford-swap-spots-external.trycloudflare.com/photos/spruce.jpg',
-  linden:'https://stanford-swap-spots-external.trycloudflare.com/photos/linden.jpg',
-  cedar:'https://stanford-swap-spots-external.trycloudflare.com/photos/cedar.jpg',
-  fir:'https://stanford-swap-spots-external.trycloudflare.com/photos/fir.jpg',
-  lotus:'https://stanford-swap-spots-external.trycloudflare.com/photos/lotus.jpg',
-  maple:'https://stanford-swap-spots-external.trycloudflare.com/photos/maple.jpg',
+  oak:'https://api.green-wallet.ru/photos/oak.jpg',
+  birch:'https://api.green-wallet.ru/photos/birch.jpg',
+  pine:'https://api.green-wallet.ru/photos/pine.jpg',
+  spruce:'https://api.green-wallet.ru/photos/spruce.jpg',
+  linden:'https://api.green-wallet.ru/photos/linden.jpg',
+  cedar:'https://api.green-wallet.ru/photos/cedar.jpg',
+  fir:'https://api.green-wallet.ru/photos/fir.jpg',
+  lotus:'https://api.green-wallet.ru/photos/lotus.jpg',
+  maple:'https://api.green-wallet.ru/photos/maple.jpg',
 };
 
 const TREE_PHOTOS_FULL={
-  oak:'https://stanford-swap-spots-external.trycloudflare.com/photos/oak.jpg',
-  birch:'https://stanford-swap-spots-external.trycloudflare.com/photos/birch.jpg',
-  pine:'https://stanford-swap-spots-external.trycloudflare.com/photos/pine.jpg',
-  spruce:'https://stanford-swap-spots-external.trycloudflare.com/photos/spruce.jpg',
-  linden:'https://stanford-swap-spots-external.trycloudflare.com/photos/linden.jpg',
-  cedar:'https://stanford-swap-spots-external.trycloudflare.com/photos/cedar.jpg',
-  fir:'https://stanford-swap-spots-external.trycloudflare.com/photos/fir.jpg',
-  lotus:'https://stanford-swap-spots-external.trycloudflare.com/photos/lotus.jpg',
-  maple:'https://stanford-swap-spots-external.trycloudflare.com/photos/maple.jpg',
+  oak:'https://api.green-wallet.ru/photos/oak.jpg',
+  birch:'https://api.green-wallet.ru/photos/birch.jpg',
+  pine:'https://api.green-wallet.ru/photos/pine.jpg',
+  spruce:'https://api.green-wallet.ru/photos/spruce.jpg',
+  linden:'https://api.green-wallet.ru/photos/linden.jpg',
+  cedar:'https://api.green-wallet.ru/photos/cedar.jpg',
+  fir:'https://api.green-wallet.ru/photos/fir.jpg',
+  lotus:'https://api.green-wallet.ru/photos/lotus.jpg',
+  maple:'https://api.green-wallet.ru/photos/maple.jpg',
 };
 
 const RARITY_LABELS={common:'Обычный',uncommon:'Необычный',rare:'Редкий',epic:'Эпический',legendary:'Легендарный'};
@@ -819,7 +819,7 @@ function renderAchievements(){
     const photoUrl = TREE_PHOTOS[id] || t.photo_url || (state.catalog[id] && state.catalog[id].photo_url) || '';
     const imgStyle = `width:32px;height:32px;border-radius:8px;object-fit:cover;${f?'':'filter:grayscale(1) brightness(0.25);'}`;
     const tilePhoto = photoUrl
-      ? `<img src="${photoUrl}" alt="${t.name||id}" style="${imgStyle}" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://stanford-swap-spots-external.trycloudflare.com/photos/oak.jpg'">`
+      ? `<img src="${photoUrl}" alt="${t.name||id}" style="${imgStyle}" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://api.green-wallet.ru/photos/oak.jpg'">`
       : `<img src="https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Quercus_robur_1.jpg/200px-Quercus_robur_1.jpg&w=64&h=64&fit=cover" alt="${t.name||id}" style="${imgStyle}">`;
     const displayName = (t.name||id).split(' ').slice(0,2).join(' ');
     return`<div class="tile ${cls}" onclick="tileClick('${id}')" role="button" aria-label="${t.name||id}${f?' — открыто':''}">
