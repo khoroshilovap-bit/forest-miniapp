@@ -217,7 +217,7 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
     <div class="scan-title">Сфотографировать</div>
     <div class="scan-hint">Лист, кора, ветка или всё дерево<br>ИИ определит вид за 3 секунды</div>
   </div>
-  <input type="file" id="file-input" accept="image/*" capture="environment" onchange="handlePhoto(event)" aria-label="Выбрать фото">
+  <input type="file" id="file-input" accept="image/*" onchange="handlePhoto(event)" aria-label="Выбрать фото">
 
   <div class="loading" id="scan-loading" aria-live="polite">
     <div class="spinner" aria-hidden="true"></div>
@@ -499,8 +499,11 @@ async function handlePhoto(e){
     else showResultRaw(res);
   }catch(err){
     document.getElementById('scan-loading').classList.remove('show');
+    document.getElementById('scan-loading').classList.remove('show');
     document.getElementById('scan-home').style.display='block';
-    alert('Ошибка: '+err.message);
+    const fi2 = document.getElementById('file-input');
+    fi2.value=''; try { fi2.type='text'; fi2.type='file'; } catch(e2) {}
+    alert('Ошибка: '+err.message+'. Попробуй ещё раз.');
   }
 }
 
@@ -557,8 +560,11 @@ function showUnknown(){
 
 function resetScan(){
   document.getElementById('scan-result').style.display='none';
+  document.getElementById('scan-loading').classList.remove('show');
   document.getElementById('scan-home').style.display='block';
-  document.getElementById('file-input').value='';
+  const fi = document.getElementById('file-input');
+  fi.value='';
+  try { fi.type='text'; fi.type='file'; } catch(e) {}
   state.currentPhoto=null;
 }
 
