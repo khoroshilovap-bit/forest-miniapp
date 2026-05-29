@@ -267,8 +267,8 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
   <div id="scan-home">
     <div class="stats-row">
       <div class="stat-chip"><div class="stat-n">625к</div><div class="stat-l">ДЕРЕВЬЕВ</div></div>
-      <div class="stat-chip"><div class="stat-n">3 500</div><div class="stat-l">ВИДОВ</div></div>
-      <div class="stat-chip"><div class="stat-n">98%</div><div class="stat-l">ТОЧНОСТЬ</div></div>
+      <div class="stat-chip"><div class="stat-n">ИИ</div><div class="stat-l">ЛЮБОЙ ВИД</div></div>
+      <div class="stat-chip"><div class="stat-n">🌍</div><div class="stat-l">РОССИЯ</div></div>
     </div>
     <div class="sec-label">Последние определения</div>
     <div class="card">
@@ -404,7 +404,10 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
     <div class="ni-dot"></div><span class="ni-lbl">Сканер</span>
   </div>
   <div class="ni" onclick="switchTab('achievements')" id="nav-achievements" role="tab" aria-selected="false">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e3026" stroke-width="1.5" aria-hidden="true"><path d="M12 22V12M12 12C12 12 6 9 6 4a6 6 0 0112 0c0 5-6 8-6 8z"/></svg>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e3026" stroke-width="1.5" aria-hidden="true">
+      <circle cx="12" cy="8" r="6"/>
+      <path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/>
+    </svg>
     <div class="ni-dot"></div><span class="ni-lbl">Успехи</span>
   </div>
   <div class="ni" onclick="switchTab('share')" id="nav-share" role="tab" aria-selected="false">
@@ -460,7 +463,37 @@ const TREE_PHOTOS={
 const RARITY_LABELS={common:'Обычный',uncommon:'Необычный',rare:'Редкий',epic:'Эпический',legendary:'Легендарный'};
 const RARITY_CLASS={common:'r-common',uncommon:'r-common',rare:'r-epic',epic:'r-epic',legendary:'r-legendary'};
 
-const state={tab:'scan',scanned:['oak','birch','pine','spruce'],pts:284,planted:12,ppts:224,spts:60,currentTree:'oak',currentPhoto:null};
+const state={tab:'scan',scanned:['oak','birch','pine','spruce'],pts:284,planted:12,ppts:224,spts:60,currentTree:'oak',currentPhoto:null,discovered:{},catalog:{}};
+// discovered: {tree_id: {name_ru, name_latin, pts, photo_url, co2, age, rarity:'discovered'}}
+
+
+function addToCatalog(r, found){
+  const id = r.tree_id || ('tree_'+Date.now());
+  if(!state.catalog[id]){
+    // Определяем редкость по очкам
+    const pts = r.pts || (r.rarity==='legendary'?20:r.rarity==='epic'?18:r.rarity==='uncommon'?5:3);
+    state.catalog[id]={
+      id, found,
+      name: r.name_ru||r.name,
+      latin: r.name_latin||r.latin||'',
+      pts,
+      rarity: r.rarity||'common',
+      photo: TREE_PHOTOS[id] || null
+    };
+    if(found){
+      state.scanned.push(id);
+      state.pts += pts;
+      state.spts += pts;
+    }
+  } else if(found && !state.catalog[id].found){
+    state.catalog[id].found = true;
+    if(!state.scanned.includes(id)){
+      state.scanned.push(id);
+      state.pts += state.catalog[id].pts;
+      state.spts += state.catalog[id].pts;
+    }
+  }
+}
 
 function switchTab(t){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -556,7 +589,7 @@ async function handlePhoto(e){
 
 function showResult(id,conf){
   const t=TREES[id];state.currentTree=id;
-  if(!state.scanned.includes(id)){state.scanned.push(id);state.pts+=t.pts;state.spts+=t.pts;}
+  addToCatalog({tree_id:id, name_ru:t.name, name_latin:t.latin, pts:t.pts, rarity:t.rarity}, true);
   // Показываем фото эталонного дерева из базы рядом с результатом
   document.getElementById('result-photo').src=state.currentPhoto||'';
   const refPhoto = document.getElementById('ref-tree-photo');
@@ -587,13 +620,15 @@ function showResult(id,conf){
 }
 
 function showResultRaw(r){
-  state.currentTree=r.tree_id||'unknown';
+  const treeId = r.tree_id||('tree_'+r.name_ru?.replace(/\s+/g,'_'));
+  state.currentTree = treeId;
+  addToCatalog({...r, tree_id:treeId, pts:3}, true);
   // Показываем фото эталонного дерева из базы рядом с результатом
   document.getElementById('result-photo').src=state.currentPhoto||'';
   const refPhoto = document.getElementById('ref-tree-photo');
   const refWrap = document.getElementById('ref-photo-wrap');
   if(refPhoto){
-    const photoUrl = TREE_PHOTOS[id];
+    const photoUrl = TREE_PHOTOS[treeId];
     if(photoUrl){
       refPhoto.src=photoUrl;
     } else {
@@ -658,23 +693,38 @@ function renderAchievements(){
   document.getElementById('u-planted').textContent=state.planted;
   document.getElementById('u-ppts').textContent=state.ppts;
   document.getElementById('u-spts').textContent=state.spts;
-  document.getElementById('cat-count').textContent=state.scanned.length+' / '+Object.keys(TREES).length+' открыто';
+
+  // Объединяем базовый каталог + открытые новые деревья
+  const allTrees={...TREES};
+  Object.entries(state.catalog).forEach(([id,t])=>{
+    if(!allTrees[id]) allTrees[id]={
+      name:t.name, latin:t.latin||'', pts:t.pts,
+      rarity:t.rarity||'discovered',
+      photo_url:t.photo_url||''
+    };
+  });
+
+  const openCount = state.scanned.length;
+  const totalCount = Object.keys(allTrees).length;
+  document.getElementById('cat-count').textContent=openCount+' / '+totalCount+' открыто';
+
   const grid=document.getElementById('tree-grid');
-  const icons={oak:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M12 22V12M12 12C12 12 6 9 6 4a6 6 0 0112 0c0 5-6 8-6 8z"/></svg>`,birch:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M17 8C8 10 5.9 16.17 3.82 19.7c.2-.3 1.24-1.3 4.18-1.7 1 2.06 4 3 6 3 4 0 7-3 7-7 0-2.5-1.5-4.5-4-6z"/></svg>`,pine:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><polygon points="12 2 15 9 22 9 16 14 18 21 12 17 6 21 8 14 2 9 9 9 12 2"/></svg>`,spruce:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M12 22V12M12 12C8 9 5 6 6 3c2 0 4 2 6 3 2-1 4-3 6-3 1 3-2 6-6 9z"/></svg>`,linden:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M12 22V12M12 12C12 12 6 9 6 4a6 6 0 0112 0c0 5-6 8-6 8z"/></svg>`,cedar:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><polygon points="12 2 15 9 22 9 16 14 18 21 12 17 6 21 8 14 2 9 9 9 12 2"/></svg>`,fir:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M12 22V12M12 12C8 9 5 6 6 3c2 0 4 2 6 3 2-1 4-3 6-3 1 3-2 6-6 9z"/></svg>`,lotus:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>`,maple:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M17 8C8 10 5.9 16.17 3.82 19.7c.2-.3 1.24-1.3 4.18-1.7 1 2.06 4 3 6 3 4 0 7-3 7-7 0-2.5-1.5-4.5-4-6z"/></svg>`};
-  grid.innerHTML=Object.entries(TREES).map(([id,t])=>{
+  grid.innerHTML=Object.entries(allTrees).map(([id,t])=>{
     const f=state.scanned.includes(id);
-    const r=t.rarity==='epic';const l=t.rarity==='legendary';
-    const cls=f?'found':r?'rare':l?'legendary':'';
-    const sc=f?'#2d6b42':r?'#c4844a':l?'#9060d0':'#1e3026';
-        const photoUrl = TREE_PHOTOS[id] || '';
+    const r=t.rarity==='epic'; const l=t.rarity==='legendary'; const d=t.rarity==='discovered';
+    const cls=f?(d?'found discovered':r?'found rare':l?'found legendary':'found'):(r?'rare':l?'legendary':'');
+    // Фото: из TREE_PHOTOS, или из каталога, или из user photo
+    const photoUrl = TREE_PHOTOS[id] || t.photo_url || (state.catalog[id] && state.catalog[id].photo_url) || '';
+    const imgStyle = `width:32px;height:32px;border-radius:8px;object-fit:cover;${f?'':'filter:grayscale(1) brightness(0.25);'}`;
     const tilePhoto = photoUrl
-      ? `<img src="${photoUrl}" alt="${t.name}" style="width:32px;height:32px;border-radius:8px;object-fit:cover;${f?'':'filter:grayscale(1) brightness(0.3);'}" onerror="this.style.display='none'">`
-      : (icons[id]||icons.oak).replace('stroke-width','stroke="'+sc+'" stroke-width');
-    return`<div class="tile ${cls}" onclick="tileClick('${id}')" role="button" aria-label="${t.name}${f?' — открыто':''}">
+      ? `<img src="${photoUrl}" alt="${t.name||id}" style="${imgStyle}" onerror="this.onerror=null;this.src='https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Quercus_robur_1.jpg/200px-Quercus_robur_1.jpg&w=64&h=64&fit=cover'">`
+      : `<img src="https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Quercus_robur_1.jpg/200px-Quercus_robur_1.jpg&w=64&h=64&fit=cover" alt="${t.name||id}" style="${imgStyle}">`;
+    const displayName = (t.name||id).split(' ').slice(0,2).join(' ');
+    return`<div class="tile ${cls}" onclick="tileClick('${id}')" role="button" aria-label="${t.name||id}${f?' — открыто':''}">
       ${f?'<div class="glow"></div>':''}
       <div class="tile-pts">+${t.pts}</div>
       <div class="tile-icon">${tilePhoto}</div>
-      <div class="tile-name">${t.name.split(' ').slice(0,2).join(' ')}</div>
+      <div class="tile-name">${displayName}</div>
     </div>`;
   }).join('');
 }
