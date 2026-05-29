@@ -277,17 +277,17 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
     <div class="sec-label">Последние определения</div>
     <div class="card">
       <div class="feed-item">
-        <div class="feed-icon"><img src="https://api.green-wallet.ru/photos/pine.jpg" alt="Сосна" style="width:32px;height:32px;border-radius:9px;object-fit:cover;" onerror="this.style.display='none'"></div>
+        <div class="feed-icon"><img src="https://api.green-wallet.ru/photos/pine.jpg" alt="Сосна" style="width:32px;height:32px;border-radius:9px;object-fit:cover;object-position:center 20%;" onerror="this.style.display='none'"></div>
         <div><div class="feed-name">Сосна обыкновенная</div><div class="feed-meta">вчера · 98% · Сибирь</div></div>
         <div class="feed-pts">+4 pts</div>
       </div>
       <div class="feed-item">
-        <div class="feed-icon"><img src="https://api.green-wallet.ru/photos/birch.jpg" alt="Берёза" style="width:32px;height:32px;border-radius:9px;object-fit:cover;" onerror="this.style.display='none'"></div>
+        <div class="feed-icon"><img src="https://api.green-wallet.ru/photos/birch.jpg" alt="Берёза" style="width:32px;height:32px;border-radius:9px;object-fit:cover;object-position:center 20%;" onerror="this.style.display='none'"></div>
         <div><div class="feed-name">Берёза повислая</div><div class="feed-meta">3 дня назад · 94% · Урал</div></div>
         <div class="feed-pts">+2 pts</div>
       </div>
       <div class="feed-item">
-        <div class="feed-icon"><img src="https://api.green-wallet.ru/photos/cedar.jpg" alt="Кедр" style="width:32px;height:32px;border-radius:9px;object-fit:cover;" onerror="this.style.display='none'"></div>
+        <div class="feed-icon"><img src="https://api.green-wallet.ru/photos/cedar.jpg" alt="Кедр" style="width:32px;height:32px;border-radius:9px;object-fit:cover;object-position:center 20%;" onerror="this.style.display='none'"></div>
         <div><div class="feed-name" style="color:#c4844a;">Кедр сибирский</div><div class="feed-meta">неделю назад · 91% · Алтай</div></div>
         <div class="feed-pts" style="color:#c4844a;">+18 pts</div>
       </div>
@@ -443,7 +443,7 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
 <div id="tree-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(6,10,7,.95);padding:20px 16px;overflow-y:auto;" onclick="closeModal(event)">
   <div style="background:#090f0a;border:.5px solid #1a2e20;border-radius:18px;overflow:hidden;max-width:420px;margin:0 auto;">
     <div style="position:relative;">
-      <img id="modal-photo" src="" alt="" crossorigin="anonymous" referrerpolicy="no-referrer" style="width:100%;height:200px;object-fit:cover;object-position:center 20%;display:block;background:#060d08;">
+      <img id="modal-photo" src="" alt="" style="width:100%;height:200px;object-fit:cover;object-position:center 25%;display:block;background:#060d08;">
       <div id="modal-rarity-badge" style="position:absolute;top:10px;left:10px;border-radius:20px;padding:4px 10px;font-size:9px;font-weight:600;letter-spacing:.03em;"></div>
       <button onclick="closeModalBtn()" style="position:absolute;top:10px;right:10px;background:rgba(6,10,7,.8);border:.5px solid #1a2e20;border-radius:50%;width:28px;height:28px;color:#5dbb85;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>
     </div>
@@ -848,15 +848,9 @@ function openTreeModal(id){
 
   // Фото
   const modalPhoto = document.getElementById('modal-photo');
-  if(photoUrl){
-    modalPhoto.src = '';
-    modalPhoto.style.display = 'block';
-    modalPhoto.style.filter = found?'':'grayscale(1) brightness(0.3)';
-    modalPhoto.onerror = ()=>{ modalPhoto.style.display='none'; };
-    setTimeout(()=>{ modalPhoto.src = photoUrl; }, 50);
-  } else {
-    modalPhoto.style.display = 'none';
-  }
+  modalPhoto.style.display = 'block';
+  modalPhoto.style.filter = found?'none':'grayscale(1) brightness(0.3)';
+  modalPhoto.src = photoUrl || '';
 
   // Название
   document.getElementById('modal-name').textContent = t.name||id;
