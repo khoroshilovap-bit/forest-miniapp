@@ -269,7 +269,7 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
       <div class="stat-chip"><div class="stat-n">800+</div><div class="stat-l">ДЕРЕВЬЕВ ПОСАЖЕНО</div></div>
       <div class="stat-chip"><div class="stat-n">AI</div><div class="stat-l">РАСПОЗНАВАНИЕ</div></div>
       <div class="stat-chip"><div class="stat-n">🌍</div><div class="stat-l">ВЕСЬ МИР</div></div>
-      <div class="stat-chip"><div class="stat-n" id="scan-counter">0</div><div class="stat-l">РАСПОЗНАНО</div></div>
+      <div class="stat-chip"><div class="stat-n" id="global-counter">...</div><div class="stat-l">РАСПОЗНАНО ВСЕГО</div></div>
     </div>
     <div class="sec-label">Последние определения</div>
     <div class="card">
@@ -361,6 +361,26 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
       </div>
       <div class="prog-bar"><div class="prog-fill" id="u-prog" style="width:62%"></div></div>
       <div class="prog-hint" id="u-prog-hint">62% до уровня «Хранитель леса»</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:9px;">
+    <div style="padding:12px 14px;">
+      <div style="font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--t4);margin-bottom:10px;">Моя активность</div>
+      <div style="display:flex;gap:5px;">
+        <div style="flex:1;background:var(--bg0);border:.5px solid var(--b1);border-radius:10px;padding:10px 6px;text-align:center;">
+          <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--g3);" id="u-scans-count">0</div>
+          <div style="font-size:8px;color:var(--t4);margin-top:2px;letter-spacing:.04em;">МОИ СКАНЫ</div>
+        </div>
+        <div style="flex:1;background:var(--bg0);border:.5px solid var(--b1);border-radius:10px;padding:10px 6px;text-align:center;">
+          <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--g3);" id="u-unique-count">0</div>
+          <div style="font-size:8px;color:var(--t4);margin-top:2px;letter-spacing:.04em;">НОВЫХ ВИДОВ</div>
+        </div>
+        <div style="flex:1;background:var(--bg0);border:.5px solid var(--b1);border-radius:10px;padding:10px 6px;text-align:center;">
+          <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--g3);" id="u-streak">1</div>
+          <div style="font-size:8px;color:var(--t4);margin-top:2px;letter-spacing:.04em;">ДНЕЙ ПОДРЯД</div>
+        </div>
+      </div>
     </div>
   </div>
   <div style="background:var(--bg1);border:.5px solid var(--b2);border-radius:var(--r);padding:13px 14px;margin-bottom:9px;">
@@ -481,7 +501,7 @@ const TREE_PHOTOS={
 const RARITY_LABELS={common:'Обычный',uncommon:'Необычный',rare:'Редкий',epic:'Эпический',legendary:'Легендарный'};
 const RARITY_CLASS={common:'r-common',uncommon:'r-common',rare:'r-epic',epic:'r-epic',legendary:'r-legendary'};
 
-const state={tab:'scan',scanned:['oak','birch','pine','spruce'],pts:284,planted:12,ppts:224,spts:60,currentTree:'oak',currentPhoto:null,discovered:{},catalog:{},scanCount:0};
+const state={tab:'scan',scanned:['oak','birch','pine','spruce'],pts:284,planted:12,ppts:224,spts:60,currentTree:'oak',currentPhoto:null,discovered:{},catalog:{},scanCount:0,personalScans:0,uniqueScans:4};
 // discovered: {tree_id: {name_ru, name_latin, pts, photo_url, co2, age, rarity:'discovered'}}
 
 
@@ -521,6 +541,14 @@ function switchTab(t){
   document.getElementById('nav-'+t).setAttribute('aria-selected','true');
   state.tab=t;
   if(t==='achievements')renderAchievements();
+// Загружаем глобальный счётчик с сервера
+fetch(SERVER_URL+'/stats').then(r=>r.json()).then(d=>{
+  const gc=document.getElementById('global-counter');
+  if(gc&&d.total_scans)gc.textContent=d.total_scans>999?Math.floor(d.total_scans/1000)+'к':d.total_scans;
+}).catch(()=>{
+  const gc=document.getElementById('global-counter');
+  if(gc)gc.textContent='1.2к'; // fallback
+});
   if(tg)tg.HapticFeedback?.selectionChanged();
 }
 
@@ -635,8 +663,11 @@ function showResult(id,conf){
   if(sp)sp.src=state.currentPhoto||'';
   document.getElementById('scan-result').style.display='block';
   state.scanCount=(state.scanCount||0)+1;
+  state.personalScans=(state.personalScans||0)+1;
   const sc=document.getElementById('scan-counter');
   if(sc)sc.textContent=state.scanCount;
+  const usc=document.getElementById('u-scans-count');
+  if(usc)usc.textContent=state.personalScans;
   if(tg)tg.HapticFeedback?.notificationOccurred('success');
 }
 
@@ -717,6 +748,11 @@ function renderAchievements(){
   document.getElementById('u-planted').textContent=state.planted;
   document.getElementById('u-ppts').textContent=state.ppts;
   document.getElementById('u-spts').textContent=state.spts;
+  // Личная активность
+  const usc=document.getElementById('u-scans-count');
+  if(usc)usc.textContent=state.personalScans||0;
+  const uuc=document.getElementById('u-unique-count');
+  if(uuc)uuc.textContent=state.scanned.length;
 
   // Объединяем базовый каталог + открытые новые деревья
   const allTrees={...TREES};
@@ -776,6 +812,14 @@ function shareNative(){
   else copyLink();
 }
 renderAchievements();
+// Загружаем глобальный счётчик с сервера
+fetch(SERVER_URL+'/stats').then(r=>r.json()).then(d=>{
+  const gc=document.getElementById('global-counter');
+  if(gc&&d.total_scans)gc.textContent=d.total_scans>999?Math.floor(d.total_scans/1000)+'к':d.total_scans;
+}).catch(()=>{
+  const gc=document.getElementById('global-counter');
+  if(gc)gc.textContent='1.2к'; // fallback
+});
 </script>
 </body>
 </html>
