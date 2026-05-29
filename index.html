@@ -265,10 +265,11 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
   </div>
 
   <div id="scan-home">
-    <div class="stats-row">
-      <div class="stat-chip"><div class="stat-n">625к</div><div class="stat-l">ДЕРЕВЬЕВ</div></div>
-      <div class="stat-chip"><div class="stat-n">ИИ</div><div class="stat-l">ЛЮБОЙ ВИД</div></div>
-      <div class="stat-chip"><div class="stat-n">🌍</div><div class="stat-l">РОССИЯ</div></div>
+    <div class="stats-row" id="stats-row">
+      <div class="stat-chip"><div class="stat-n">800+</div><div class="stat-l">ДЕРЕВЬЕВ ПОСАЖЕНО</div></div>
+      <div class="stat-chip"><div class="stat-n">AI</div><div class="stat-l">РАСПОЗНАВАНИЕ</div></div>
+      <div class="stat-chip"><div class="stat-n">🌍</div><div class="stat-l">ВЕСЬ МИР</div></div>
+      <div class="stat-chip"><div class="stat-n" id="scan-counter">0</div><div class="stat-l">РАСПОЗНАНО</div></div>
     </div>
     <div class="sec-label">Последние определения</div>
     <div class="card">
@@ -311,6 +312,7 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
     <span class="link-url">t.me/ForestSherlockBot</span>
     <span class="copy-badge" id="copy-badge">копировать</span>
   </div>
+  <div style="font-size:9px;color:var(--g2);text-align:center;margin-bottom:5px;letter-spacing:.04em;">ПОДЕЛИСЬ И ПОЛУЧИ +5 ОЧКОВ ↓</div>
   <div class="share-btns">
     <button class="share-btn" onclick="shareToTelegram()" aria-label="Поделиться в Telegram">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2d6b42" stroke-width="1.5" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -324,6 +326,11 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2d6b42" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
       <span class="share-btn-lbl">Сайт</span>
     </button>
+  </div>
+  <div style="background:var(--bg1);border:.5px solid var(--b2);border-radius:var(--r);padding:13px 14px;margin-bottom:9px;">
+    <div style="font-family:var(--font-head);font-size:11px;font-weight:700;color:var(--g3);letter-spacing:-.01em;margin-bottom:5px;">+5 очков за каждого друга 🎁</div>
+    <div style="font-size:10px;color:var(--t3);line-height:1.6;margin-bottom:8px;">Чем больше людей узнают о лесах, тем больше деревьев будет посажено. Поделись ботом — и за каждого нового пользователя по твоей ссылке ты получаешь <b style="color:var(--g3);">+5 очков</b>.</div>
+    <div style="font-size:9px;color:var(--t4);font-style:italic;">⚠️ Реферальная программа — в разработке. Скоро!</div>
   </div>
   <button class="btn btn-ghost" onclick="window.open('https://forest-save.ru/pay/')">Посадить дерево другу в подарок</button>
 </div>
@@ -354,6 +361,17 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
       </div>
       <div class="prog-bar"><div class="prog-fill" id="u-prog" style="width:62%"></div></div>
       <div class="prog-hint" id="u-prog-hint">62% до уровня «Хранитель леса»</div>
+    </div>
+  </div>
+  <div style="background:var(--bg1);border:.5px solid var(--b2);border-radius:var(--r);padding:13px 14px;margin-bottom:9px;">
+    <div style="font-family:var(--font-head);font-size:11px;font-weight:700;color:var(--t1);letter-spacing:-.01em;margin-bottom:6px;">Стань главным экспертом леса 🌲</div>
+    <div style="font-size:10px;color:var(--t3);line-height:1.6;">
+      Сканируй деревья и растения вокруг — каждый новый вид пополняет твою коллекцию и приносит очки. Сажай реальные деревья в нацпарках России — 100 ₽ = 5 очков. Чем больше видов найдёшь и деревьев посадишь — тем выше твой уровень: от Горожанина до Легенды леса.
+    </div>
+    <div style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap;">
+      <div style="background:var(--bg0);border:.5px solid var(--b1);border-radius:8px;padding:5px 10px;font-size:9px;color:var(--g2);">📷 Скан = очки</div>
+      <div style="background:var(--bg0);border:.5px solid var(--b1);border-radius:8px;padding:5px 10px;font-size:9px;color:var(--g2);">🌲 Посадка = очки</div>
+      <div style="background:var(--bg0);border:.5px solid var(--b1);border-radius:8px;padding:5px 10px;font-size:9px;color:var(--g2);">🏆 Рейтинг</div>
     </div>
   </div>
   <div class="cat-header">
@@ -463,7 +481,7 @@ const TREE_PHOTOS={
 const RARITY_LABELS={common:'Обычный',uncommon:'Необычный',rare:'Редкий',epic:'Эпический',legendary:'Легендарный'};
 const RARITY_CLASS={common:'r-common',uncommon:'r-common',rare:'r-epic',epic:'r-epic',legendary:'r-legendary'};
 
-const state={tab:'scan',scanned:['oak','birch','pine','spruce'],pts:284,planted:12,ppts:224,spts:60,currentTree:'oak',currentPhoto:null,discovered:{},catalog:{}};
+const state={tab:'scan',scanned:['oak','birch','pine','spruce'],pts:284,planted:12,ppts:224,spts:60,currentTree:'oak',currentPhoto:null,discovered:{},catalog:{},scanCount:0};
 // discovered: {tree_id: {name_ru, name_latin, pts, photo_url, co2, age, rarity:'discovered'}}
 
 
@@ -616,6 +634,9 @@ function showResult(id,conf){
   const sp=document.getElementById('share-photo');
   if(sp)sp.src=state.currentPhoto||'';
   document.getElementById('scan-result').style.display='block';
+  state.scanCount=(state.scanCount||0)+1;
+  const sc=document.getElementById('scan-counter');
+  if(sc)sc.textContent=state.scanCount;
   if(tg)tg.HapticFeedback?.notificationOccurred('success');
 }
 
@@ -647,6 +668,9 @@ function showResultRaw(r){
   document.getElementById('btn-plant').textContent='Посадить дерево — от 99 ₽';
   document.getElementById('share-tree-name').textContent=r.name_ru;
   document.getElementById('scan-result').style.display='block';
+  state.scanCount=(state.scanCount||0)+1;
+  const sc2=document.getElementById('scan-counter');
+  if(sc2)sc2.textContent=state.scanCount;
 }
 
 function showUnknown(){
@@ -717,7 +741,7 @@ function renderAchievements(){
     const photoUrl = TREE_PHOTOS[id] || t.photo_url || (state.catalog[id] && state.catalog[id].photo_url) || '';
     const imgStyle = `width:32px;height:32px;border-radius:8px;object-fit:cover;${f?'':'filter:grayscale(1) brightness(0.25);'}`;
     const tilePhoto = photoUrl
-      ? `<img src="${photoUrl}" alt="${t.name||id}" style="${imgStyle}" onerror="this.onerror=null;this.src='https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Quercus_robur_1.jpg/200px-Quercus_robur_1.jpg&w=64&h=64&fit=cover'">`
+      ? `<img src="${photoUrl}" alt="${t.name||id}" style="${imgStyle}" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Quercus_robur_1.jpg/200px-Quercus_robur_1.jpg&w=64&h=64&fit=cover'">`
       : `<img src="https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Quercus_robur_1.jpg/200px-Quercus_robur_1.jpg&w=64&h=64&fit=cover" alt="${t.name||id}" style="${imgStyle}">`;
     const displayName = (t.name||id).split(' ').slice(0,2).join(' ');
     return`<div class="tile ${cls}" onclick="tileClick('${id}')" role="button" aria-label="${t.name||id}${f?' — открыто':''}">
