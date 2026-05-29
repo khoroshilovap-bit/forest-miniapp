@@ -277,17 +277,17 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
     <div class="sec-label">Последние определения</div>
     <div class="card">
       <div class="feed-item">
-        <div class="feed-icon"><img src="https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Pinus_sylvestris_Loimaa_1.jpg/400px-Pinus_sylvestris_Loimaa_1.jpg&w=64&h=64&fit=cover" alt="Сосна" style="width:32px;height:32px;border-radius:9px;object-fit:cover;" onerror="this.style.display='none'"></div>
+        <div class="feed-icon"><img src="http://158.160.221.139:8000/photos/pine.jpg" alt="Сосна" style="width:32px;height:32px;border-radius:9px;object-fit:cover;" onerror="this.style.display='none'"></div>
         <div><div class="feed-name">Сосна обыкновенная</div><div class="feed-meta">вчера · 98% · Сибирь</div></div>
         <div class="feed-pts">+4 pts</div>
       </div>
       <div class="feed-item">
-        <div class="feed-icon"><img src="https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/9/96/Betula_pendula_003.jpg/400px-Betula_pendula_003.jpg&w=64&h=64&fit=cover" alt="Берёза" style="width:32px;height:32px;border-radius:9px;object-fit:cover;" onerror="this.style.display='none'"></div>
+        <div class="feed-icon"><img src="http://158.160.221.139:8000/photos/birch.jpg" alt="Берёза" style="width:32px;height:32px;border-radius:9px;object-fit:cover;" onerror="this.style.display='none'"></div>
         <div><div class="feed-name">Берёза повислая</div><div class="feed-meta">3 дня назад · 94% · Урал</div></div>
         <div class="feed-pts">+2 pts</div>
       </div>
       <div class="feed-item">
-        <div class="feed-icon"><img src="https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Pinus_sibirica_Altay.jpg/400px-Pinus_sibirica_Altay.jpg&w=64&h=64&fit=cover" alt="Кедр" style="width:32px;height:32px;border-radius:9px;object-fit:cover;" onerror="this.style.display='none'"></div>
+        <div class="feed-icon"><img src="http://158.160.221.139:8000/photos/cedar.jpg" alt="Кедр" style="width:32px;height:32px;border-radius:9px;object-fit:cover;" onerror="this.style.display='none'"></div>
         <div><div class="feed-name" style="color:#c4844a;">Кедр сибирский</div><div class="feed-meta">неделю назад · 91% · Алтай</div></div>
         <div class="feed-pts" style="color:#c4844a;">+18 pts</div>
       </div>
@@ -517,28 +517,27 @@ const TREES={
 };
 
 const TREE_PHOTOS={
-  oak:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Quercus_robur_1.jpg/400px-Quercus_robur_1.jpg&w=64&h=64&fit=cover&output=webp&q=60',
-  birch:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/9/96/Betula_pendula_003.jpg/400px-Betula_pendula_003.jpg&w=64&h=64&fit=cover&output=webp&q=60',
-  pine:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Pinus_sylvestris_Loimaa_1.jpg/400px-Pinus_sylvestris_Loimaa_1.jpg&w=64&h=64&fit=cover&output=webp&q=60',
-  spruce:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Picea_abies_Soomaa.jpg/400px-Picea_abies_Soomaa.jpg&w=64&h=64&fit=cover&output=webp&q=60',
-  linden:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Tilia_cordata_2.jpg/400px-Tilia_cordata_2.jpg&w=64&h=64&fit=cover&output=webp&q=60',
-  cedar:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Pinus_sibirica_Altay.jpg/400px-Pinus_sibirica_Altay.jpg&w=64&h=64&fit=cover&output=webp&q=60',
-  fir:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/3/35/Abies_sibirica_perm.jpg/400px-Abies_sibirica_perm.jpg&w=64&h=64&fit=cover&output=webp&q=60',
-  lotus:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Nelumbo_nucifera_flower.jpg/400px-Nelumbo_nucifera_flower.jpg&w=64&h=64&fit=cover&output=webp&q=60',
-  maple:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Acer_platanoides_1.jpg/400px-Acer_platanoides_1.jpg&w=64&h=64&fit=cover&output=webp&q=60',
+  oak:'http://158.160.221.139:8000/photos/oak.jpg',
+  birch:'http://158.160.221.139:8000/photos/birch.jpg',
+  pine:'http://158.160.221.139:8000/photos/pine.jpg',
+  spruce:'http://158.160.221.139:8000/photos/spruce.jpg',
+  linden:'http://158.160.221.139:8000/photos/linden.jpg',
+  cedar:'http://158.160.221.139:8000/photos/cedar.jpg',
+  fir:'http://158.160.221.139:8000/photos/fir.jpg',
+  lotus:'http://158.160.221.139:8000/photos/lotus.jpg',
+  maple:'http://158.160.221.139:8000/photos/maple.jpg',
 };
 
-// Полноразмерные фото для модального окна
 const TREE_PHOTOS_FULL={
-  oak:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Quercus_robur_1.jpg/400px-Quercus_robur_1.jpg&w=400&h=300&fit=cover&output=webp&q=80',
-  birch:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/9/96/Betula_pendula_003.jpg/400px-Betula_pendula_003.jpg&w=400&h=300&fit=cover&output=webp&q=80',
-  pine:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Pinus_sylvestris_Loimaa_1.jpg/400px-Pinus_sylvestris_Loimaa_1.jpg&w=400&h=300&fit=cover&output=webp&q=80',
-  spruce:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Picea_abies_Soomaa.jpg/400px-Picea_abies_Soomaa.jpg&w=400&h=300&fit=cover&output=webp&q=80',
-  linden:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Tilia_cordata_2.jpg/400px-Tilia_cordata_2.jpg&w=400&h=300&fit=cover&output=webp&q=80',
-  cedar:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Pinus_sibirica_Altay.jpg/400px-Pinus_sibirica_Altay.jpg&w=400&h=300&fit=cover&output=webp&q=80',
-  fir:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/3/35/Abies_sibirica_perm.jpg/400px-Abies_sibirica_perm.jpg&w=400&h=300&fit=cover&output=webp&q=80',
-  lotus:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Nelumbo_nucifera_flower.jpg/400px-Nelumbo_nucifera_flower.jpg&w=400&h=300&fit=cover&output=webp&q=80',
-  maple:'https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Acer_platanoides_1.jpg/400px-Acer_platanoides_1.jpg&w=400&h=300&fit=cover&output=webp&q=80',
+  oak:'http://158.160.221.139:8000/photos/oak.jpg',
+  birch:'http://158.160.221.139:8000/photos/birch.jpg',
+  pine:'http://158.160.221.139:8000/photos/pine.jpg',
+  spruce:'http://158.160.221.139:8000/photos/spruce.jpg',
+  linden:'http://158.160.221.139:8000/photos/linden.jpg',
+  cedar:'http://158.160.221.139:8000/photos/cedar.jpg',
+  fir:'http://158.160.221.139:8000/photos/fir.jpg',
+  lotus:'http://158.160.221.139:8000/photos/lotus.jpg',
+  maple:'http://158.160.221.139:8000/photos/maple.jpg',
 };
 
 const RARITY_LABELS={common:'Обычный',uncommon:'Необычный',rare:'Редкий',epic:'Эпический',legendary:'Легендарный'};
@@ -820,7 +819,7 @@ function renderAchievements(){
     const photoUrl = TREE_PHOTOS[id] || t.photo_url || (state.catalog[id] && state.catalog[id].photo_url) || '';
     const imgStyle = `width:32px;height:32px;border-radius:8px;object-fit:cover;${f?'':'filter:grayscale(1) brightness(0.25);'}`;
     const tilePhoto = photoUrl
-      ? `<img src="${photoUrl}" alt="${t.name||id}" style="${imgStyle}" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Quercus_robur_1.jpg/200px-Quercus_robur_1.jpg&w=64&h=64&fit=cover'">`
+      ? `<img src="${photoUrl}" alt="${t.name||id}" style="${imgStyle}" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='http://158.160.221.139:8000/photos/oak.jpg'">`
       : `<img src="https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Quercus_robur_1.jpg/200px-Quercus_robur_1.jpg&w=64&h=64&fit=cover" alt="${t.name||id}" style="${imgStyle}">`;
     const displayName = (t.name||id).split(' ').slice(0,2).join(' ');
     return`<div class="tile ${cls}" onclick="tileClick('${id}')" role="button" aria-label="${t.name||id}${f?' — открыто':''}">
@@ -931,3 +930,4 @@ fetch(SERVER_URL+'/stats').then(r=>r.json()).then(d=>{
 </script>
 </body>
 </html>
+
