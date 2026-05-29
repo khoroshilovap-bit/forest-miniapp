@@ -209,15 +209,27 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
     <div><div class="hdr-title">Сохрани Лес</div><div class="hdr-sub">Определитель растений</div></div>
   </div>
 
-  <div class="scan-zone" onclick="document.getElementById('file-input').click()" role="button" aria-label="Сфотографировать растение">
+  <div class="scan-zone" role="region" aria-label="Сфотографировать растение">
     <div class="sc tl"></div><div class="sc tr"></div><div class="sc bl"></div><div class="sc br"></div>
     <div class="scan-ring"><div class="scan-ring-in">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2d6b42" stroke-width="1.5" aria-hidden="true"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
     </div></div>
-    <div class="scan-title">Сфотографировать</div>
+    <div class="scan-title">Определить растение</div>
     <div class="scan-hint">Лист, кора, ветка или всё дерево<br>ИИ определит вид за 3 секунды</div>
+    <div style="display:flex;gap:8px;width:100%;margin-top:4px;">
+      <button onclick="document.getElementById('input-camera').click()" style="flex:1;padding:10px 8px;border-radius:12px;background:#0c1410;border:.5px solid #2d6b42;color:#5dbb85;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5dbb85" stroke-width="1.8" aria-hidden="true"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        Камера
+      </button>
+      <button onclick="document.getElementById('input-gallery').click()" style="flex:1;padding:10px 8px;border-radius:12px;background:#0c1410;border:.5px solid #1a2e20;color:#3a5444;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3a5444" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Галерея
+      </button>
+    </div>
   </div>
-  <input type="file" id="file-input" accept="image/*" onchange="handlePhoto(event)" aria-label="Выбрать фото">
+  <input type="file" id="input-camera" accept="image/*" capture="environment" onchange="handlePhoto(event)" style="display:none">
+  <input type="file" id="input-gallery" accept="image/*" onchange="handlePhoto(event)" style="display:none">
+  <input type="file" id="file-input" accept="image/*" onchange="handlePhoto(event)" style="display:none">
 
   <div class="loading" id="scan-loading" aria-live="polite">
     <div class="spinner" aria-hidden="true"></div>
@@ -562,9 +574,12 @@ function resetScan(){
   document.getElementById('scan-result').style.display='none';
   document.getElementById('scan-loading').classList.remove('show');
   document.getElementById('scan-home').style.display='block';
-  const fi = document.getElementById('file-input');
-  fi.value='';
-  try { fi.type='text'; fi.type='file'; } catch(e) {}
+  ['file-input','input-camera','input-gallery'].forEach(id=>{
+    const fi=document.getElementById(id);
+    if(!fi)return;
+    fi.value='';
+    try{fi.type='text';fi.type='file';}catch(e){}
+  });
   state.currentPhoto=null;
 }
 
