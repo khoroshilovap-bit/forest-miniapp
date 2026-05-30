@@ -663,6 +663,8 @@ async function handlePhoto(e) {
     if (!data.ok) throw new Error(data.error || 'Ошибка сервера');
 
     const res = data.result;
+    // Сервер может вернуть name или name_ru — поддерживаем оба
+    if (res && res.name && !res.name_ru) res.name_ru = res.name;
     if (!res || !res.name_ru) {
       showUnknown();
       return;
