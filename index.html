@@ -585,7 +585,7 @@ async function loadUserData() {
       state.pts = data.total_points || 0;
       state.spts = data.scan_points || 0;
       state.scanned = data.scanned || [];
-      state.personalScans = state.scanned.length;
+      state.personalScans = data.total_scans || state.scanned.length;
       state.firstName = data.first_name || state.firstName;
       state.rank = data.rank || 1;
       state.friends = data.friends || 0;
@@ -636,7 +636,7 @@ function switchTab(t) {
   if (screen) screen.classList.add('active');
   if (nav) { nav.classList.add('on'); nav.setAttribute('aria-selected','true'); }
   state.tab = t;
-  if (t === 'achievements') renderAchievements();
+  if (t === 'achievements') { loadUserData().then(() => renderAchievements()); }
   if (tg) tg.HapticFeedback?.selectionChanged();
 }
 
