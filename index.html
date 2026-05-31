@@ -583,9 +583,12 @@ async function loadUserData() {
     const data = await resp.json();
     if (data.found) {
       state.pts = data.total_points || 0;
+      state.spts = data.scan_points || 0;
       state.scanned = data.scanned || [];
       state.personalScans = state.scanned.length;
       state.firstName = data.first_name || state.firstName;
+      state.rank = data.rank || 1;
+      state.friends = data.friends || 0;
       if (nameEl) nameEl.textContent = state.firstName;
       renderAchievements();
     }
@@ -934,8 +937,13 @@ function renderAchievements() {
     return 0;
   });
 
-  const openCount = allEntries.filter(e => e.found).length;
-  document.getElementById('cat-count').textContent = openCount + ' / ' + allEntries.length + ' открыто';
+  // Считаем все открытые: из каталога + из БД которых нет в каталоге
+  const openInCatalog = allEntries.filter(e => e.found).length;
+  const allKnownIds = Object.keys(TREES);
+  const extraScanned = state.scanned.filter(id => !allKnownIds.includes(id)).length;
+  const openCount = openInCatalog + extraScanned;
+  const totalCount = allEntries.length + extraScanned;
+  document.getElementById('cat-count').textContent = openCount + ' / ' + totalCount + ' открыто';
 
   const grid = document.getElementById('tree-grid');
   grid.innerHTML = allEntries.map(entry => {
