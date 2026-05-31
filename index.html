@@ -223,7 +223,8 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
     </div>
 
     <div class="sec-label">Последние определения</div>
-    <div class="card">
+    <div class="card" id="recent-feed-wrap">
+      <div id="recent-feed">
       <div class="feed-item">
         <div class="feed-icon"><img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgeD0iMzAiIHk9IjQ0IiB3aWR0aD0iNCIgaGVpZ2h0PSIxNCIgcng9IjEiIGZpbGw9IiM2ZDRjNDEiLz48cG9seWdvbiBwb2ludHM9IjMyLDQgNDQsMjggMjAsMjgiIGZpbGw9IiMyZTdkMzIiLz48cG9seWdvbiBwb2ludHM9IjMyLDE0IDQ2LDM2IDE4LDM2IiBmaWxsPSIjMzg4ZTNjIi8+PHBvbHlnb24gcG9pbnRzPSIzMiwyNCA0OCw0OCAxNiw0OCIgZmlsbD0iIzQzYTA0NyIvPjwvc3ZnPg==" alt="Сосна" style="width:32px;height:32px;border-radius:9px;object-fit:cover"></div>
         <div><div class="feed-name">Сосна обыкновенная</div><div class="feed-meta">вчера · 98% · Сибирь</div></div>
@@ -238,6 +239,7 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
         <div class="feed-icon"><img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgeD0iMjkiIHk9IjQ0IiB3aWR0aD0iNiIgaGVpZ2h0PSIxNCIgcng9IjIiIGZpbGw9IiM0ZTM0MmUiLz48cG9seWdvbiBwb2ludHM9IjMyLDIgMzgsMTQgMjYsMTQiIGZpbGw9IiMxYTIzN2UiIG9wYWNpdHk9IjAuOCIvPjxwb2x5Z29uIHBvaW50cz0iMzIsNiA0MiwyMiAyMiwyMiIgZmlsbD0iIzFiNWUyMCIvPjxwb2x5Z29uIHBvaW50cz0iMzIsMTQgNDUsMzAgMTksMzAiIGZpbGw9IiMyZTdkMzIiLz48cG9seWdvbiBwb2ludHM9IjMyLDIyIDQ4LDQyIDE2LDQyIiBmaWxsPSIjMzg4ZTNjIi8+PC9zdmc+" alt="Кедр" style="width:32px;height:32px;border-radius:9px;object-fit:cover"></div>
         <div><div class="feed-name" style="color:#c4844a">Кедр сибирский</div><div class="feed-meta">неделю назад · 91% · Алтай</div></div>
         <div class="feed-pts" style="color:#c4844a">+18 pts</div>
+      </div>
       </div>
     </div>
   </div><!-- /scan-home -->
@@ -341,7 +343,7 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
         </div>
       </div>
       <div class="pts-row">
-        <div class="pts-chip"><div class="pts-n" id="u-planted">0</div><div class="pts-l">Деревьев</div></div>
+        <div class="pts-chip"><div class="pts-n" id="u-fpts">0</div><div class="pts-l">За друзей</div></div>
         <div class="pts-chip"><div class="pts-n" id="u-ppts">0</div><div class="pts-l">За посадку</div></div>
         <div class="pts-chip"><div class="pts-n" id="u-spts">0</div><div class="pts-l">За сканы</div></div>
       </div>
@@ -564,6 +566,8 @@ const state = {
   firstName: '',
   rank: 1,
   friends: 0,
+  fpts: 0,
+  uniqueTrees: 0,
   currentScanId: null,
 };
 
@@ -584,8 +588,10 @@ async function loadUserData() {
     if (data.found) {
       state.pts = data.total_points || 0;
       state.spts = data.scan_points || 0;
+      state.fpts = data.friend_points || 0;
       state.scanned = data.scanned || [];
       state.personalScans = data.total_scans || state.scanned.length;
+      state.uniqueTrees = data.unique_trees || state.scanned.length;
       state.firstName = data.first_name || state.firstName;
       state.rank = data.rank || 1;
       state.friends = data.friends || 0;
@@ -626,6 +632,40 @@ async function loadUserData() {
       if (el) el.textContent = '1.2к';
     });
 })();
+
+// Последние сканирования
+async function loadRecentScans() {
+  if (!state.telegramId) return;
+  try {
+    const resp = await fetch(SERVER_URL + '/recent?telegram_id=' + state.telegramId);
+    const data = await resp.json();
+    if (!data.items || !data.items.length) return;
+    const feed = document.getElementById('recent-feed');
+    if (!feed) return;
+    const RARITY_COLORS = {common:'#3a7a52',uncommon:'#3a7a52',epic:'#c4844a',legendary:'#9060d0',discovered:'#3a7a52'};
+    feed.innerHTML = data.items.map(item => {
+      const date = item.scanned_at ? new Date(item.scanned_at) : null;
+      const dateStr = date ? formatDate(date) : '';
+      const color = RARITY_COLORS[item.rarity] || '#3a7a52';
+      const icon = TREE_ICONS[item.tree_id] || TREE_ICONS._default;
+      return `<div class="feed-item">
+        <div class="feed-icon"><img src="data:image/svg+xml;base64,${icon}" alt="${item.name_ru}" style="width:32px;height:32px;object-fit:contain"></div>
+        <div><div class="feed-name" style="color:${color}">${item.name_ru}</div><div class="feed-meta">${dateStr}</div></div>
+        <div class="feed-pts" style="color:${color}">${item.points_earned > 0 ? '+' + item.points_earned + ' pts' : '✓'}</div>
+      </div>`;
+    }).join('');
+  } catch(e) { console.log('loadRecentScans error:', e); }
+}
+
+function formatDate(date) {
+  const now = new Date();
+  const diff = Math.floor((now - date) / 1000);
+  if (diff < 60) return 'только что';
+  if (diff < 3600) return Math.floor(diff/60) + ' мин назад';
+  if (diff < 86400) return Math.floor(diff/3600) + ' ч назад';
+  if (diff < 604800) return Math.floor(diff/86400) + ' дн назад';
+  return date.toLocaleDateString('ru-RU');
+}
 
 // ─── НАВИГАЦИЯ ──────────────────────────────────────────────────────────────
 function switchTab(t) {
@@ -903,11 +943,11 @@ function resetScan() {
 // ─── КАТАЛОГ ДОСТИЖЕНИЙ ─────────────────────────────────────────────────────
 function renderAchievements() {
   document.getElementById('u-pts').textContent = state.pts;
-  document.getElementById('u-planted').textContent = state.planted;
-  document.getElementById('u-ppts').textContent = state.ppts;
-  document.getElementById('u-spts').textContent = state.spts;
-  document.getElementById('u-scans-count').textContent = state.personalScans;
-  document.getElementById('u-unique-count').textContent = state.scanned.length + Object.keys(state.discovered).length;
+  if (document.getElementById('u-fpts')) document.getElementById('u-fpts').textContent = state.fpts || 0;
+  document.getElementById('u-ppts').textContent = state.ppts || 0;
+  document.getElementById('u-spts').textContent = state.spts || 0;
+  document.getElementById('u-scans-count').textContent = state.personalScans || 0;
+  document.getElementById('u-unique-count').textContent = state.uniqueTrees || (state.scanned.length + Object.keys(state.discovered).length);
   if (state.rank) document.getElementById('u-rank').textContent = '#' + state.rank + ' в рейтинге';
   if (document.getElementById('u-friends')) document.getElementById('u-friends').textContent = state.friends || 0;
   // Прогресс бар
@@ -1077,7 +1117,7 @@ function shareNative() {
 
 // ─── ПЕРВЫЙ ЗАПУСК ──────────────────────────────────────────────────────────
 renderAchievements();
-loadUserData();
+loadUserData().then(() => loadRecentScans());
 </script>
 </body>
 </html>
