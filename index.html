@@ -68,6 +68,8 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
 .r-common{background:rgba(6,10,7,.85);border:.5px solid var(--b2);color:var(--t4)}
 .r-epic{background:rgba(26,18,8,.85);border:.5px solid var(--amb);color:var(--am)}
 .r-legendary{background:rgba(20,10,32,.85);border:.5px solid var(--pub);color:var(--pu)}
+.r-rare{background:rgba(6,18,10,.9);border:.5px solid var(--g2);color:var(--g3)}
+.r-not-tree{background:rgba(6,10,7,.85);border:.5px solid var(--b2);color:var(--t3)}
 .tree-name{font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--t1);letter-spacing:-.02em;margin-bottom:2px}
 .tree-latin{font-size:9.5px;color:var(--t4);font-style:italic;letter-spacing:.02em;margin-bottom:11px}
 .co2-row{display:flex;gap:5px;margin-bottom:11px}
@@ -603,8 +605,8 @@ const TREE_ICONS = {
   _default:'PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgeD0iMjkiIHk9IjQwIiB3aWR0aD0iNiIgaGVpZ2h0PSIxNiIgcng9IjIiIGZpbGw9IiM1ZDQwMzciLz48ZWxsaXBzZSBjeD0iMzIiIGN5PSIyNCIgcng9IjE0IiByeT0iMTQiIGZpbGw9IiMyZTdkMzIiLz48ZWxsaXBzZSBjeD0iMjIiIGN5PSIyOCIgcng9IjkiIHJ5PSI5IiBmaWxsPSIjMzg4ZTNjIi8+PGVsbGlwc2UgY3g9IjQyIiBjeT0iMjgiIHJ4PSI5IiByeT0iOSIgZmlsbD0iIzM4OGUzYyIvPjxlbGxpcHNlIGN4PSIzMiIgY3k9IjE4IiByeD0iMTAiIHJ5PSIxMCIgZmlsbD0iIzQzYTA0NyIvPjwvc3ZnPg=='
 };
 
-const RARITY_LABELS = {common:'Обычный',uncommon:'Необычный',epic:'Эпический',legendary:'Легендарный',discovered:'Открыто'};
-const RARITY_CLASS  = {common:'r-common',uncommon:'r-common',epic:'r-epic',legendary:'r-legendary',discovered:'r-common'};
+const RARITY_LABELS = {common:'Обычный',uncommon:'Необычный',epic:'Эпический',legendary:'Легендарный',discovered:'Открыто',rare_find:'🌟 Редкая находка',not_tree:'Не дерево'};
+const RARITY_CLASS  = {common:'r-common',uncommon:'r-common',epic:'r-epic',legendary:'r-legendary',discovered:'r-common',rare_find:'r-rare',not_tree:'r-not-tree'};
 
 // ─── СОСТОЯНИЕ ──────────────────────────────────────────────────────────────
 const state = {
@@ -809,12 +811,20 @@ async function handlePhoto(e) {
       return;
     }
 
-    // Определяем: есть дерево в каталоге или нет
+    // Не дерево — показываем отбивку без очков
+    if (data.is_tree === false || res.is_tree === false) {
+      showNotTree(res);
+      return;
+    }
+
+    // Определяем: есть дерево в каталоге или редкая находка
     const treeId = res.tree_id || null;
+    const isRareFind = data.is_rare_find === true;
+
     if (treeId && TREES[treeId]) {
       showKnownResult(treeId, res.confidence || 90);
     } else {
-      showRawResult(res);
+      showRawResult(res, isRareFind, data.points_earned || 0, data.is_new_species !== false);
     }
 
   } catch (err) {
@@ -846,38 +856,99 @@ function showKnownResult(treeId, confidence) {
   if (state.telegramId) setTimeout(loadUserData, 2000);
 }
 
-// Показать результат для неизвестного дерева (ИИ распознал, но нет в каталоге)
-function showRawResult(res) {
+// Показать результат для неизвестного дерева (ИИ распознал, но нет в каталоге) — редкая находка
+function showRawResult(res, isRareFind, ptsFromServer, isNew) {
   const treeId = 'disc_' + Date.now();
   state.currentTree = treeId;
   state.currentName = res.name_ru || 'Растение';
+
+  const pts = isRareFind ? (ptsFromServer || 10) : 3;
+  const rarity = isRareFind ? 'rare_find' : 'discovered';
 
   // Сохраняем в discovered
   state.discovered[treeId] = {
     name: res.name_ru,
     latin: (res.name_latin || '') + (res.family ? ' · ' + res.family : ''),
-    pts: 3,
-    rarity: 'discovered',
+    pts,
+    rarity,
     co2: res.co2_per_year || null,
     max_age: res.max_age || null,
     facts: res.facts || [],
     threat: res.threat || ''
   };
-  state.personalScans++;
-  setTimeout(() => showCongrats(res.name_ru || 'Растение', 3), 600);
+
+  if (isNew !== false) {
+    state.personalScans++;
+    if (isRareFind) {
+      state.pts += pts;
+      state.spts += pts;
+    }
+    setTimeout(() => showCongrats(res.name_ru || 'Растение', pts, isRareFind), 600);
+  }
 
   _fillResultScreen(
     res.name_ru,
     (res.name_latin || '') + (res.family ? ' · ' + res.family : ''),
     res.confidence || 90,
-    'discovered',
+    rarity,
     res.co2_per_year || null,
     res.max_age || null,
     null,
     res.facts || [],
     res.threat || '',
-    3
+    pts
   );
+}
+
+// Показать отбивку "не дерево" — очки не начисляются
+function showNotTree(res) {
+  state.currentTree = null;
+  state.currentScanId = null;
+  state.currentName = res.name_ru || 'Растение';
+
+  document.getElementById('result-photo').src = state.currentPhoto || '';
+  const rw = document.getElementById('ref-photo-wrap');
+  if (rw) rw.style.display = 'none';
+
+  document.getElementById('match-badge').textContent = (res.confidence || 90) + '% совпадение';
+
+  const rb = document.getElementById('rarity-badge');
+  rb.textContent = '🌿 Не дерево';
+  rb.className = 'badge-rarity r-not-tree';
+
+  document.getElementById('result-name').textContent = res.name_ru || 'Растение';
+  document.getElementById('result-latin').textContent = (res.name_latin || '') + (res.family ? ' · ' + res.family : '');
+
+  // CO2 без очков — только данные если есть
+  let co2html = '';
+  if (res.co2_per_year) co2html += `<div class="co2-chip"><div class="co2-n">${res.co2_per_year} кг</div><div class="co2-l">CO₂<br>в год</div></div>`;
+  if (res.max_age)      co2html += `<div class="co2-chip"><div class="co2-n">${res.max_age}</div><div class="co2-l">лет<br>живёт</div></div>`;
+  co2html += `<div class="co2-chip" style="opacity:.5"><div class="co2-n">—</div><div class="co2-l">очков<br>не начисляется</div></div>`;
+  document.getElementById('co2-row').innerHTML = co2html;
+
+  document.getElementById('result-facts').innerHTML = (res.facts || [])
+    .map(f => `<div class="fact"><div class="fact-bar"></div><div class="fact-txt">${f}</div></div>`)
+    .join('') || `<div class="fact"><div class="fact-bar"></div><div class="fact-txt">Это не дерево — очки за него не начисляются. Найди дерево или кустарник!</div></div>`;
+
+  const tw = document.getElementById('result-threat-wrap');
+  if (res.threat) {
+    document.getElementById('result-threat-txt').textContent = res.threat;
+    tw.style.display = 'block';
+  } else {
+    tw.style.display = 'none';
+  }
+
+  document.getElementById('btn-plant').textContent = 'Посадить дерево — от 99 ₽';
+  document.getElementById('share-tree-name').textContent = res.name_ru || 'Растение';
+  const sp = document.getElementById('share-photo');
+  if (sp) sp.src = state.currentPhoto || '';
+
+  // Фидбек скрываем — скан не записан
+  const fbRow = document.getElementById('feedback-row');
+  if (fbRow) fbRow.style.display = 'none';
+
+  document.getElementById('scan-result').style.display = 'block';
+  if (tg) tg.HapticFeedback?.notificationOccurred('warning');
 }
 
 // Показать "не определено"
@@ -1303,10 +1374,24 @@ function showOnboardingIfNeeded() {
 }
 
 // ─── ПОЗДРАВЛЕНИЕ ────────────────────────────────────────────────────────────
-function showCongrats(name, pts) {
+function showCongrats(name, pts, isRareFind) {
   // Скрываем онбординг если он показан
   document.getElementById('onboarding').classList.add('hidden');
   const overlay = document.getElementById('congrats-overlay');
+  const box = document.getElementById('congrats-box');
+
+  if (isRareFind) {
+    box.style.borderColor = 'var(--g2)';
+    overlay.querySelector('.congrats-emoji').textContent = '🌟';
+    overlay.querySelector('.congrats-title').textContent = 'Редкая находка!';
+    overlay.querySelector('.congrats-title').style.color = 'var(--g3)';
+  } else {
+    box.style.borderColor = '';
+    overlay.querySelector('.congrats-emoji').textContent = '🌿';
+    overlay.querySelector('.congrats-title').textContent = 'Новый вид открыт!';
+    overlay.querySelector('.congrats-title').style.color = '';
+  }
+
   document.getElementById('congrats-pts').textContent = '+' + pts + ' очков';
   document.getElementById('congrats-name').textContent = name;
   overlay.classList.remove('hidden');
