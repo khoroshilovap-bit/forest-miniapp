@@ -664,7 +664,7 @@ function switchTab(t) {
   if (screen) screen.classList.add('active');
   if (nav) { nav.classList.add('on'); nav.setAttribute('aria-selected','true'); }
   state.tab = t;
-  if (t === 'achievements') { loadUserData().then(() => renderAchievements()); }
+  if (t === 'achievements') { loadTreesCatalog().then(() => loadUserData().then(() => renderAchievements())); }
   if (tg) tg.HapticFeedback?.selectionChanged();
 }
 
@@ -973,6 +973,7 @@ function renderAchievements() {
   const totalCount = allEntries.length + extraScanned;
   document.getElementById('cat-count').textContent = openCount + ' / ' + totalCount + ' открыто';
 
+  console.log('cedar pts:', TREES['cedar']?.pts, 'lotus pts:', TREES['lotus']?.pts);
   const grid = document.getElementById('tree-grid');
   grid.innerHTML = allEntries.map(entry => {
     const { id, name, pts, rarity, found } = entry;
@@ -1122,8 +1123,10 @@ async function loadTreesCatalog() {
 }
 
 // ─── ПЕРВЫЙ ЗАПУСК ──────────────────────────────────────────────────────────
-renderAchievements();
-loadTreesCatalog().then(() => loadUserData().then(() => loadRecentScans()));
+loadTreesCatalog().then(() => {
+  renderAchievements();
+  loadUserData().then(() => loadRecentScans());
+});
 </script>
 </body>
 </html>
