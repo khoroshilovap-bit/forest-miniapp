@@ -864,6 +864,7 @@ function showRawResult(res) {
     threat: res.threat || ''
   };
   state.personalScans++;
+  setTimeout(() => showCongrats(res.name_ru || 'Растение', 3), 600);
 
   _fillResultScreen(
     res.name_ru,
