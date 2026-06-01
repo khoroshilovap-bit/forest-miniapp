@@ -1103,9 +1103,27 @@ function shareNative() {
   }
 }
 
+// ─── СИНХРОНИЗАЦИЯ ОЧКОВ ИЗ БД ─────────────────────────────────────────────
+async function loadTreesCatalog() {
+  try {
+    const resp = await fetch(SERVER_URL + '/trees');
+    const data = await resp.json();
+    if (!data.trees || !data.trees.length) return;
+    data.trees.forEach(t => {
+      if (TREES[t.tree_id]) {
+        TREES[t.tree_id].pts = t.points;
+        TREES[t.tree_id].rarity = t.rarity;
+      }
+    });
+    console.log('Каталог синхронизирован из БД: ' + data.trees.length + ' деревьев');
+  } catch(e) {
+    console.log('loadTreesCatalog error:', e);
+  }
+}
+
 // ─── ПЕРВЫЙ ЗАПУСК ──────────────────────────────────────────────────────────
 renderAchievements();
-loadUserData().then(() => loadRecentScans());
+loadTreesCatalog().then(() => loadUserData().then(() => loadRecentScans()));
 </script>
 </body>
 </html>
