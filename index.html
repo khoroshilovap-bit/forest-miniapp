@@ -285,7 +285,7 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
   </div>
   <div class="sec-label">Ссылка на бота</div>
   <div class="link-box" onclick="copyLink()">
-    <span class="link-url">t.me/ForestSherlockBot</span>
+    <span class="link-url" id="ref-link-display">t.me/ForestSherlockBot</span>
     <span class="copy-badge" id="copy-badge">копировать</span>
   </div>
   <div style="font-size:9px;color:var(--g2);text-align:center;margin-bottom:5px;letter-spacing:.04em">ПОДЕЛИСЬ И ПОЛУЧИ +5 ОЧКОВ ↓</div>
@@ -584,6 +584,9 @@ async function loadUserData() {
       state.rank = data.rank || 1;
       state.friends = data.friends || 0;
       if (nameEl) nameEl.textContent = state.firstName;
+      // Обновляем реферальную ссылку
+      const refLinkEl = document.getElementById('ref-link-display');
+      if (refLinkEl && state.telegramId) refLinkEl.textContent = `t.me/ForestSherlockBot?start=${state.telegramId}`;
       renderAchievements();
     }
   } catch(e) { console.log('loadUserData error:', e); }
@@ -1081,8 +1084,13 @@ function closeModal() {
 }
 
 // ─── ПОДЕЛИТЬСЯ ─────────────────────────────────────────────────────────────
+function getRefLink() {
+  const id = state.telegramId;
+  return id ? `https://t.me/ForestSherlockBot?start=${id}` : 'https://t.me/ForestSherlockBot';
+}
+
 function copyLink() {
-  const url = 'https://t.me/ForestSherlockBot';
+  const url = getRefLink();
   navigator.clipboard?.writeText(url).then(() => {
     const b = document.getElementById('copy-badge');
     b.textContent = 'скопировано';
@@ -1093,7 +1101,7 @@ function copyLink() {
 
 function shareToTelegram() {
   const name = state.currentName || 'дерево';
-  window.open('https://t.me/share/url?url=' + encodeURIComponent('https://t.me/ForestSherlockBot') + '&text=' + encodeURIComponent('Нашёл ' + name + ' с ботом Сохрани Лес! Попробуй: '));
+  window.open('https://t.me/share/url?url=' + encodeURIComponent(getRefLink()) + '&text=' + encodeURIComponent('Нашёл ' + name + ' с ботом Сохрани Лес! Попробуй: '));
 }
 
 function shareNative() {
