@@ -196,7 +196,7 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
 .onboard-skip{font-size:10px;color:var(--t4);text-align:center;margin-top:10px;cursor:pointer;letter-spacing:.04em}
 
 /* Поздравление при новом виде */
-.congrats-overlay{position:fixed;inset:0;z-index:250;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.congrats-overlay{position:fixed;inset:0;z-index:250;pointer-events:all;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(6,10,7,.5)}
 .congrats-box{background:var(--bg1);border:.5px solid var(--g1);border-radius:20px;padding:24px 32px;text-align:center;animation:popIn .4s ease forwards;pointer-events:all}
 .congrats-emoji{font-size:48px;margin-bottom:8px}
 .congrats-title{font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--g3);margin-bottom:4px}
@@ -832,7 +832,8 @@ function showKnownResult(treeId, confidence) {
   state.currentName = t.name;
 
   // Добавляем в открытые
-  if (!state.scanned.includes(treeId)) {
+  const isNew = !state.scanned.includes(treeId);
+  if (isNew) {
     state.scanned.push(treeId);
     state.pts += t.pts;
     state.spts += t.pts;
@@ -1292,11 +1293,15 @@ function showCongrats(name, pts) {
   el.style.cssText = `left:${40 + Math.random()*20}%;top:40%;`;
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 1400);
+  // Автозакрытие через 3 секунды
+  clearTimeout(window._congratsTimer);
+  window._congratsTimer = setTimeout(() => closeCongratsOverlay(), 3000);
   if (tg) tg.HapticFeedback?.notificationOccurred('success');
 }
 
 function closeCongratsOverlay() {
   document.getElementById('congrats-overlay').classList.add('hidden');
+  clearTimeout(window._congratsTimer);
 }
 
 // ─── ПЕРВЫЙ ЗАПУСК ──────────────────────────────────────────────────────────
