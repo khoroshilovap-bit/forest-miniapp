@@ -169,6 +169,43 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .fade-up{animation:fadeUp .3s ease forwards}
+@keyframes popIn{0%{opacity:0;transform:scale(.7)}60%{transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-80px)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+
+/* Онбординг */
+.onboard{position:fixed;inset:0;z-index:300;background:var(--bg0);display:flex;flex-direction:column;padding:32px 24px 24px;animation:fadeUp .3s ease}
+.onboard.hidden{display:none}
+.onboard-dots{display:flex;gap:6px;justify-content:center;margin-bottom:32px}
+.onboard-dot{width:6px;height:6px;border-radius:3px;background:var(--b2);transition:all .3s}
+.onboard-dot.active{width:20px;background:var(--g3)}
+.onboard-slide{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;animation:slideIn .3s ease}
+.onboard-icon{font-size:64px;margin-bottom:8px}
+.onboard-title{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--t1);letter-spacing:-.03em;line-height:1.2}
+.onboard-desc{font-size:13px;color:var(--t3);line-height:1.7;max-width:280px}
+.onboard-steps{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px}
+.onboard-step{display:flex;align-items:center;gap:12px;background:var(--bg1);border:.5px solid var(--b1);border-radius:12px;padding:10px 14px}
+.onboard-step-icon{font-size:20px;flex-shrink:0}
+.onboard-step-txt{font-size:11px;color:var(--t3);line-height:1.5;text-align:left}
+.onboard-levels{display:flex;flex-direction:column;gap:6px;width:100%;max-width:300px}
+.onboard-level{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:var(--bg1);border:.5px solid var(--b1);border-radius:10px}
+.onboard-level-name{font-size:11px;color:var(--t3)}
+.onboard-level-pts{font-size:10px;color:var(--t4)}
+.onboard-btn{width:100%;padding:15px;border-radius:var(--r);background:var(--bg2);border:.5px solid var(--g1);color:var(--g3);font-family:var(--font-body);font-size:13px;font-weight:700;cursor:pointer;margin-top:16px;transition:opacity .15s}
+.onboard-btn:active{opacity:.7}
+.onboard-skip{font-size:10px;color:var(--t4);text-align:center;margin-top:10px;cursor:pointer;letter-spacing:.04em}
+
+/* Поздравление при новом виде */
+.congrats-overlay{position:fixed;inset:0;z-index:250;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.congrats-box{background:var(--bg1);border:.5px solid var(--g1);border-radius:20px;padding:24px 32px;text-align:center;animation:popIn .4s ease forwards;pointer-events:all}
+.congrats-emoji{font-size:48px;margin-bottom:8px}
+.congrats-title{font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--g3);margin-bottom:4px}
+.congrats-pts{font-family:var(--font-head);font-size:28px;font-weight:700;color:var(--g3)}
+.congrats-sub{font-size:11px;color:var(--t4);margin-top:4px}
+.float-pts{position:fixed;font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--g3);pointer-events:none;animation:floatUp 1.2s ease forwards;z-index:260}
+
+/* Подсказки */
+.hint-bubble{background:var(--bg2);border:.5px solid var(--g1);border-radius:12px;padding:8px 12px;font-size:10px;color:var(--g2);text-align:center;margin-bottom:9px;animation:fadeUp .4s ease}
 .feedback-row{display:flex;gap:8px;margin-top:10px;margin-bottom:4px}
 .fb-btn{flex:1;padding:11px 8px;border-radius:12px;font-family:var(--font-body);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;border:none;transition:opacity .15s}
 .fb-btn:active{opacity:.6}
@@ -436,6 +473,33 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
       </div>
       <button onclick="closeModal()" style="width:100%;padding:12px;border-radius:12px;background:#0d1e12;border:.5px solid #1e3828;color:#5dbb85;font-family:var(--font-head);font-size:11px;font-weight:700;cursor:pointer">Закрыть</button>
     </div>
+  </div>
+</div>
+
+<!-- ОНБОРДИНГ -->
+<div class="onboard hidden" id="onboarding">
+  <div class="onboard-dots">
+    <div class="onboard-dot active" id="dot-0"></div>
+    <div class="onboard-dot" id="dot-1"></div>
+    <div class="onboard-dot" id="dot-2"></div>
+  </div>
+  <div class="onboard-slide" id="onboard-slide">
+    <!-- заполняется JS -->
+  </div>
+  <div>
+    <button class="onboard-btn" id="onboard-btn" onclick="onboardNext()">Далее →</button>
+    <div class="onboard-skip" onclick="onboardFinish()">Пропустить</div>
+  </div>
+</div>
+
+<!-- ПОЗДРАВЛЕНИЕ -->
+<div class="congrats-overlay hidden" id="congrats-overlay" onclick="closeCongratsOverlay()">
+  <div class="congrats-box" id="congrats-box">
+    <div class="congrats-emoji">🌿</div>
+    <div class="congrats-title">Новый вид открыт!</div>
+    <div class="congrats-pts" id="congrats-pts">+3</div>
+    <div class="congrats-sub" id="congrats-name">Дуб черешчатый</div>
+    <div style="font-size:10px;color:var(--t4);margin-top:12px">Нажми чтобы закрыть</div>
   </div>
 </div>
 
@@ -773,6 +837,7 @@ function showKnownResult(treeId, confidence) {
     state.pts += t.pts;
     state.spts += t.pts;
     state.personalScans++;
+    setTimeout(() => showCongrats(t.name, t.pts), 600);
   }
 
   _fillResultScreen(t.name, t.latin, confidence, t.rarity, t.co2, t.max_age, t.species, t.facts, t.threat, t.pts);
@@ -1130,7 +1195,112 @@ async function loadTreesCatalog() {
   }
 }
 
+// ─── ОНБОРДИНГ ──────────────────────────────────────────────────────────────
+const ONBOARD_SLIDES = [
+  {
+    icon: '🌲',
+    title: 'Добро пожаловать\nв Сохрани Лес',
+    desc: 'Определяй деревья и растения с помощью ИИ. Собирай коллекцию видов и помогай природе.',
+    content: ''
+  },
+  {
+    icon: '📷',
+    title: 'Как зарабатывать очки',
+    desc: '',
+    steps: [
+      {icon:'📷', txt:'Сканируй новые виды — каждый новый вид приносит очки'},
+      {icon:'🌲', txt:'Сажай деревья — 100 ₽ = 5 очков в нацпарках России'},
+      {icon:'👥', txt:'Приглашай друзей — +5 очков за каждого нового пользователя'},
+    ]
+  },
+  {
+    icon: '🏆',
+    title: 'Уровни эксперта',
+    desc: 'Чем больше видов найдёшь — тем выше уровень',
+    levels: [
+      {name:'🌆 Горожанин', pts:'0 очков'},
+      {name:'🌿 Любитель природы', pts:'50 очков'},
+      {name:'🦶 Следопыт', pts:'150 очков'},
+      {name:'🌳 Лесничий', pts:'300 очков'},
+      {name:'🛡️ Хранитель леса', pts:'600 очков'},
+      {name:'⭐ Легенда леса', pts:'1000 очков'},
+    ]
+  }
+];
+let onboardStep = 0;
+
+function renderOnboardSlide() {
+  const s = ONBOARD_SLIDES[onboardStep];
+  const slide = document.getElementById('onboard-slide');
+  let html = `<div class="onboard-icon">${s.icon}</div>
+    <div class="onboard-title">${s.title.replace('\n','<br>')}</div>`;
+  if (s.desc) html += `<div class="onboard-desc">${s.desc}</div>`;
+  if (s.steps) {
+    html += `<div class="onboard-steps">` + s.steps.map(st =>
+      `<div class="onboard-step"><div class="onboard-step-icon">${st.icon}</div><div class="onboard-step-txt">${st.txt}</div></div>`
+    ).join('') + `</div>`;
+  }
+  if (s.levels) {
+    html += `<div class="onboard-levels">` + s.levels.map(l =>
+      `<div class="onboard-level"><span class="onboard-level-name">${l.name}</span><span class="onboard-level-pts">${l.pts}</span></div>`
+    ).join('') + `</div>`;
+  }
+  slide.innerHTML = html;
+  slide.style.animation = 'none';
+  setTimeout(() => slide.style.animation = 'slideIn .3s ease', 10);
+  // Dots
+  ONBOARD_SLIDES.forEach((_, i) => {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'onboard-dot' + (i === onboardStep ? ' active' : '');
+  });
+  const btn = document.getElementById('onboard-btn');
+  if (btn) btn.textContent = onboardStep < ONBOARD_SLIDES.length - 1 ? 'Далее →' : 'Начать 🌿';
+}
+
+function onboardNext() {
+  if (onboardStep < ONBOARD_SLIDES.length - 1) {
+    onboardStep++;
+    renderOnboardSlide();
+  } else {
+    onboardFinish();
+  }
+}
+
+function onboardFinish() {
+  document.getElementById('onboarding').classList.add('hidden');
+  localStorage.setItem('onboard_done', '1');
+}
+
+function showOnboardingIfNeeded() {
+  if (!localStorage.getItem('onboard_done')) {
+    const el = document.getElementById('onboarding');
+    el.classList.remove('hidden');
+    renderOnboardSlide();
+  }
+}
+
+// ─── ПОЗДРАВЛЕНИЕ ────────────────────────────────────────────────────────────
+function showCongrats(name, pts) {
+  const overlay = document.getElementById('congrats-overlay');
+  document.getElementById('congrats-pts').textContent = '+' + pts + ' очков';
+  document.getElementById('congrats-name').textContent = name;
+  overlay.classList.remove('hidden');
+  // Плавающие очки
+  const el = document.createElement('div');
+  el.className = 'float-pts';
+  el.textContent = '+' + pts;
+  el.style.cssText = `left:${40 + Math.random()*20}%;top:40%;`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1400);
+  if (tg) tg.HapticFeedback?.notificationOccurred('success');
+}
+
+function closeCongratsOverlay() {
+  document.getElementById('congrats-overlay').classList.add('hidden');
+}
+
 // ─── ПЕРВЫЙ ЗАПУСК ──────────────────────────────────────────────────────────
+showOnboardingIfNeeded();
 loadTreesCatalog().then(() => {
   renderAchievements();
   loadUserData().then(() => loadRecentScans());
