@@ -13,7 +13,7 @@
   --bg0:#060a07;--bg1:#090f0a;--bg2:#0c1410;--bg3:#101a13;
   --b1:#141e17;--b2:#1a2e20;--b3:#243828;
   --g1:#2d6b42;--g2:#3a7a52;--g3:#5dbb85;
-  --t1:#e4efe8;--t2:#8aaa94;--t3:#3a5444;--t4:#1e3026;
+  --t1:#e4efe8;--t2:#9dbcaa;--t3:#7d9c8a;--t4:#6a8877;
   --am:#c4844a;--ambg:#1a1208;--amb:#5c3a10;
   --pu:#9060d0;--pubg:#140a20;--pub:#4a2080;
   --r:14px;--rs:10px;
@@ -697,6 +697,16 @@ async function loadRecentScans() {
     const resp = await fetch(SERVER_URL + '/recent?telegram_id=' + state.telegramId);
     const data = await resp.json();
     if (!data.items || !data.items.length) return;
+    // Запоминаем имена — по ним подпишем редкие находки в каталоге
+    state.recentNames = state.recentNames || {};
+    let learned = false;
+    data.items.forEach(item => {
+      if (item.tree_id && item.name_ru && item.name_ru !== item.tree_id) {
+        if (state.recentNames[item.tree_id] !== item.name_ru) learned = true;
+        state.recentNames[item.tree_id] = item.name_ru;
+      }
+    });
+    if (learned) renderAchievements();
     const feed = document.getElementById('recent-feed');
     if (!feed) return;
     const RARITY_COLORS = {common:'#3a7a52',uncommon:'#3a7a52',epic:'#c4844a',legendary:'#9060d0',discovered:'#3a7a52'};
@@ -867,7 +877,7 @@ function showKnownResult(treeId, confidence, data) {
   }
 
   _fillResultScreen(t.name, t.latin, confidence, t.rarity, t.co2, t.max_age, t.species, t.facts, t.threat, ptsEarned > 0 ? ptsEarned : t.pts);
-  if (state.telegramId) setTimeout(loadUserData, 2000);
+  if (state.telegramId) setTimeout(() => { loadUserData(); loadRecentScans(); }, 2000);
 }
 
 // Показать результат для неизвестного дерева (ИИ распознал, но нет в каталоге) — редкая находка
@@ -912,7 +922,7 @@ function showRawResult(res, isRareFind, data) {
       setTimeout(() => showCongrats(res.name_ru || 'Растение', pts, isRareFind), 600);
     }
   }
-  if (state.telegramId) setTimeout(loadUserData, 2000);
+  if (state.telegramId) setTimeout(() => { loadUserData(); loadRecentScans(); }, 2000);
 
   _fillResultScreen(
     res.name_ru,
@@ -1122,11 +1132,24 @@ function renderAchievements() {
 
   // Объединяем каталог
   const allEntries = [];
-  Object.entries(TREES).forEach(([id, t]) => {
+  // Основа — каталог с сервера; если он ещё не загрузился, берём локальный
+  const base = Object.keys(CATALOG).length ? CATALOG : TREES;
+  Object.entries(base).forEach(([id, t]) => {
     allEntries.push({ id, name: t.name, pts: t.pts, rarity: t.rarity, found: state.scanned.includes(id) });
   });
+  // Редкие находки — видов нет в каталоге, но пользователь их открыл
+  const seen = new Set(Object.keys(base));
   Object.entries(state.discovered).forEach(([id, t]) => {
+    if (seen.has(id)) return;
+    seen.add(id);
     allEntries.push({ id, name: t.name, pts: t.pts, rarity: 'discovered', found: true });
+  });
+  // Открытые виды, о которых знает только сервер (имя подставим из истории сканов)
+  state.scanned.forEach(id => {
+    if (seen.has(id)) return;
+    seen.add(id);
+    const known = (state.recentNames && state.recentNames[id]) || null;
+    allEntries.push({ id, name: known || id, pts: 10, rarity: 'discovered', found: true });
   });
   // Сортируем: сначала открытые, потом остальные
   allEntries.sort((a, b) => {
@@ -1136,14 +1159,9 @@ function renderAchievements() {
   });
 
   // Считаем все открытые: из каталога + из БД которых нет в каталоге
-  const openInCatalog = allEntries.filter(e => e.found).length;
-  const allKnownIds = Object.keys(TREES);
-  const extraScanned = state.scanned.filter(id => !allKnownIds.includes(id)).length;
-  const openCount = openInCatalog + extraScanned;
-  const totalCount = allEntries.length + extraScanned;
+  const openCount = allEntries.filter(e => e.found).length;
+  const totalCount = allEntries.length;
   document.getElementById('cat-count').textContent = openCount + ' / ' + totalCount + ' открыто';
-
-  console.log('cedar pts:', TREES['cedar']?.pts, 'lotus pts:', TREES['lotus']?.pts);
   const grid = document.getElementById('tree-grid');
   grid.innerHTML = allEntries.map(entry => {
     const { id, name, pts, rarity, found } = entry;
@@ -1280,18 +1298,28 @@ function shareNative() {
 }
 
 // ─── СИНХРОНИЗАЦИЯ ОЧКОВ ИЗ БД ─────────────────────────────────────────────
+// Полный каталог с сервера: все виды из БД, а не только те 48,
+// для которых в этом файле лежат подробные карточки.
+const CATALOG = {};
+
 async function loadTreesCatalog() {
   try {
     const resp = await fetch(SERVER_URL + '/trees');
     const data = await resp.json();
     if (!data.trees || !data.trees.length) return;
     data.trees.forEach(t => {
+      // Очки и редкость всегда берём из БД — она источник истины
       if (TREES[t.tree_id]) {
         TREES[t.tree_id].pts = t.points;
         TREES[t.tree_id].rarity = t.rarity;
       }
+      CATALOG[t.tree_id] = {
+        name: t.name_ru || t.tree_id,
+        pts: t.points,
+        rarity: t.rarity || 'common'
+      };
     });
-    console.log('Каталог синхронизирован из БД: ' + data.trees.length + ' деревьев');
+    console.log('Каталог из БД: ' + Object.keys(CATALOG).length + ' видов');
   } catch(e) {
     console.log('loadTreesCatalog error:', e);
   }
