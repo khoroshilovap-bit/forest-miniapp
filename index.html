@@ -701,8 +701,36 @@ async function loadUserData() {
       const refLinkEl = document.getElementById('ref-link-display');
       if (refLinkEl && state.telegramId) refLinkEl.textContent = `t.me/ForestSherlockBot?start=${state.telegramId}`;
       renderAchievements();
+      registerReferralOnce();
     }
   } catch(e) { console.log('loadUserData error:', e); }
+}
+
+// Кто пригласил: метка ?ref= в адресе приложения либо start_param из Telegram
+function getReferrerId() {
+  try {
+    const fromUrl = new URLSearchParams(window.location.search).get('ref');
+    if (fromUrl) return parseInt(fromUrl, 10) || null;
+  } catch(e) {}
+  const sp = tg?.initDataUnsafe?.start_param;
+  if (sp) return parseInt(String(sp).replace(/\D/g, ''), 10) || null;
+  return null;
+}
+
+let _refSent = false;
+async function registerReferralOnce() {
+  if (_refSent || !state.telegramId) return;
+  const ref = getReferrerId();
+  if (!ref || ref === state.telegramId) return;
+  _refSent = true;
+  try {
+    const resp = await fetch(SERVER_URL + '/referral?telegram_id=' + state.telegramId + '&ref=' + ref);
+    const data = await resp.json();
+    if (data.ok) {
+      console.log('Приглашение засчитано');
+      setTimeout(loadUserData, 1200);
+    }
+  } catch(e) { console.log('referral error:', e); }
 }
 
 // Логотип
