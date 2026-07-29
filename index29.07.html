@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Сохрани Лес</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg0:#060a07;--bg1:#090f0a;--bg2:#0c1410;--bg3:#101a13;
+  --b1:#141e17;--b2:#1a2e20;--b3:#243828;
+  --g1:#2d6b42;--g2:#3a7a52;--g3:#5dbb85;
+  --t1:#e4efe8;--t2:#8aaa94;--t3:#3a5444;--t4:#1e3026;
+  --am:#c4844a;--ambg:#1a1208;--amb:#5c3a10;
+  --pu:#9060d0;--pubg:#140a20;--pub:#4a2080;
+  --r:14px;--rs:10px;
+  --font-head:'Unbounded',sans-serif;
+  --font-body:'Golos Text',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);height:100%;overflow:hidden}
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+.screen{display:none;flex:1;overflow-y:auto;padding:14px 13px 76px;-webkit-overflow-scrolling:touch}
+.screen.active{display:block}
+::-webkit-scrollbar{width:0}
+.nav{position:fixed;bottom:0;left:0;right:0;background:var(--bg0);border-top:.5px solid var(--b1);display:flex;padding:9px 0 max(12px,env(safe-area-inset-bottom));z-index:100}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:opacity .15s}
+.ni:active{opacity:.6}
+.ni-dot{width:3px;height:3px;border-radius:50%;background:transparent;transition:background .2s}
+.ni.on .ni-dot{background:var(--g3)}
+.ni-lbl{font-size:8px;color:var(--t4);letter-spacing:.06em;text-transform:uppercase;transition:color .2s}
+.ni.on .ni-lbl{color:var(--g3)}
+.ni svg{transition:stroke .2s}
+.ni.on svg{stroke:var(--g3) !important}
+.hdr{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.hdr-logo{width:32px;height:32px;flex-shrink:0}
+.hdr-title{font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--t1);letter-spacing:-.02em}
+.hdr-sub{font-size:8.5px;color:var(--t4);margin-top:1px;letter-spacing:.07em;text-transform:uppercase}
+.card{background:var(--bg1);border:.5px solid var(--b1);border-radius:var(--r);overflow:hidden;margin-bottom:9px}
+.card-body{padding:13px}
+.scan-zone{border:.5px solid var(--b2);border-radius:var(--r);padding:28px 16px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:11px;position:relative;background:var(--bg0);margin-bottom:9px}
+.sc{position:absolute;width:14px;height:14px;border-color:var(--g2);border-style:solid;border-width:0}
+.sc.tl{top:9px;left:9px;border-top-width:1.5px;border-left-width:1.5px;border-radius:4px 0 0 0}
+.sc.tr{top:9px;right:9px;border-top-width:1.5px;border-right-width:1.5px;border-radius:0 4px 0 0}
+.sc.bl{bottom:9px;left:9px;border-bottom-width:1.5px;border-left-width:1.5px;border-radius:0 0 0 4px}
+.sc.br{bottom:9px;right:9px;border-bottom-width:1.5px;border-right-width:1.5px;border-radius:0 0 4px 0}
+.scan-ring{width:58px;height:58px;border-radius:50%;border:.5px solid var(--b2);display:flex;align-items:center;justify-content:center}
+.scan-ring-in{width:42px;height:42px;border-radius:50%;border:.5px solid var(--b3);background:var(--bg2);display:flex;align-items:center;justify-content:center}
+.scan-title{font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--g3);letter-spacing:-.01em}
+.scan-hint{font-size:10px;color:var(--t4);line-height:1.5}
+.scan-btns{display:flex;gap:8px;width:100%;margin-top:4px}
+.scan-btn{flex:1;padding:10px 8px;border-radius:12px;background:#0c1410;font-family:var(--font-body);font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;border:none;transition:opacity .15s}
+.scan-btn.primary{border:.5px solid var(--g1);color:var(--g3)}
+.scan-btn.secondary{border:.5px solid var(--b2);color:var(--t4)}
+.scan-btn:active{opacity:.6}
+.loading{display:none;flex-direction:column;align-items:center;justify-content:center;padding:36px;gap:14px}
+.loading.show{display:flex}
+.spinner{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--b2);border-top-color:var(--g3);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-size:11px;color:var(--t3);letter-spacing:.04em}
+.result-img{width:100%;height:190px;object-fit:cover;display:block;background:var(--bg2)}
+.result-img-wrap{position:relative}
+.badge-conf{position:absolute;top:10px;right:10px;background:rgba(6,10,7,.85);border:.5px solid var(--g1);border-radius:20px;padding:4px 10px;font-size:9px;color:var(--g3);font-weight:600;letter-spacing:.03em}
+.badge-rarity{position:absolute;top:10px;left:10px;border-radius:20px;padding:4px 10px;font-size:9px;font-weight:600;letter-spacing:.03em}
+.r-common{background:rgba(6,10,7,.85);border:.5px solid var(--b2);color:var(--t4)}
+.r-epic{background:rgba(26,18,8,.85);border:.5px solid var(--amb);color:var(--am)}
+.r-legendary{background:rgba(20,10,32,.85);border:.5px solid var(--pub);color:var(--pu)}
+.r-rare{background:rgba(6,18,10,.9);border:.5px solid var(--g2);color:var(--g3)}
+.r-not-tree{background:rgba(6,10,7,.85);border:.5px solid var(--b2);color:var(--t3)}
+.tree-name{font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--t1);letter-spacing:-.02em;margin-bottom:2px}
+.tree-latin{font-size:9.5px;color:var(--t4);font-style:italic;letter-spacing:.02em;margin-bottom:11px}
+.co2-row{display:flex;gap:5px;margin-bottom:11px}
+.co2-chip{flex:1;background:var(--bg0);border:.5px solid var(--b1);border-radius:var(--rs);padding:8px 5px;text-align:center}
+.co2-n{font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--g3)}
+.co2-l{font-size:8px;color:var(--t4);line-height:1.4;margin-top:2px}
+.facts{display:flex;flex-direction:column;gap:5px;margin-bottom:11px}
+.fact{display:flex;gap:8px;align-items:flex-start}
+.fact-bar{width:1px;background:var(--b2);flex-shrink:0;margin-top:3px;align-self:stretch}
+.fact-txt{font-size:10px;color:var(--t3);line-height:1.5}
+.threat{background:var(--ambg);border-left:2px solid var(--amb);border-radius:0 8px 8px 0;padding:9px 11px;margin-bottom:11px}
+.threat-label{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--amb);margin-bottom:3px}
+.threat-txt{font-size:9.5px;color:var(--am);line-height:1.5}
+.btn{display:block;width:100%;padding:13px;border-radius:var(--r);font-family:var(--font-body);font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:opacity .15s,transform .1s;text-decoration:none;border:none;margin-bottom:8px}
+.btn:active{opacity:.75;transform:scale(.98)}
+.btn-primary{background:var(--bg2);border:.5px solid var(--g1);color:var(--g3)}
+.btn-ghost{background:transparent;border:.5px solid var(--b2);color:var(--t4)}
+.btn-site{font-size:9px;color:var(--t4);text-align:center;margin-top:-4px;margin-bottom:8px;letter-spacing:.06em;text-transform:uppercase}
+.btn-site a{color:var(--t4);text-decoration:none}
+.stats-row{display:flex;gap:5px;margin-bottom:9px}
+.stat-chip{flex:1;background:var(--bg1);border:.5px solid var(--b1);border-radius:var(--rs);padding:9px 6px;text-align:center}
+.stat-n{font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--g3)}
+.stat-l{font-size:8px;color:var(--t4);margin-top:2px;letter-spacing:.05em}
+.sec-label{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--t4);margin-bottom:7px}
+.feed-item{display:flex;align-items:center;gap:9px;padding:9px 13px;border-bottom:.5px solid var(--b1)}
+.feed-item:last-child{border-bottom:none}
+.feed-icon{width:32px;height:32px;border-radius:9px;background:var(--bg2);border:.5px solid var(--b1);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.feed-name{font-size:11px;font-weight:600;color:var(--t2)}
+.feed-meta{font-size:9px;color:var(--t4);margin-top:1px}
+.feed-pts{font-family:var(--font-head);font-size:10px;font-weight:700;color:var(--g2);margin-left:auto;flex-shrink:0}
+.share-card{border-radius:var(--r);overflow:hidden;margin-bottom:9px;position:relative}
+.share-photo{width:100%;height:210px;background:var(--bg2);display:block;object-fit:cover}
+.share-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(6,10,7,.96));padding:36px 15px 15px}
+.share-tree-name{font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--t1);letter-spacing:-.02em}
+.share-project{font-size:9px;color:var(--g2);margin-top:3px;letter-spacing:.04em}
+.link-box{background:var(--bg1);border:.5px solid var(--b2);border-radius:var(--rs);padding:10px 12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;cursor:pointer}
+.link-url{font-size:10px;color:var(--g2);font-family:monospace}
+.copy-badge{background:var(--bg2);border:.5px solid var(--b2);border-radius:6px;padding:3px 9px;font-size:9px;color:var(--g2);font-weight:600}
+.share-btns{display:flex;gap:6px;margin-bottom:9px}
+.share-btn{flex:1;background:var(--bg1);border:.5px solid var(--b1);border-radius:var(--rs);padding:11px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:opacity .15s}
+.share-btn:active{opacity:.6}
+.share-btn-lbl{font-size:9px;color:var(--t4)}
+.user-card{padding:13px}
+.user-top{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.user-av{width:40px;height:40px;border-radius:50%;background:var(--bg2);border:.5px solid var(--b2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.user-name{font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--t1);letter-spacing:-.01em}
+.user-rank{font-size:9px;color:var(--g2);margin-top:2px}
+.user-pts-wrap{margin-left:auto;text-align:right}
+.user-pts-n{font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--g3)}
+.user-pts-l{font-size:8px;color:var(--t4);letter-spacing:.06em;text-transform:uppercase}
+.pts-row{display:flex;gap:5px;margin-bottom:10px}
+.pts-chip{flex:1;background:var(--bg0);border-radius:9px;padding:7px 4px;text-align:center}
+.pts-n{font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--t3)}
+.pts-l{font-size:8px;color:var(--t4);margin-top:2px}
+.prog-bar{height:2px;background:var(--b1);border-radius:1px;overflow:hidden}
+.prog-fill{height:100%;background:var(--g1);border-radius:1px}
+.prog-hint{font-size:8.5px;color:var(--t4);text-align:right;margin-top:4px;letter-spacing:.03em}
+.cat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cat-title{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--t4)}
+.cat-count{font-size:9px;color:var(--t4)}
+.tree-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:9px}
+.tile{background:var(--bg1);border-radius:var(--rs);border:.5px solid var(--b1);padding:8px 5px;display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;cursor:pointer;transition:border-color .15s}
+.tile.found{border-color:var(--b2);background:var(--bg2)}
+.tile.rare{border-color:var(--amb);background:var(--ambg)}
+.tile.legendary{border-color:var(--pub);background:var(--pubg)}
+.tile:active{opacity:.7}
+.tile-icon{width:32px;height:32px;border-radius:8px;overflow:hidden;background:var(--bg0);display:flex;align-items:center;justify-content:center}
+.tile-img{width:32px;height:32px;object-fit:cover;object-position:center 20%;display:block}
+.tile-name{font-size:7.5px;color:var(--t4);text-align:center;line-height:1.35}
+.tile.found .tile-name{color:var(--g2)}
+.tile.rare .tile-name{color:var(--am)}
+.tile.legendary .tile-name{color:var(--pu)}
+.tile-pts{position:absolute;top:3px;right:3px;font-size:7px;font-weight:700;border-radius:4px;padding:1px 4px;background:var(--bg0);color:var(--t4)}
+.tile.found .tile-pts{color:var(--g1)}
+.tile.rare .tile-pts{color:var(--am)}
+.tile.legendary .tile-pts{color:var(--pu)}
+.glow{position:absolute;inset:0;border-radius:9px;border:.5px solid var(--g1);pointer-events:none}
+.pts-note{background:var(--bg1);border:.5px solid var(--b1);border-radius:var(--rs);padding:10px 12px;display:flex;align-items:center;justify-content:space-between}
+.pts-note-txt{font-size:9.5px;color:var(--t4)}
+.pts-note-btn{background:var(--bg2);border:.5px solid var(--g1);border-radius:8px;padding:6px 12px;font-size:10px;font-weight:600;color:var(--g3);font-family:var(--font-body);cursor:pointer;border-width:.5px}
+.about-logo-row{display:flex;align-items:center;gap:12px;margin-bottom:13px}
+.about-title{font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--t1);letter-spacing:-.03em;line-height:1.2}
+.about-sub{font-size:9px;color:var(--t4);margin-top:3px;letter-spacing:.07em;text-transform:uppercase}
+.about-desc{font-size:11px;color:var(--t3);line-height:1.65;margin-bottom:13px}
+.about-stats{display:flex;gap:5px;margin-bottom:9px}
+.about-stat{flex:1;background:var(--bg1);border:.5px solid var(--b1);border-radius:var(--rs);padding:10px 5px;text-align:center}
+.about-stat-n{font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--g3)}
+.about-stat-l{font-size:8px;color:var(--t4);margin-top:2px;letter-spacing:.05em}
+.how-list{display:flex;flex-direction:column;gap:9px;margin-bottom:9px}
+.how-item{display:flex;gap:10px;align-items:flex-start}
+.how-num{width:20px;height:20px;border-radius:50%;border:.5px solid var(--b2);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:8px;font-weight:700;color:var(--g2);flex-shrink:0;margin-top:1px}
+.how-txt{font-size:11px;color:var(--t3);line-height:1.5;padding-top:2px}
+.partners-card{background:var(--bg1);border:.5px solid var(--b1);border-radius:var(--rs);padding:11px 13px;margin-bottom:9px}
+.partners-label{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--t4);margin-bottom:6px}
+.partners-txt{font-size:10px;color:var(--t3);line-height:1.9}
+.modal-co2-chip{flex:1;background:var(--bg0);border:.5px solid var(--b1);border-radius:9px;padding:7px 4px;text-align:center}
+.modal-co2-n{font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--g3)}
+.modal-co2-l{font-size:8px;color:var(--t4);line-height:1.4;margin-top:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .3s ease forwards}
+@keyframes popIn{0%{opacity:0;transform:scale(.7)}60%{transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-80px)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+
+/* Онбординг */
+.onboard{position:fixed;inset:0;z-index:300;background:var(--bg0);display:flex;flex-direction:column;padding:32px 24px 24px;animation:fadeUp .3s ease}
+.onboard.hidden{display:none}
+.congrats-overlay.hidden{display:none}
+.onboard-dots{display:flex;gap:6px;justify-content:center;margin-bottom:32px}
+.onboard-dot{width:6px;height:6px;border-radius:3px;background:var(--b2);transition:all .3s}
+.onboard-dot.active{width:20px;background:var(--g3)}
+.onboard-slide{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;animation:slideIn .3s ease}
+.onboard-icon{font-size:64px;margin-bottom:8px}
+.onboard-title{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--t1);letter-spacing:-.03em;line-height:1.2}
+.onboard-desc{font-size:13px;color:var(--t3);line-height:1.7;max-width:280px}
+.onboard-steps{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px}
+.onboard-step{display:flex;align-items:center;gap:12px;background:var(--bg1);border:.5px solid var(--b1);border-radius:12px;padding:10px 14px}
+.onboard-step-icon{font-size:20px;flex-shrink:0}
+.onboard-step-txt{font-size:11px;color:var(--t3);line-height:1.5;text-align:left}
+.onboard-levels{display:flex;flex-direction:column;gap:6px;width:100%;max-width:300px}
+.onboard-level{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:var(--bg1);border:.5px solid var(--b1);border-radius:10px}
+.onboard-level-name{font-size:11px;color:var(--t3)}
+.onboard-level-pts{font-size:10px;color:var(--t4)}
+.onboard-btn{width:100%;padding:15px;border-radius:var(--r);background:var(--bg2);border:.5px solid var(--g1);color:var(--g3);font-family:var(--font-body);font-size:13px;font-weight:700;cursor:pointer;margin-top:16px;transition:opacity .15s}
+.onboard-btn:active{opacity:.7}
+.onboard-skip{font-size:10px;color:var(--t4);text-align:center;margin-top:10px;cursor:pointer;letter-spacing:.04em}
+
+/* Поздравление при новом виде */
+.congrats-overlay{position:fixed;inset:0;z-index:400;pointer-events:all;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(6,10,7,.7)}
+.congrats-box{background:var(--bg1);border:.5px solid var(--g1);border-radius:20px;padding:24px 32px;text-align:center;animation:popIn .4s ease forwards;pointer-events:all}
+.congrats-emoji{font-size:48px;margin-bottom:8px}
+.congrats-title{font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--g3);margin-bottom:4px}
+.congrats-pts{font-family:var(--font-head);font-size:28px;font-weight:700;color:var(--g3)}
+.congrats-sub{font-size:11px;color:var(--t4);margin-top:4px}
+.float-pts{position:fixed;font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--g3);pointer-events:none;animation:floatUp 1.2s ease forwards;z-index:260}
+
+/* Подсказки */
+.hint-bubble{background:var(--bg2);border:.5px solid var(--g1);border-radius:12px;padding:8px 12px;font-size:10px;color:var(--g2);text-align:center;margin-bottom:9px;animation:fadeUp .4s ease}
+.feedback-row{display:flex;gap:8px;margin-top:10px;margin-bottom:4px}
+.fb-btn{flex:1;padding:11px 8px;border-radius:12px;font-family:var(--font-body);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;border:none;transition:opacity .15s}
+.fb-btn:active{opacity:.6}
+.fb-btn.up{background:#0c1a10;border:.5px solid var(--g1);color:var(--g3)}
+.fb-btn.down{background:#100c0c;border:.5px solid #3a1a1a;color:#c4844a}
+.fb-btn.sent{opacity:.5;pointer-events:none}
+</style>
+</head>
+<body>
+<h1 class="sr-only">Сохрани Лес — определитель растений</h1>
+<div class="app">
+
+<!-- СКАНЕР -->
+<div class="screen active" id="screen-scan">
+  <div class="hdr">
+    <img class="hdr-logo" id="logo-scan" alt="Сохрани Лес">
+    <div>
+      <div class="hdr-title">Сохрани Лес</div>
+      <div class="hdr-sub">Определитель растений</div>
+    </div>
+  </div>
+
+  <div id="scan-home">
+    <div class="scan-zone">
+      <div class="sc tl"></div><div class="sc tr"></div>
+      <div class="sc bl"></div><div class="sc br"></div>
+      <div class="scan-ring"><div class="scan-ring-in">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2d6b42" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      </div></div>
+      <div class="scan-title">Определить растение</div>
+      <div class="scan-hint">Лист, кора, ветка или всё дерево<br>ИИ определит вид за 3 секунды</div>
+      <div class="scan-btns">
+        <button class="scan-btn primary" onclick="triggerCamera()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5dbb85" stroke-width="1.8"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          Камера
+        </button>
+        <button class="scan-btn secondary" onclick="document.getElementById('input-gallery').click()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3a5444" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Галерея
+        </button>
+      </div>
+    </div>
+
+    <input type="file" id="input-camera" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(event)">
+    <input type="file" id="input-gallery" accept="image/*" style="display:none" onchange="handlePhoto(event)">
+
+    <div class="stats-row">
+      <div class="stat-chip"><div class="stat-n">800к+</div><div class="stat-l">ДЕРЕВЬЕВ ПОСАЖЕНО</div></div>
+      <div class="stat-chip"><div class="stat-n">AI</div><div class="stat-l">РАСПОЗНАВАНИЕ</div></div>
+      <div class="stat-chip"><div class="stat-n">🌍</div><div class="stat-l">ВЕСЬ МИР</div></div>
+      <div class="stat-chip"><div class="stat-n" id="global-counter">...</div><div class="stat-l">РАСПОЗНАНО</div></div>
+    </div>
+
+    <div class="sec-label">Последние определения</div>
+    <div class="card" id="recent-feed-wrap">
+      <div id="recent-feed">
+        <div class="feed-item" style="justify-content:center;padding:16px">
+          <div style="font-size:10px;color:var(--t4)">Сканируй растения — они появятся здесь</div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /scan-home -->
+
+  <div class="loading" id="scan-loading">
+    <div class="spinner"></div>
+    <div class="loading-txt">Определяю растение...</div>
+  </div>
+
+  <div id="scan-result" style="display:none">
+    <div class="card fade-up">
+      <div class="result-img-wrap">
+        <img id="result-photo" class="result-img" src="" alt="Фото растения">
+        <div class="badge-conf" id="match-badge">96% совпадение</div>
+        <div class="badge-rarity r-common" id="rarity-badge">Обычный</div>
+      </div>
+      <div id="ref-photo-wrap" style="display:none;border-top:.5px solid var(--b1)">
+        <div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--t4);padding:7px 12px 5px">Так выглядит дерево</div>
+        <img id="ref-tree-photo" src="" alt="Эталонное фото" style="width:100%;height:140px;object-fit:cover;display:block" crossorigin="anonymous">
+      </div>
+      <div class="card-body">
+        <div class="tree-name" id="result-name"></div>
+        <div class="tree-latin" id="result-latin"></div>
+        <div class="co2-row" id="co2-row"></div>
+        <div class="facts" id="result-facts"></div>
+        <div class="threat" id="result-threat-wrap" style="display:none">
+          <div class="threat-label">Угроза вида</div>
+          <div class="threat-txt" id="result-threat-txt"></div>
+        </div>
+        <div class="feedback-row" id="feedback-row" style="display:none">
+          <button class="fb-btn up" id="fb-up" onclick="sendFeedback('up')">👍 Верно!</button>
+          <button class="fb-btn down" id="fb-down" onclick="sendFeedback('down')">👎 Неверно</button>
+        </div>
+        <button class="btn btn-primary" id="btn-plant" onclick="window.open('https://forest-save.ru/pay/')">Посадить дерево — от 99 ₽</button>
+        <div class="btn-site"><a href="https://forest-save.ru">forest-save.ru</a></div>
+        <button class="btn btn-ghost" onclick="switchTab('share')">Поделиться с другом</button>
+      </div>
+    </div>
+    <button class="btn btn-ghost" onclick="resetScan()">Сканировать ещё</button>
+  </div>
+</div><!-- /screen-scan -->
+
+<!-- ПОДЕЛИТЬСЯ -->
+<div class="screen" id="screen-share">
+  <div class="hdr">
+    <img class="hdr-logo" id="logo-share" alt="Сохрани Лес">
+    <div><div class="hdr-title">Поделиться</div><div class="hdr-sub">Расскажи другу</div></div>
+  </div>
+  <div class="share-card card">
+    <img id="share-photo" class="share-photo" src="" alt="Дерево">
+    <div class="share-overlay">
+      <div class="share-tree-name" id="share-tree-name">Дуб черешчатый</div>
+      <div class="share-project">Сохрани Лес · t.me/ForestSherlockBot</div>
+    </div>
+  </div>
+  <div class="sec-label">Ссылка на бота</div>
+  <div class="link-box" onclick="copyLink()">
+    <span class="link-url" id="ref-link-display">t.me/ForestSherlockBot</span>
+    <span class="copy-badge" id="copy-badge">копировать</span>
+  </div>
+  <div style="font-size:9px;color:var(--g2);text-align:center;margin-bottom:5px;letter-spacing:.04em">ПОДЕЛИСЬ И ПОЛУЧИ +5 ОЧКОВ ↓</div>
+  <div class="share-btns">
+    <button class="share-btn" onclick="shareToTelegram()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2d6b42" stroke-width="1.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      <span class="share-btn-lbl">Telegram</span>
+    </button>
+    <button class="share-btn" onclick="shareNative()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2d6b42" stroke-width="1.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      <span class="share-btn-lbl">Поделиться</span>
+    </button>
+    <button class="share-btn" onclick="window.open('https://forest-save.ru')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2d6b42" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+      <span class="share-btn-lbl">Сайт</span>
+    </button>
+  </div>
+  <div class="card card-body">
+    <div style="font-family:var(--font-head);font-size:11px;font-weight:700;color:var(--g3);letter-spacing:-.01em;margin-bottom:5px">+5 очков за каждого друга 🎁</div>
+    <div style="font-size:10px;color:var(--t3);line-height:1.6;margin-bottom:8px">Чем больше людей узнают о лесах, тем больше деревьев будет посажено. Поделись ботом — и за каждого нового пользователя по твоей ссылке ты получаешь <b style="color:var(--g3)">+5 очков</b>.</div>
+    <div style="font-size:9px;color:var(--t4);font-style:italic">⚠️ Реферальная программа — в разработке. Скоро!</div>
+  </div>
+  <button class="btn btn-ghost" onclick="window.open('https://forest-save.ru/pay/')">Посадить дерево другу в подарок</button>
+</div><!-- /screen-share -->
+
+<!-- ДОСТИЖЕНИЯ -->
+<div class="screen" id="screen-achievements">
+  <div class="hdr">
+    <img class="hdr-logo" id="logo-ach" alt="Сохрани Лес">
+    <div><div class="hdr-title">Достижения</div><div class="hdr-sub">Каталог и рейтинг</div></div>
+  </div>
+  <div class="card">
+    <div class="user-card">
+      <div class="user-top">
+        <div class="user-av"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2d6b42" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <div>
+          <div class="user-name" id="user-name-display">...</div>
+          <div class="user-rank" id="u-rank">#1 в рейтинге</div>
+        </div>
+        <div class="user-pts-wrap">
+          <div class="user-pts-n" id="u-pts">0</div>
+          <div class="user-pts-l">очков</div>
+        </div>
+      </div>
+      <div class="pts-row">
+        <div class="pts-chip"><div class="pts-n" id="u-fpts">0</div><div class="pts-l">За друзей</div></div>
+        <div class="pts-chip"><div class="pts-n" id="u-ppts">0</div><div class="pts-l">За посадку</div></div>
+        <div class="pts-chip"><div class="pts-n" id="u-spts">0</div><div class="pts-l">За сканы</div></div>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" id="u-prog" style="width:0%"></div></div>
+      <div class="prog-hint" id="u-prog-hint">0% до следующего уровня</div>
+    </div>
+  </div>
+  <!-- Моя активность -->
+  <div class="card">
+    <div style="padding:12px 14px">
+      <div class="sec-label">Моя активность</div>
+      <div style="display:flex;gap:5px">
+        <div style="flex:1;background:var(--bg0);border:.5px solid var(--b1);border-radius:10px;padding:10px 6px;text-align:center">
+          <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--t3)" id="u-scans-count">0</div>
+          <div style="font-size:8px;color:var(--t4);margin-top:2px;letter-spacing:.04em">МОИ СКАНЫ</div>
+        </div>
+        <div style="flex:1;background:var(--bg0);border:.5px solid var(--b1);border-radius:10px;padding:10px 6px;text-align:center">
+          <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--t3)" id="u-unique-count">0</div>
+          <div style="font-size:8px;color:var(--t4);margin-top:2px;letter-spacing:.04em">НОВЫХ ВИДОВ</div>
+        </div>
+        <div style="flex:1;background:var(--bg0);border:.5px solid var(--b1);border-radius:10px;padding:10px 6px;text-align:center">
+          <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--t3)" id="u-friends">0</div>
+          <div style="font-size:8px;color:var(--t4);margin-top:2px;letter-spacing:.04em">ДРУЗЬЯ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Описание челленджа -->
+  <div class="card card-body">
+    <div style="font-family:var(--font-head);font-size:11px;font-weight:700;color:var(--t1);letter-spacing:-.01em;margin-bottom:6px">Стань главным экспертом леса 🌲</div>
+    <div style="font-size:10px;color:var(--t3);line-height:1.6">
+      Сканируй деревья и растения вокруг — каждый новый вид пополняет твою коллекцию и приносит очки. Сажай реальные деревья в нацпарках России — 100 ₽ = 5 очков. Чем больше видов найдёшь и деревьев посадишь — тем выше твой уровень: от Горожанина до Легенды леса.
+    </div>
+    <div style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap">
+      <div style="background:var(--bg0);border:.5px solid var(--b1);border-radius:8px;padding:5px 10px;font-size:9px;color:var(--g2)">📷 Скан = очки</div>
+      <div style="background:var(--bg0);border:.5px solid var(--b1);border-radius:8px;padding:5px 10px;font-size:9px;color:var(--g2)">🌲 Посадка = очки</div>
+      <div style="background:var(--bg0);border:.5px solid var(--b1);border-radius:8px;padding:5px 10px;font-size:9px;color:var(--g2)">🏆 Рейтинг</div>
+    </div>
+  </div>
+  <div class="cat-header">
+    <span class="cat-title">Каталог деревьев</span>
+    <span class="cat-count" id="cat-count">4 / 50 открыто</span>
+  </div>
+  <div class="tree-grid" id="tree-grid"></div>
+  <div class="pts-note">
+    <span class="pts-note-txt">100 ₽ на посадку = 5 очков</span>
+    <button class="pts-note-btn" onclick="window.open('https://forest-save.ru/pay/')">Посадить</button>
+  </div>
+</div><!-- /screen-achievements -->
+
+<!-- О НАС -->
+<div class="screen" id="screen-about">
+  <div class="about-logo-row">
+    <img id="logo-about" width="52" height="52" alt="Сохрани Лес" style="flex-shrink:0">
+    <div>
+      <div class="about-title">Сохрани<br>Лес</div>
+      <div class="about-sub">Сколково · с 2022 года</div>
+    </div>
+  </div>
+  <p class="about-desc">Сервис умного лесовосстановления. Помогаем людям и компаниям финансировать посадку деревьев в нацпарках России — прозрачно, с отчётом о каждом дереве в личном кабинете.</p>
+  <div class="about-stats">
+    <div class="about-stat"><div class="about-stat-n">625к</div><div class="about-stat-l">ДЕРЕВЬЕВ</div></div>
+    <div class="about-stat"><div class="about-stat-n">225+</div><div class="about-stat-l">ПРОЕКТОВ</div></div>
+    <div class="about-stat"><div class="about-stat-n">4 года</div><div class="about-stat-l">РАБОТЫ</div></div>
+  </div>
+  <div class="sec-label">Как это работает</div>
+  <div class="how-list">
+    <div class="how-item"><div class="how-num">1</div><div class="how-txt">Сканируешь растение — ИИ определяет вид и рассказывает о нём</div></div>
+    <div class="how-item"><div class="how-num">2</div><div class="how-txt">Поддерживаешь посадку — от 99 ₽ за одно дерево</div></div>
+    <div class="how-item"><div class="how-num">3</div><div class="how-txt">Получаешь отчёт с фото — твоё дерево растёт в нацпарке</div></div>
+    <div class="how-item"><div class="how-num">4</div><div class="how-txt">Собираешь очки и открываешь редкие виды в каталоге</div></div>
+  </div>
+  <div class="partners-card">
+    <div class="partners-label">Партнёры</div>
+    <div class="partners-txt">Лукойл · ВТБ · Аэрофлот · Газфонд · ПСБ · Fix Price · Татнефть · Почта России</div>
+  </div>
+  <a href="https://forest-save.ru" class="btn btn-ghost">forest-save.ru</a>
+  <a href="https://forest-save.ru/pay/" class="btn btn-primary">Посадить дерево от 99 ₽</a>
+</div><!-- /screen-about -->
+
+<!-- МОДАЛЬНОЕ ОКНО ДЕРЕВА -->
+<div id="tree-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(6,10,7,.95);padding:20px 16px;overflow-y:auto" onclick="closeModalOutside(event)">
+  <div style="background:#090f0a;border:.5px solid #1a2e20;border-radius:18px;overflow:hidden;max-width:420px;margin:0 auto">
+    <div style="position:relative">
+      <img id="modal-photo" src="" alt="" style="width:100%;height:200px;object-fit:contain;object-position:center;display:block;background:#060d08;padding:16px">
+      <div id="modal-rarity-badge" style="position:absolute;top:10px;left:10px;border-radius:20px;padding:4px 10px;font-size:9px;font-weight:600;letter-spacing:.03em"></div>
+      <button onclick="closeModal()" style="position:absolute;top:10px;right:10px;background:rgba(6,10,7,.8);border:.5px solid #1a2e20;border-radius:50%;width:28px;height:28px;color:#5dbb85;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">×</button>
+    </div>
+    <div style="padding:16px">
+      <div id="modal-name" style="font-family:var(--font-head);font-size:16px;font-weight:700;color:#e4efe8;letter-spacing:-.02em;margin-bottom:3px"></div>
+      <div id="modal-latin" style="font-size:10px;color:#1e3026;font-style:italic;margin-bottom:12px"></div>
+      <div id="modal-co2" style="display:flex;gap:5px;margin-bottom:12px"></div>
+      <div id="modal-facts" style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px"></div>
+      <div id="modal-threat" style="background:#1a1208;border-left:2px solid #5c3a10;border-radius:0 8px 8px 0;padding:8px 10px;margin-bottom:12px;display:none">
+        <div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:#5c3a10;margin-bottom:3px">Угроза вида</div>
+        <div id="modal-threat-txt" style="font-size:10px;color:#c4844a;line-height:1.5"></div>
+      </div>
+      <div id="modal-locked" style="text-align:center;padding:12px 0;display:none">
+        <div style="font-size:28px;margin-bottom:8px">🔒</div>
+        <div style="font-size:12px;color:#1e3026;margin-bottom:4px">Вид ещё не открыт</div>
+        <div style="font-size:10px;color:#141e18">Сканируй это растение чтобы открыть</div>
+      </div>
+      <button onclick="closeModal()" style="width:100%;padding:12px;border-radius:12px;background:#0d1e12;border:.5px solid #1e3828;color:#5dbb85;font-family:var(--font-head);font-size:11px;font-weight:700;cursor:pointer">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<!-- ОНБОРДИНГ -->
+<div class="onboard hidden" id="onboarding">
+  <div class="onboard-dots">
+    <div class="onboard-dot active" id="dot-0"></div>
+    <div class="onboard-dot" id="dot-1"></div>
+    <div class="onboard-dot" id="dot-2"></div>
+  </div>
+  <div class="onboard-slide" id="onboard-slide">
+    <!-- заполняется JS -->
+  </div>
+  <div>
+    <button class="onboard-btn" id="onboard-btn" onclick="onboardNext()">Далее →</button>
+    <div class="onboard-skip" onclick="onboardFinish()">Пропустить</div>
+  </div>
+</div>
+
+<!-- ПОЗДРАВЛЕНИЕ -->
+<div class="congrats-overlay hidden" id="congrats-overlay" onclick="closeCongratsOverlay()">
+  <div class="congrats-box" id="congrats-box">
+    <div class="congrats-emoji">🌿</div>
+    <div class="congrats-title">Новый вид открыт!</div>
+    <div class="congrats-pts" id="congrats-pts">+3</div>
+    <div class="congrats-sub" id="congrats-name">Дуб черешчатый</div>
+    <button onclick="closeCongratsOverlay()" style="margin-top:14px;width:100%;padding:10px;border-radius:10px;background:var(--bg2);border:.5px solid var(--g1);color:var(--g3);font-family:var(--font-body);font-size:12px;font-weight:600;cursor:pointer">Отлично! ✓</button>
+  </div>
+</div>
+
+<!-- НАВИГАЦИЯ -->
+<nav class="nav">
+  <div class="ni on" onclick="switchTab('scan')" id="nav-scan">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e3026" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <div class="ni-dot"></div><span class="ni-lbl">Сканер</span>
+  </div>
+  <div class="ni" onclick="switchTab('achievements')" id="nav-achievements">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e3026" stroke-width="1.5"><circle cx="12" cy="8" r="6"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/></svg>
+    <div class="ni-dot"></div><span class="ni-lbl">Успехи</span>
+  </div>
+  <div class="ni" onclick="switchTab('share')" id="nav-share">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e3026" stroke-width="1.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    <div class="ni-dot"></div><span class="ni-lbl">Поделиться</span>
+  </div>
+  <div class="ni" onclick="switchTab('about')" id="nav-about">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e3026" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div class="ni-dot"></div><span class="ni-lbl">О нас</span>
+  </div>
+</nav>
+</div><!-- /app -->
+
+<script>
+// ─── КОНФИГУРАЦИЯ ──────────────────────────────────────────────────────────
+const SERVER_URL = 'https://api.green-wallet.ru';
+
+// ─── ЛОГОТИП (base64 вставляется здесь) ───────────────────────────────────
+// Логотип загружается через URL сайта чтобы не раздувать файл
+const LOGO_URL = 'https://forest-save.ru/favicon.ico';
+
+// ─── КАТАЛОГ ДЕРЕВЬЕВ ──────────────────────────────────────────────────────
+const TREES = {
+  oak:       {name:"Дуб черешчатый",    latin:"Quercus robur · семейство буковых",      pts:3,  rarity:"common",    co2:160, max_age:1000, species:400, facts:["Один из самых долгоживущих деревьев Европы — до 1000 лет","Поглощает до 160 кг CO₂ в год","Кормит более 400 видов насекомых и 50 видов птиц","Жёлуди — основная пища кабанов, белок и косуль"], threat:"Вырубки дубрав выросли втрое за 20 лет. Под угрозой более 800 тыс. га российских дубрав."},
+  birch:     {name:"Берёза повислая",   latin:"Betula pendula · семейство берёзовых",   pts:2,  rarity:"common",    co2:70,  max_age:150,  species:0,   facts:["Живёт до 150 лет, первой заселяет вырубки и гари","Поглощает до 70 кг CO₂ в год","Один из главных медоносов средней полосы","Берёзовый сок — природный источник витаминов"], threat:"Массовые вырубки для производства фанеры сокращают берёзовые рощи."},
+  pine:      {name:"Сосна обыкновенная",latin:"Pinus sylvestris · семейство сосновых",  pts:4,  rarity:"common",    co2:120, max_age:400,  species:0,   facts:["Живёт до 400 лет, растёт даже на бедных почвах","Поглощает до 120 кг CO₂ в год","Выделяет фитонциды — очищает воздух в радиусе километра","Корневая система уходит на глубину до 10 метров"], threat:"Лесные пожары уничтожили миллионы гектаров сосняков в Сибири за 10 лет."},
+  spruce:    {name:"Ель европейская",   latin:"Picea abies · семейство сосновых",       pts:5,  rarity:"uncommon",  co2:130, max_age:500,  species:0,   facts:["Живёт до 500 лет, образует тёмные дремучие леса","Поглощает до 130 кг CO₂ в год","Самая старая ель в Швеции — 9550 лет","Поверхностная корневая система уязвима к ветровалу"], threat:"Короед-типограф уничтожает ельники быстрее лесных пожаров."},
+  linden:    {name:"Липа мелколистная", latin:"Tilia cordata · семейство мальвовых",    pts:3,  rarity:"common",    co2:85,  max_age:600,  species:0,   facts:["Живёт до 600 лет, главный медонос европейской России","С одного гектара пчёлы собирают до тонны мёда","Поглощает до 85 кг CO₂ в год","Липовый цвет — народное средство от простуды"], threat:"Вырубка под застройку сократила липовые леса на 30%."},
+  cedar:     {name:"Кедр сибирский",    latin:"Pinus sibirica · семейство сосновых",    pts:18, rarity:"epic",      co2:180, max_age:800,  species:0,   facts:["Живёт до 800 лет — символ сибирской тайги","Поглощает до 180 кг CO₂ — рекорд среди хвойных","Кедровые орехи — ценнейший продукт леса","Один кедр даёт приют более 200 видам животных"], threat:"Незаконная вырубка кедровников — за 40 лет потеряно более 5 млн га."},
+  fir:       {name:"Пихта сибирская",   latin:"Abies sibirica · семейство сосновых",    pts:6,  rarity:"uncommon",  co2:110, max_age:300,  species:0,   facts:["Живёт до 300 лет, один из самых теневыносливых видов","Поглощает до 110 кг CO₂ в год","Пихтовое масло входит в состав многих лекарств","Хвоя остаётся зелёной при морозах ниже 50°C"], threat:"Пожары уничтожают пихтовые леса быстрее чем они восстанавливаются."},
+  lotus:     {name:"Лотос орехоносный", latin:"Nelumbo nucifera · семейство лотосовых", pts:20, rarity:"legendary",  co2:15,  max_age:1000, species:0,   facts:["Семена сохраняют всхожесть до 1000 лет — рекорд в природе","Самоочищающиеся листья — основа технологии «эффект лотоса»","Занесён в Красную книгу России","Священное растение в буддизме и индуизме"], threat:"Критически редкий вид. Дикие популяции под угрозой из-за осушения водоёмов."},
+  maple:     {name:"Клён остролистный", latin:"Acer platanoides · семейство сапиндовых",pts:4,  rarity:"common",    co2:90,  max_age:200,  species:0,   facts:["Живёт до 200 лет, быстро растёт даже в городе","Поглощает до 90 кг CO₂ в год","Семена-«вертолётики» разлетаются на 100 м","Кленовый сок содержит натуральный сахар"], threat:"Вырубка под дороги и застройку сокращает кленовые аллеи."},
+  aspen:     {name:"Осина обыкновенная",latin:"Populus tremula · семейство ивовых",     pts:2,  rarity:"common",    co2:75,  max_age:100,  species:0,   facts:["Листья дрожат даже в безветрие из-за длинных черешков","Первой восстанавливает лес после пожаров","Кора служит пищей для лосей зимой","Клоны осины живут тысячи лет"], threat:""},
+  rowan:     {name:"Рябина обыкновенная",latin:"Sorbus aucuparia · семейство розовых",  pts:3,  rarity:"common",    co2:40,  max_age:200,  species:0,   facts:["Ягоды содержат больше витамина C чем лимон","Живёт до 200 лет, растёт в самых суровых условиях","Важнейший корм для птиц зимой","Одна из самых морозостойких плодовых культур России"], threat:""},
+  alder:     {name:"Ольха серая",       latin:"Alnus incana · семейство берёзовых",     pts:2,  rarity:"common",    co2:65,  max_age:150,  species:0,   facts:["Обогащает почву азотом — живой удобритель леса","Растёт только у воды — укрепляет берега рек","Шишки используются в медицине","Живёт до 150 лет"], threat:""},
+  elm:       {name:"Вяз гладкий",       latin:"Ulmus laevis · семейство вязовых",       pts:4,  rarity:"uncommon",  co2:95,  max_age:400,  species:0,   facts:["Живёт до 400 лет, образует величественные аллеи","Древесина не гниёт в воде","Поглощает до 95 кг CO₂ в год","Важный вид для городского озеленения"], threat:"Голландская болезнь вязов уничтожила большинство взрослых деревьев в Европе."},
+  ash:       {name:"Ясень обыкновенный",latin:"Fraxinus excelsior · семейство маслиновых",pts:4, rarity:"uncommon", co2:100, max_age:300,  species:0,   facts:["Живёт до 300 лет, одно из самых ценных лиственных деревьев","Древесина используется для спортивного инвентаря","Последним распускается весной","Поглощает до 100 кг CO₂ в год"], threat:"Изумрудная ясеневая златка уничтожает ясени по всей России."},
+  hazel:     {name:"Лещина обыкновенная",latin:"Corylus avellana · семейство берёзовых",pts:2, rarity:"common",    co2:30,  max_age:80,   species:0,   facts:["Лесной орех — один из самых питательных продуктов леса","Цветёт раньше всех деревьев — в феврале","Живёт до 80 лет но возобновляется порослью сотни лет","Важный корм для белок, мышей и птиц"], threat:""},
+  willow:    {name:"Ива плакучая",      latin:"Salix babylonica · семейство ивовых",    pts:2,  rarity:"common",    co2:60,  max_age:100,  species:0,   facts:["Одно из самых быстрорастущих деревьев","Ива — источник аспирина: кора содержит салицин","Незаменима для укрепления берегов рек","Живёт до 100 лет"], threat:""},
+  poplar:    {name:"Тополь белый",      latin:"Populus alba · семейство ивовых",        pts:2,  rarity:"common",    co2:100, max_age:400,  species:0,   facts:["Самое быстрорастущее дерево России","Поглощает до 100 кг CO₂ в год","Живёт до 400 лет","Пух тополя — природный распространитель семян"], threat:"Массовые вырубки в городах России."},
+  chestnut:  {name:"Каштан конский",    latin:"Aesculus hippocastanum",                 pts:4,  rarity:"uncommon",  co2:110, max_age:300,  species:0,   facts:["Живёт до 300 лет, украшает парки всей России","Поглощает до 110 кг CO₂ в год","Каштановые свечи — символ европейских парков"], threat:"Каштановая минирующая моль повреждает листья по всей Европе."},
+  walnut:    {name:"Орех грецкий",      latin:"Juglans regia · семейство ореховых",     pts:5,  rarity:"uncommon",  co2:120, max_age:400,  species:0,   facts:["Живёт до 400 лет, плодоносит до 200 лет","Поглощает до 120 кг CO₂ в год","Древесина ореха — одна из ценнейших в мире"], threat:""},
+  hawthorn:  {name:"Боярышник",         latin:"Crataegus sanguinea · семейство розовых",pts:3,  rarity:"common",    co2:30,  max_age:400,  species:0,   facts:["Живёт до 400 лет — долгожитель среди кустарников","Ягоды — лекарство для сердца","Острые шипы защищают гнёзда птиц"], threat:""},
+  larch:     {name:"Лиственница сибирская",latin:"Larix sibirica · семейство сосновых", pts:6,  rarity:"uncommon",  co2:115, max_age:800,  species:0,   facts:["Единственное хвойное дерево сбрасывающее хвою","Живёт до 800 лет","Древесина тонет в воде и практически не гниёт"], threat:""},
+  juniper:   {name:"Можжевельник",      latin:"Juniperus communis · семейство кипарисовых",pts:5,rarity:"uncommon", co2:25,  max_age:600,  species:0,   facts:["Живёт до 600 лет","Самый сильный природный антисептик среди деревьев","Одно растение очищает воздух 300 кв. метров","Ягоды используются в кулинарии и медицине"], threat:"Сокращение популяций из-за лесных пожаров."},
+  yew:       {name:"Тис ягодный",       latin:"Taxus baccata · семейство тисовых",      pts:12, rarity:"epic",      co2:40,  max_age:4000, species:0,   facts:["Живёт до 4000 лет — одно из старейших деревьев Земли","Всё дерево ядовито кроме мякоти ягод","Древесина использовалась для луков Робин Гуда","Занесён в Красную книгу России"], threat:"Критически редкий вид. Занесён в Красную книгу России."},
+  ginkgo:    {name:"Гинкго двулопастное",latin:"Ginkgo biloba · семейство гинкговых",   pts:15, rarity:"epic",      co2:60,  max_age:3000, species:0,   facts:["Живое ископаемое — не изменилось за 200 млн лет","Живёт до 3000 лет","Листья используются для улучшения памяти","Дерево-одиночка — нет близких родственников в природе"], threat:"В природе встречается только в Китае."},
+  magnolia:  {name:"Магнолия",          latin:"Magnolia kobus · семейство магнолиевых",  pts:8,  rarity:"epic",      co2:50,  max_age:1000, species:0,   facts:["Один из древнейших цветковых родов — 100 млн лет","Цветёт до появления листьев в апреле","Живёт до 1000 лет"], threat:"Сокращение в дикой природе из-за вырубки."},
+  beech:     {name:"Бук европейский",   latin:"Fagus sylvatica · семейство буковых",    pts:5,  rarity:"uncommon",  co2:100, max_age:500,  species:0,   facts:["Живёт до 500 лет, образует тенистые леса","Буковые орешки богаты маслом и белком","Поглощает до 100 кг CO₂ в год"], threat:""},
+  hornbeam:  {name:"Граб обыкновенный", latin:"Carpinus betulus · семейство берёзовых", pts:4,  rarity:"uncommon",  co2:80,  max_age:300,  species:0,   facts:["Древесина — самая твёрдая среди европейских лиственных","Живёт до 300 лет","Используется для изготовления музыкальных инструментов"], threat:""},
+  plane:     {name:"Платан восточный",  latin:"Platanus orientalis · семейство платановых",pts:5,rarity:"uncommon", co2:140, max_age:2000, species:0,   facts:["Живёт до 2000 лет — один из долгожителей планеты","Поглощает до 140 кг CO₂ в год","Даёт самую широкую тень среди всех деревьев"], threat:""},
+  mulberry:  {name:"Шелковица белая",   latin:"Morus alba · семейство тутовых",         pts:5,  rarity:"uncommon",  co2:75,  max_age:500,  species:0,   facts:["Живёт до 500 лет","Листья — единственный корм гусеницы шелкопряда","Завезена из Китая по Великому шёлковому пути"], threat:""},
+  acacia:    {name:"Акация белая",      latin:"Robinia pseudoacacia · семейство бобовых",pts:4, rarity:"uncommon",  co2:90,  max_age:300,  species:0,   facts:["Живёт до 300 лет, цветы — ценный медонос","Обогащает почву азотом","Поглощает до 90 кг CO₂ в год"], threat:""},
+  sea_buckthorn:{name:"Облепиха",       latin:"Hippophae rhamnoides · семейство лоховых",pts:4, rarity:"uncommon",  co2:25,  max_age:30,   species:0,   facts:["Ягоды содержат в 15 раз больше витамина C чем лимон","Единственный фрукт содержащий омега-7","Быстро укрепляет берега рек"], threat:""},
+  bird_cherry:   {name:"Черёмуха",          latin:"Prunus padus · семейство розовых",        pts:3,  rarity:"common",    co2:35,  max_age:100,  species:0,   facts:["Цветёт с характерным запахом в мае","Ягоды обладают антибактериальными свойствами","Одно из первых деревьев зацветающих весной"], threat:""},
+  elder:     {name:"Бузина чёрная",     latin:"Sambucus nigra · семейство адоксовых",   pts:2,  rarity:"common",    co2:15,  max_age:100,  species:0,   facts:["Цветы и ягоды используются в кулинарии и медицине","Ягоды — корм для более 60 видов птиц","В народной медицине применяется тысячи лет"], threat:""},
+  lilac:     {name:"Сирень",            latin:"Syringa vulgaris · семейство маслиновых", pts:2,  rarity:"common",    co2:20,  max_age:100,  species:0,   facts:["Символ русской весны","Живёт до 100 лет","Цветы используются в парфюмерии"], threat:""},
+  viburnum:  {name:"Калина",            latin:"Viburnum opulus · семейство адоксовых",   pts:3,  rarity:"common",    co2:15,  max_age:50,   species:0,   facts:["Символ России в народной культуре","Ягоды после мороза становятся слаще","Кора и ягоды — народное лекарство"], threat:""},
+  caragana:  {name:"Карагана",          latin:"Caragana arborescens · семейство бобовых",pts:3, rarity:"common",    co2:25,  max_age:60,   species:0,   facts:["Выживает при морозах до -60°C","Обогащает почву азотом","Используется для создания лесополос в степях"], threat:""},
+  barberry:  {name:"Барбарис",          latin:"Berberis vulgaris · семейство барбарисовых",pts:3,rarity:"common",   co2:15,  max_age:50,   species:0,   facts:["Ягоды богаты витамином C и антиоксидантами","Основа приправ — входит в состав плова","Живёт до 50 лет"], threat:""},
+  catalpa:   {name:"Катальпа",          latin:"Catalpa bignonioides · семейство бигнониевых",pts:4,rarity:"uncommon",co2:85, max_age:150,  species:0,   facts:["Самые крупные листья среди парковых деревьев России","Экзотические белые цветы в июне","Плоды — длинные стручки до 40 см"], threat:""},
+  dogwood:   {name:"Кизил",             latin:"Cornus mas · семейство кизиловых",        pts:4,  rarity:"uncommon",  co2:30,  max_age:250,  species:0,   facts:["Живёт до 250 лет","Ягоды содержат больше витамина C чем лимон","Цветёт одним из первых — в феврале-марте"], threat:""},
+  tamarisk:  {name:"Тамарикс",          latin:"Tamarix ramosissima · семейство тамарисковых",pts:6,rarity:"uncommon",co2:20, max_age:100,  species:0,   facts:["Выживает в пустынях и засолённых почвах","Розовые цветы — уникальное зрелище","Закрепляет пески и предотвращает эрозию"], threat:""},
+  pear:      {name:"Груша лесная",      latin:"Pyrus pyraster · семейство розовых",      pts:3,  rarity:"uncommon",  co2:55,  max_age:300,  species:0,   facts:["Живёт до 300 лет","Предок культурных груш","Ценнейшая древесина — плотнее дуба"], threat:""},
+  apple:     {name:"Яблоня лесная",     latin:"Malus sylvestris · семейство розовых",    pts:3,  rarity:"common",    co2:50,  max_age:200,  species:0,   facts:["Предок всех культурных яблонь","Живёт до 200 лет","Плоды служат пищей для кабанов, лис и птиц"], threat:""},
+  cherry:    {name:"Черешня",           latin:"Prunus avium · семейство розовых",        pts:3,  rarity:"common",    co2:45,  max_age:100,  species:0,   facts:["Одно из первых плодовых деревьев весной","Живёт до 100 лет","Ценнейшая древесина для мебели"], threat:""},
+  plum:      {name:"Слива колючая",     latin:"Prunus spinosa · семейство розовых",      pts:2,  rarity:"common",    co2:35,  max_age:50,   species:0,   facts:["Терн — основа для настоек и варенья","Цветёт до появления листьев","Плоды содержат больше сахара после морозов"], threat:""},
+  thuja:     {name:"Туя западная",      latin:"Thuja occidentalis · семейство кипарисовых",pts:3,rarity:"common",   co2:40,  max_age:800,  species:0,   facts:["Живёт до 800 лет","Выделяет до 6 кг фитонцидов в сутки","Не теряет декоративности зимой"], threat:""},
+  mock_orange:{name:"Чубушник",         latin:"Philadelphus coronarius",                  pts:2,  rarity:"common",    co2:10,  max_age:30,   species:0,   facts:["Аромат цветов напоминает жасмин","Один из самых ароматных кустарников России"], threat:""},
+  serviceberry:{name:"Ирга колосистая", latin:"Amelanchier spicata · семейство розовых", pts:2,  rarity:"common",    co2:20,  max_age:30,   species:0,   facts:["Одна из первых ягод созревающих в России","Ягоды богаты антиоксидантами","Переносит морозы до -50°C"], threat:""},
+  cotoneaster:{name:"Кизильник",        latin:"Cotoneaster lucidus · семейство розовых",  pts:2,  rarity:"common",    co2:15,  max_age:50,   species:0,   facts:["Один из самых морозостойких декоративных кустарников","Красные ягоды сохраняются всю зиму","Не требует ухода"], threat:""},
+};
+
+// SVG иконки для каталога
+const TREE_ICONS = {
+  oak:     'PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgeD0iMjkiIHk9IjM4IiB3aWR0aD0iNiIgaGVpZ2h0PSIxOCIgcng9IjIiIGZpbGw9IiM1ZDQwMzciLz48ZWxsaXBzZSBjeD0iMzIiIGN5PSIyMiIgcng9IjE4IiByeT0iMTYiIGZpbGw9IiMyZTdkMzIiLz48ZWxsaXBzZSBjeD0iMjAiIGN5PSIyOCIgcng9IjEwIiByeT0iOSIgZmlsbD0iIzM4OGUzYyIvPjxlbGxpcHNlIGN4PSI0NCIgY3k9IjI4IiByeD0iMTAiIHJ5PSI5IiBmaWxsPSIjMzg4ZTNjIi8+PGVsbGlwc2UgY3g9IjMyIiBjeT0iMTYiIHJ4PSIxMyIgcnk9IjExIiBmaWxsPSIjNDNhMDQ3Ii8+PC9zdmc+',
+  birch:   'PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgeD0iMzAiIHk9IjE4IiB3aWR0aD0iNCIgaGVpZ2h0PSI0MCIgcng9IjIiIGZpbGw9IiNlZWVlZWUiLz48cmVjdCB4PSIzMCIgeT0iMjQiIHdpZHRoPSI0IiBoZWlnaHQ9IjIiIHJ4PSIxIiBmaWxsPSIjNzU3NTc1Ii8+PHJlY3QgeD0iMzAiIHk9IjMyIiB3aWR0aD0iNCIgaGVpZ2h0PSIyIiByeD0iMSIgZmlsbD0iIzc1NzU3NSIvPjxlbGxpcHNlIGN4PSIzMiIgY3k9IjE0IiByeD0iOCIgcnk9IjEwIiBmaWxsPSIjNjZiYjZhIi8+PGVsbGlwc2UgY3g9IjI0IiBjeT0iMTgiIHJ4PSI3IiByeT0iOSIgZmlsbD0iIzgxYzc4NCIvPjxlbGxpcHNlIGN4PSI0MCIgY3k9IjE4IiByeD0iNyIgcnk9IjkiIGZpbGw9IiM4MWM3ODQiLz48L3N2Zz4=',
+  pine:    'PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgeD0iMzAiIHk9IjQ0IiB3aWR0aD0iNCIgaGVpZ2h0PSIxNCIgcng9IjEiIGZpbGw9IiM2ZDRjNDEiLz48cG9seWdvbiBwb2ludHM9IjMyLDQgNDQsMjggMjAsMjgiIGZpbGw9IiMyZTdkMzIiLz48cG9seWdvbiBwb2ludHM9IjMyLDE0IDQ2LDM2IDE4LDM2IiBmaWxsPSIjMzg4ZTNjIi8+PHBvbHlnb24gcG9pbnRzPSIzMiwyNCA0OCw0OCAxNiw0OCIgZmlsbD0iIzQzYTA0NyIvPjwvc3ZnPg==',
+  spruce:  'PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgeD0iMzAiIHk9IjQ2IiB3aWR0aD0iNCIgaGVpZ2h0PSIxMiIgcng9IjEiIGZpbGw9IiM0ZTM0MmUiLz48cG9seWdvbiBwb2ludHM9IjMyLDIgNDAsMTggMjQsMTgiIGZpbGw9IiMxYjVlMjAiLz48cG9seWdvbiBwb2ludHM9IjMyLDEwIDQzLDI2IDIxLDI2IiBmaWxsPSIjMmU3ZDMyIi8+PHBvbHlnb24gcG9pbnRzPSIzMiwxOCA0NiwzNiAxOCwzNiIgZmlsbD0iIzM4OGUzYyIvPjxwb2x5Z29uIHBvaW50cz0iMzIsMjYgNTAsNDYgMTQsNDYiIGZpbGw9IiM0M2EwNDciLz48L3N2Zz4=',
+  linden:  'PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgeD0iMjkiIHk9IjQwIiB3aWR0aD0iNiIgaGVpZ2h0PSIxNiIgcng9IjIiIGZpbGw9IiM3OTU1NDgiLz48Y2lyY2xlIGN4PSIzMiIgY3k9IjI2IiByPSIxOCIgZmlsbD0iIzU1OGIyZiIvPjxjaXJjbGUgY3g9IjIwIiBjeT0iMjIiIHI9IjEwIiBmaWxsPSIjNjg5ZjM4Ii8+PGNpcmNsZSBjeD0iNDQiIGN5PSIyMiIgcj0iMTAiIGZpbGw9IiM2ODlmMzgiLz48Y2lyY2xlIGN4PSIzMiIgY3k9IjE1IiByPSIxMCIgZmlsbD0iIzdjYjM0MiIvPjwvc3ZnPg==',
+  cedar:   'PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgeD0iMjkiIHk9IjQ0IiB3aWR0aD0iNiIgaGVpZ2h0PSIxNCIgcng9IjIiIGZpbGw9IiM0ZTM0MmUiLz48cG9seWdvbiBwb2ludHM9IjMyLDIgMzgsMTQgMjYsMTQiIGZpbGw9IiMxYTIzN2UiIG9wYWNpdHk9IjAuOSIvPjxwb2x5Z29uIHBvaW50cz0iMzIsNiA0MiwyMiAyMiwyMiIgZmlsbD0iIzFiNWUyMCIvPjxwb2x5Z29uIHBvaW50cz0iMzIsMTQgNDUsMzAgMTksMzAiIGZpbGw9IiMyZTdkMzIiLz48cG9seWdvbiBwb2ludHM9IjMyLDIyIDQ4LDQyIDE2LDQyIiBmaWxsPSIjMzg4ZTNjIi8+PC9zdmc+',
+  fir:     'PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgeD0iMzAiIHk9IjQ2IiB3aWR0aD0iNCIgaGVpZ2h0PSIxMiIgcng9IjEiIGZpbGw9IiMzZTI3MjMiLz48cG9seWdvbiBwb2ludHM9IjMyLDQgMzcsMTYgMjcsMTYiIGZpbGw9IiMwMDRkNDAiLz48cG9seWdvbiBwb2ludHM9IjMyLDEwIDQwLDI0IDI0LDI0IiBmaWxsPSIjMDA2OTVjIi8+PHBvbHlnb24gcG9pbnRzPSIzMiwxOCA0MywzNCAyMSwzNCIgZmlsbD0iIzAwNzk2YiIvPjxwb2x5Z29uIHBvaW50cz0iMzIsMjYgNDcsNDYgMTcsNDYiIGZpbGw9IiMwMDg5N2IiLz48L3N2Zz4=',
+  lotus:   'PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGVsbGlwc2UgY3g9IjMyIiBjeT0iNTIiIHJ4PSIyMCIgcnk9IjQiIGZpbGw9IiMxYTIzN2UiIG9wYWNpdHk9IjAuMyIvPjxyZWN0IHg9IjMwIiB5PSIzNiIgd2lkdGg9IjQiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjMmU3ZDMyIi8+PGVsbGlwc2UgY3g9IjMyIiBjeT0iMjgiIHJ4PSI4IiByeT0iMTQiIGZpbGw9IiNmNDhmYjEiLz48ZWxsaXBzZSBjeD0iMjIiIGN5PSIzMCIgcng9IjYiIHJ5PSIxMiIgZmlsbD0iI2YwNjI5MiIgdHJhbnNmb3JtPSJyb3RhdGUoLTIwIDIyIDMwKSIvPjxlbGxpcHNlIGN4PSI0MiIgY3k9IjMwIiByeD0iNiIgcnk9IjEyIiBmaWxsPSIjZjA2MjkyIiB0cmFuc2Zvcm09InJvdGF0ZSgyMCA0MiAzMCkiLz48Y2lyY2xlIGN4PSIzMiIgY3k9IjI0IiByPSIzIiBmaWxsPSIjZmZjYzAyIi8+PC9zdmc+',
+  maple:   'PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgeD0iMjkiIHk9IjQwIiB3aWR0aD0iNiIgaGVpZ2h0PSIxNiIgcng9IjIiIGZpbGw9IiM2ZDRjNDEiLz48cGF0aCBkPSJNMzIgOCBMMzYgMTYgTDQ0IDE0IEw0MCAyMiBMNDggMjQgTDQwIDI4IEw0NCAzNiBMMzIgMzIgTDIwIDM2IEwyNCAyOCBMMTYgMjQgTDI0IDIyIEwyMCAxNCBMMjggMTYgWiIgZmlsbD0iI2U1MzkzNSIvPjwvc3ZnPg==',
+  yew:     'PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgeD0iMjkiIHk9IjQyIiB3aWR0aD0iNiIgaGVpZ2h0PSIxNiIgcng9IjIiIGZpbGw9IiM0ZTM0MmUiLz48ZWxsaXBzZSBjeD0iMzIiIGN5PSIyNiIgcng9IjE0IiByeT0iMTgiIGZpbGw9IiMwMDY5NWMiLz48ZWxsaXBzZSBjeD0iMjIiIGN5PSIzMCIgcng9IjkiIHJ5PSIxNCIgZmlsbD0iIzAwNzk2YiIvPjxlbGxpcHNlIGN4PSI0MiIgY3k9IjMwIiByeD0iOSIgcnk9IjE0IiBmaWxsPSIjMDA3OTZiIi8+PGNpcmNsZSBjeD0iMzAiIGN5PSIzNiIgcj0iMyIgZmlsbD0iI2ZmMWE0NCIvPjxjaXJjbGUgY3g9IjM4IiBjeT0iMjgiIHI9IjMiIGZpbGw9IiNmZjFhNDQiLz48L3N2Zz4=',
+  ginkgo:  'PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgeD0iMzAiIHk9IjQyIiB3aWR0aD0iNCIgaGVpZ2h0PSIxNiIgcng9IjIiIGZpbGw9IiM3OTU1NDgiLz48cGF0aCBkPSJNMzIgOCBDMjQgMTIgMTggMjAgMjQgMzIgQzI4IDM4IDMyIDQyIDMyIDQyIEMzMiA0MiAzNiAzOCA0MCAzMiBDNDYgMjAgNDAgMTIgMzIgOCBaIiBmaWxsPSIjZjlhODI1Ii8+PHBhdGggZD0iTTMyIDggQzI2IDEzIDIzIDIyIDI5IDMzIEMzMSAzOCAzMiA0MiAzMiA0MiBDMzIgNDIgMzMgMzggMzUgMzMgQzQxIDIyIDM4IDEzIDMyIDggWiIgZmlsbD0iI2ZiYzAyZCIgb3BhY2l0eT0iMC43Ii8+PC9zdmc+',
+  magnolia:'PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgeD0iMjkiIHk9IjQyIiB3aWR0aD0iNiIgaGVpZ2h0PSIxNiIgcng9IjIiIGZpbGw9IiM1ZDQwMzciLz48ZWxsaXBzZSBjeD0iMzIiIGN5PSIyNiIgcng9IjE0IiByeT0iMTYiIGZpbGw9IiNmY2U0ZWMiLz48ZWxsaXBzZSBjeD0iMjIiIGN5PSIzMCIgcng9IjkiIHJ5PSIxMiIgZmlsbD0iI2Y4YmJkMCIgdHJhbnNmb3JtPSJyb3RhdGUoLTE1IDIyIDMwKSIvPjxlbGxpcHNlIGN4PSI0MiIgY3k9IjMwIiByeD0iOSIgcnk9IjEyIiBmaWxsPSIjZjhiYmQwIiB0cmFuc2Zvcm09InJvdGF0ZSgxNSA0MiAzMCkiLz48Y2lyY2xlIGN4PSIzMiIgY3k9IjIwIiByPSI1IiBmaWxsPSIjZmY4MGFiIi8+PC9zdmc+',
+  _default:'PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgeD0iMjkiIHk9IjQwIiB3aWR0aD0iNiIgaGVpZ2h0PSIxNiIgcng9IjIiIGZpbGw9IiM1ZDQwMzciLz48ZWxsaXBzZSBjeD0iMzIiIGN5PSIyNCIgcng9IjE0IiByeT0iMTQiIGZpbGw9IiMyZTdkMzIiLz48ZWxsaXBzZSBjeD0iMjIiIGN5PSIyOCIgcng9IjkiIHJ5PSI5IiBmaWxsPSIjMzg4ZTNjIi8+PGVsbGlwc2UgY3g9IjQyIiBjeT0iMjgiIHJ4PSI5IiByeT0iOSIgZmlsbD0iIzM4OGUzYyIvPjxlbGxpcHNlIGN4PSIzMiIgY3k9IjE4IiByeD0iMTAiIHJ5PSIxMCIgZmlsbD0iIzQzYTA0NyIvPjwvc3ZnPg=='
+};
+
+const RARITY_LABELS = {common:'Обычный',uncommon:'Необычный',epic:'Эпический',legendary:'Легендарный',discovered:'Открыто',rare_find:'🌟 Редкая находка',not_tree:'Не дерево'};
+const RARITY_CLASS  = {common:'r-common',uncommon:'r-common',epic:'r-epic',legendary:'r-legendary',discovered:'r-common',rare_find:'r-rare',not_tree:'r-not-tree'};
+
+// ─── СОСТОЯНИЕ ──────────────────────────────────────────────────────────────
+const state = {
+  scanned: [],
+  pts: 0, planted: 0, ppts: 0, spts: 0,
+  currentTree: null,    // id текущего дерева (из TREES или из discovered)
+  currentName: '',      // название для экрана поделиться
+  currentPhoto: null,   // data URL фото пользователя
+  discovered: {},       // {id: {name, latin, pts, rarity, co2, max_age, facts, threat}}
+  personalScans: 0,
+  telegramId: null,
+  firstName: '',
+  rank: 1,
+  friends: 0,
+  fpts: 0,
+  uniqueTrees: 0,
+  currentScanId: null,
+};
+
+// ─── ИНИЦИАЛИЗАЦИЯ ──────────────────────────────────────────────────────────
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+async function loadUserData() {
+  const tgUser = tg?.initDataUnsafe?.user;
+  if (!tgUser) { console.log('Нет tgUser'); return; }
+  state.telegramId = tgUser.id;
+  state.firstName = tgUser.first_name || '';
+  const nameEl = document.getElementById('user-name-display');
+  if (nameEl) nameEl.textContent = state.firstName;
+  try {
+    const resp = await fetch(SERVER_URL + '/user?telegram_id=' + tgUser.id);
+    const data = await resp.json();
+    if (data.found) {
+      state.pts = data.total_points || 0;
+      state.spts = data.scan_points || 0;
+      state.fpts = data.friend_points || 0;
+      state.scanned = data.scanned || [];
+      state.personalScans = data.total_scans || state.scanned.length;
+      state.uniqueTrees = data.unique_trees || state.scanned.length;
+      state.firstName = data.first_name || state.firstName;
+      state.rank = data.rank || 1;
+      state.friends = data.friends || 0;
+      if (nameEl) nameEl.textContent = state.firstName;
+      // Обновляем реферальную ссылку
+      const refLinkEl = document.getElementById('ref-link-display');
+      if (refLinkEl && state.telegramId) refLinkEl.textContent = `t.me/ForestSherlockBot?start=${state.telegramId}`;
+      renderAchievements();
+    }
+  } catch(e) { console.log('loadUserData error:', e); }
+}
+
+// Логотип
+(function setLogo() {
+  const LOGO_SRC = 'data:image/png;base64,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';
+  ['logo-scan','logo-share','logo-ach'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.src = LOGO_SRC;
+    el.style.cssText = 'width:32px;height:32px;object-fit:contain;mix-blend-mode:screen;border-radius:6px;';
+  });
+  const la = document.getElementById('logo-about');
+  if (la) {
+    la.src = LOGO_SRC;
+    la.style.cssText = 'width:52px;height:52px;object-fit:contain;mix-blend-mode:screen;border-radius:8px;';
+  }
+})();
+
+// Глобальный счётчик
+(function fetchStats() {
+  fetch(SERVER_URL + '/stats')
+    .then(r => r.json())
+    .then(d => {
+      const el = document.getElementById('global-counter');
+      if (!el) return;
+      const n = d.total_scans || 0;
+      el.textContent = n > 999 ? Math.floor(n / 1000) + 'к' : n || '1.2к';
+    })
+    .catch(() => {
+      const el = document.getElementById('global-counter');
+      if (el) el.textContent = '1.2к';
+    });
+})();
+
+// Последние сканирования
+async function loadRecentScans() {
+  if (!state.telegramId) return;
+  try {
+    const resp = await fetch(SERVER_URL + '/recent?telegram_id=' + state.telegramId);
+    const data = await resp.json();
+    if (!data.items || !data.items.length) return;
+    const feed = document.getElementById('recent-feed');
+    if (!feed) return;
+    const RARITY_COLORS = {common:'#3a7a52',uncommon:'#3a7a52',epic:'#c4844a',legendary:'#9060d0',discovered:'#3a7a52'};
+    feed.innerHTML = data.items.map(item => {
+      const date = item.scanned_at ? new Date(item.scanned_at) : null;
+      const dateStr = date ? formatDate(date) : '';
+      const color = RARITY_COLORS[item.rarity] || '#3a7a52';
+      const icon = TREE_ICONS[item.tree_id] || TREE_ICONS._default;
+      return `<div class="feed-item">
+        <div class="feed-icon"><img src="data:image/svg+xml;base64,${icon}" alt="${item.name_ru}" style="width:32px;height:32px;object-fit:contain"></div>
+        <div><div class="feed-name" style="color:${color}">${item.name_ru}</div><div class="feed-meta">${dateStr}</div></div>
+        <div class="feed-pts" style="color:${color}">${item.points_earned > 0 ? '+' + item.points_earned + ' pts' : '✓'}</div>
+      </div>`;
+    }).join('');
+  } catch(e) { console.log('loadRecentScans error:', e); }
+}
+
+function formatDate(date) {
+  const now = new Date();
+  const diff = Math.floor((now - date) / 1000);
+  if (diff < 60) return 'только что';
+  if (diff < 3600) return Math.floor(diff/60) + ' мин назад';
+  if (diff < 86400) return Math.floor(diff/3600) + ' ч назад';
+  if (diff < 604800) return Math.floor(diff/86400) + ' дн назад';
+  return date.toLocaleDateString('ru-RU');
+}
+
+// ─── НАВИГАЦИЯ ──────────────────────────────────────────────────────────────
+function switchTab(t) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n => { n.classList.remove('on'); n.setAttribute('aria-selected','false'); });
+  const screen = document.getElementById('screen-' + t);
+  const nav = document.getElementById('nav-' + t);
+  if (screen) screen.classList.add('active');
+  if (nav) { nav.classList.add('on'); nav.setAttribute('aria-selected','true'); }
+  state.tab = t;
+  if (t === 'achievements') { loadTreesCatalog().then(() => loadUserData().then(() => renderAchievements())); }
+  if (tg) tg.HapticFeedback?.selectionChanged();
+}
+
+// ─── СКАНИРОВАНИЕ ──────────────────────────────────────────────────────────
+function triggerCamera() {
+  document.getElementById('input-camera').click();
+}
+
+function resetFileInput(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.value = '';
+  try { el.type = 'text'; el.type = 'file'; } catch(e) {}
+}
+
+async function compressImage(file, maxDim, quality) {
+  return new Promise(resolve => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let w = img.width, h = img.height;
+      if (w > maxDim || h > maxDim) {
+        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+        else { w = Math.round(w * maxDim / h); h = maxDim; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(blob => {
+        const reader = new FileReader();
+        reader.onload = ev => resolve({ blob, dataUrl: ev.target.result });
+        reader.readAsDataURL(blob);
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve({ blob: file, dataUrl: '' });
+    };
+    img.src = url;
+  });
+}
+
+async function handlePhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  // Скрываем главный экран, показываем спиннер
+  document.getElementById('scan-home').style.display = 'none';
+  document.getElementById('scan-result').style.display = 'none';
+  document.getElementById('scan-loading').classList.add('show');
+
+  try {
+    const { blob, dataUrl } = await compressImage(file, 800, 0.75);
+    state.currentPhoto = dataUrl;
+
+    const fd = new FormData();
+    fd.append('file', blob, 'photo.jpg');
+
+    const tid = state.telegramId ? '?telegram_id=' + state.telegramId : '';
+    const resp = await fetch(SERVER_URL + '/recognize' + tid, { method: 'POST', body: fd });
+    const data = await resp.json();
+
+    document.getElementById('scan-loading').classList.remove('show');
+
+    if (!data.ok) throw new Error(data.error || 'Ошибка сервера');
+
+    state.currentScanId = data.scan_id || null;
+    const res = data.result;
+    // Сервер может вернуть name или name_ru — поддерживаем оба
+    if (res && res.name && !res.name_ru) res.name_ru = res.name;
+    if (!res || !res.name_ru) {
+      showUnknown();
+      return;
+    }
+
+    // Не дерево — показываем отбивку без очков
+    if (data.is_tree === false || res.is_tree === false) {
+      showNotTree(res);
+      return;
+    }
+
+    // Определяем: есть дерево в каталоге или редкая находка
+    const treeId = res.tree_id || null;
+    const isRareFind = data.is_rare_find === true;
+
+    if (treeId && TREES[treeId]) {
+      showKnownResult(treeId, res.confidence || 90, data);
+    } else {
+      showRawResult(res, isRareFind, data);
+    }
+
+  } catch (err) {
+    document.getElementById('scan-loading').classList.remove('show');
+    document.getElementById('scan-home').style.display = 'block';
+    resetFileInput('input-camera');
+    resetFileInput('input-gallery');
+    alert('Ошибка: ' + err.message + '. Попробуй ещё раз.');
+  }
+}
+
+// Показать результат для известного дерева из каталога
+function showKnownResult(treeId, confidence, data) {
+  const t = TREES[treeId];
+  state.currentTree = treeId;
+  state.currentName = t.name;
+
+  // Сервер — единственный источник истины по очкам.
+  // scan_id есть => скан записан в БД, берём points_earned и is_new_species из ответа.
+  const serverSaved = data && data.scan_id != null;
+  let isNew, ptsEarned;
+  if (serverSaved) {
+    isNew = data.is_new_species === true;
+    ptsEarned = data.points_earned || 0;
+  } else if (!state.telegramId) {
+    // Демо-режим вне Telegram — считаем локально, в БД ничего не пишется
+    isNew = !state.scanned.includes(treeId);
+    ptsEarned = isNew ? t.pts : 0;
+  } else {
+    // Скан не сохранён (низкая уверенность / ошибка БД) — очков нет
+    isNew = false;
+    ptsEarned = 0;
+  }
+
+  if (isNew) {
+    if (!state.scanned.includes(treeId)) state.scanned.push(treeId);
+    state.pts += ptsEarned;
+    state.spts += ptsEarned;
+    state.personalScans++;
+    if (ptsEarned > 0) setTimeout(() => showCongrats(t.name, ptsEarned), 600);
+  }
+
+  _fillResultScreen(t.name, t.latin, confidence, t.rarity, t.co2, t.max_age, t.species, t.facts, t.threat, ptsEarned > 0 ? ptsEarned : t.pts);
+  if (state.telegramId) setTimeout(loadUserData, 2000);
+}
+
+// Показать результат для неизвестного дерева (ИИ распознал, но нет в каталоге) — редкая находка
+function showRawResult(res, isRareFind, data) {
+  const treeId = 'disc_' + Date.now();
+  state.currentTree = treeId;
+  state.currentName = res.name_ru || 'Растение';
+
+  // Сервер — единственный источник истины по очкам
+  const serverSaved = data && data.scan_id != null;
+  let isNew, pts;
+  if (serverSaved) {
+    isNew = data.is_new_species === true;
+    pts = data.points_earned || 0;
+  } else if (!state.telegramId) {
+    // Демо-режим вне Telegram
+    isNew = true;
+    pts = isRareFind ? 10 : 3;
+  } else {
+    isNew = false;
+    pts = 0;
+  }
+  const rarity = isRareFind ? 'rare_find' : 'discovered';
+
+  // Сохраняем в discovered
+  state.discovered[treeId] = {
+    name: res.name_ru,
+    latin: (res.name_latin || '') + (res.family ? ' · ' + res.family : ''),
+    pts,
+    rarity,
+    co2: res.co2_per_year || null,
+    max_age: res.max_age || null,
+    facts: res.facts || [],
+    threat: res.threat || ''
+  };
+
+  if (isNew) {
+    state.personalScans++;
+    if (pts > 0) {
+      state.pts += pts;
+      state.spts += pts;
+      setTimeout(() => showCongrats(res.name_ru || 'Растение', pts, isRareFind), 600);
+    }
+  }
+  if (state.telegramId) setTimeout(loadUserData, 2000);
+
+  _fillResultScreen(
+    res.name_ru,
+    (res.name_latin || '') + (res.family ? ' · ' + res.family : ''),
+    res.confidence || 90,
+    rarity,
+    res.co2_per_year || null,
+    res.max_age || null,
+    null,
+    res.facts || [],
+    res.threat || '',
+    pts
+  );
+}
+
+// Показать отбивку "не дерево" — очки не начисляются
+function showNotTree(res) {
+  state.currentTree = null;
+  state.currentScanId = null;
+  state.currentName = res.name_ru || 'Растение';
+
+  document.getElementById('result-photo').src = state.currentPhoto || '';
+  const rw = document.getElementById('ref-photo-wrap');
+  if (rw) rw.style.display = 'none';
+
+  document.getElementById('match-badge').textContent = (res.confidence || 90) + '% совпадение';
+
+  const rb = document.getElementById('rarity-badge');
+  rb.textContent = '🌿 Не дерево';
+  rb.className = 'badge-rarity r-not-tree';
+
+  document.getElementById('result-name').textContent = res.name_ru || 'Растение';
+  document.getElementById('result-latin').textContent = (res.name_latin || '') + (res.family ? ' · ' + res.family : '');
+
+  // CO2 без очков — только данные если есть
+  let co2html = '';
+  if (res.co2_per_year) co2html += `<div class="co2-chip"><div class="co2-n">${res.co2_per_year} кг</div><div class="co2-l">CO₂<br>в год</div></div>`;
+  if (res.max_age)      co2html += `<div class="co2-chip"><div class="co2-n">${res.max_age}</div><div class="co2-l">лет<br>живёт</div></div>`;
+  co2html += `<div class="co2-chip" style="opacity:.5"><div class="co2-n">—</div><div class="co2-l">очков<br>не начисляется</div></div>`;
+  document.getElementById('co2-row').innerHTML = co2html;
+
+  document.getElementById('result-facts').innerHTML = (res.facts || [])
+    .map(f => `<div class="fact"><div class="fact-bar"></div><div class="fact-txt">${f}</div></div>`)
+    .join('') || `<div class="fact"><div class="fact-bar"></div><div class="fact-txt">Это не дерево — очки за него не начисляются. Найди дерево или кустарник!</div></div>`;
+
+  const tw = document.getElementById('result-threat-wrap');
+  if (res.threat) {
+    document.getElementById('result-threat-txt').textContent = res.threat;
+    tw.style.display = 'block';
+  } else {
+    tw.style.display = 'none';
+  }
+
+  document.getElementById('btn-plant').textContent = 'Посадить дерево — от 99 ₽';
+  document.getElementById('share-tree-name').textContent = res.name_ru || 'Растение';
+  const sp = document.getElementById('share-photo');
+  if (sp) sp.src = state.currentPhoto || '';
+
+  // Фидбек скрываем — скан не записан
+  const fbRow = document.getElementById('feedback-row');
+  if (fbRow) fbRow.style.display = 'none';
+
+  document.getElementById('scan-result').style.display = 'block';
+  if (tg) tg.HapticFeedback?.notificationOccurred('warning');
+}
+
+// Показать "не определено"
+function showUnknown() {
+  state.currentTree = null;
+  state.currentName = 'Неизвестное растение';
+
+  document.getElementById('result-photo').src = state.currentPhoto || '';
+  const rw = document.getElementById('ref-photo-wrap');
+  if (rw) rw.style.display = 'none';
+  document.getElementById('match-badge').textContent = 'Не определено';
+  document.getElementById('rarity-badge').textContent = '';
+  document.getElementById('rarity-badge').className = 'badge-rarity r-common';
+  document.getElementById('result-name').textContent = 'Неизвестное растение';
+  document.getElementById('result-latin').textContent = 'Попробуй сфотографировать крупнее и чётче';
+  document.getElementById('co2-row').innerHTML = '';
+  document.getElementById('result-facts').innerHTML = '<div class="fact"><div class="fact-bar"></div><div class="fact-txt">Сфотографируй лист или всё дерево крупнее</div></div>';
+  document.getElementById('result-threat-wrap').style.display = 'none';
+  document.getElementById('btn-plant').textContent = 'Посадить дерево — от 99 ₽';
+  document.getElementById('share-tree-name').textContent = 'Неизвестное растение';
+  const sp = document.getElementById('share-photo');
+  if (sp) sp.src = state.currentPhoto || '';
+  document.getElementById('scan-result').style.display = 'block';
+}
+
+// Внутренняя функция заполнения экрана результата
+function _fillResultScreen(name, latin, confidence, rarity, co2, max_age, species, facts, threat, pts) {
+  document.getElementById('result-photo').src = state.currentPhoto || '';
+  document.getElementById('match-badge').textContent = confidence + '% совпадение';
+
+  // Блок "так выглядит дерево" — SVG иконка из каталога
+  const refWrap = document.getElementById('ref-photo-wrap');
+  const refImg = document.getElementById('ref-tree-photo');
+  const refIconId = state.currentTree;
+  if (refWrap && refImg && refIconId && (TREE_ICONS[refIconId] || TREE_ICONS._default)) {
+    refImg.src = 'data:image/svg+xml;base64,' + (TREE_ICONS[refIconId] || TREE_ICONS._default);
+    refWrap.style.display = 'block';
+  } else if (refWrap) {
+    refWrap.style.display = 'none';
+  }
+
+  const rb = document.getElementById('rarity-badge');
+  rb.textContent = RARITY_LABELS[rarity] || 'Определено';
+  rb.className = 'badge-rarity ' + (RARITY_CLASS[rarity] || 'r-common');
+
+  document.getElementById('result-name').textContent = name;
+  document.getElementById('result-latin').textContent = latin;
+
+  // CO2 строка
+  let co2html = '';
+  if (co2)     co2html += `<div class="co2-chip"><div class="co2-n">${co2} кг</div><div class="co2-l">CO₂<br>в год</div></div>`;
+  if (max_age) co2html += `<div class="co2-chip"><div class="co2-n">${max_age}</div><div class="co2-l">лет<br>живёт</div></div>`;
+  if (species) co2html += `<div class="co2-chip"><div class="co2-n">${species}+</div><div class="co2-l">видов<br>кормит</div></div>`;
+  co2html += `<div class="co2-chip"><div class="co2-n">+${pts}</div><div class="co2-l">очков<br>за скан</div></div>`;
+  document.getElementById('co2-row').innerHTML = co2html;
+
+  // Факты
+  document.getElementById('result-facts').innerHTML = (facts || [])
+    .map(f => `<div class="fact"><div class="fact-bar"></div><div class="fact-txt">${f}</div></div>`)
+    .join('');
+
+  // Угроза
+  const tw = document.getElementById('result-threat-wrap');
+  if (threat) {
+    document.getElementById('result-threat-txt').textContent = threat;
+    tw.style.display = 'block';
+  } else {
+    tw.style.display = 'none';
+  }
+
+  document.getElementById('btn-plant').textContent = 'Посадить ' + name.split(' ')[0].toLowerCase() + ' — от 99 ₽';
+  document.getElementById('share-tree-name').textContent = name;
+  const sp = document.getElementById('share-photo');
+  if (sp) sp.src = state.currentPhoto || '';
+
+  document.getElementById('scan-result').style.display = 'block';
+
+  // Показываем кнопки фидбека если есть scan_id
+  const fbRow = document.getElementById('feedback-row');
+  const fbUp = document.getElementById('fb-up');
+  const fbDown = document.getElementById('fb-down');
+  if (fbRow) {
+    fbRow.style.display = state.currentScanId ? 'flex' : 'none';
+    if (fbUp) { fbUp.classList.remove('sent'); fbUp.style.display = ''; fbUp.innerHTML = '👍 Верно!'; }
+    if (fbDown) { fbDown.classList.remove('sent'); fbDown.style.display = ''; fbDown.innerHTML = '👎 Неверно'; }
+  }
+
+  if (tg) tg.HapticFeedback?.notificationOccurred('success');
+}
+
+async function sendFeedback(type) {
+  const scanId = state.currentScanId;
+  if (!scanId) return;
+  document.getElementById('fb-up').classList.add('sent');
+  document.getElementById('fb-down').classList.add('sent');
+  if (type === 'up') {
+    document.getElementById('fb-up').textContent = '✅ Спасибо!';
+    document.getElementById('fb-down').style.display = 'none';
+  } else {
+    document.getElementById('fb-down').textContent = '📝 Записано';
+    document.getElementById('fb-up').style.display = 'none';
+  }
+  try {
+    await fetch(SERVER_URL + '/feedback', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({scan_id: scanId, feedback: type})
+    });
+  } catch(e) { console.log('feedback error:', e); }
+  if (tg) tg.HapticFeedback?.notificationOccurred('success');
+}
+
+function resetScan() {
+  document.getElementById('scan-result').style.display = 'none';
+  document.getElementById('scan-loading').classList.remove('show');
+  document.getElementById('scan-home').style.display = 'block';
+  resetFileInput('input-camera');
+  resetFileInput('input-gallery');
+  state.currentPhoto = null;
+}
+
+// ─── КАТАЛОГ ДОСТИЖЕНИЙ ─────────────────────────────────────────────────────
+function renderAchievements() {
+  document.getElementById('u-pts').textContent = state.pts;
+  if (document.getElementById('u-fpts')) document.getElementById('u-fpts').textContent = state.fpts || 0;
+  document.getElementById('u-ppts').textContent = state.ppts || 0;
+  document.getElementById('u-spts').textContent = state.spts || 0;
+  document.getElementById('u-scans-count').textContent = state.personalScans || 0;
+  document.getElementById('u-unique-count').textContent = state.uniqueTrees || (state.scanned.length + Object.keys(state.discovered).length);
+  if (state.rank) document.getElementById('u-rank').textContent = '#' + state.rank + ' в рейтинге';
+  if (document.getElementById('u-friends')) document.getElementById('u-friends').textContent = state.friends || 0;
+  // Прогресс бар
+  const levels = [[0,'Горожанин'],[50,'Любитель природы'],[150,'Следопыт'],[300,'Лесничий'],[600,'Хранитель леса'],[1000,'Легенда леса']];
+  let curThresh = 0, nextThresh = 50, nextName = 'Любитель природы';
+  for (let i = 0; i < levels.length; i++) {
+    if (state.pts >= levels[i][0]) { curThresh = levels[i][0]; if (i+1 < levels.length) { nextThresh = levels[i+1][0]; nextName = levels[i+1][1]; } else { nextThresh = curThresh; nextName = levels[i][1]; } }
+  }
+  const pct = nextThresh > curThresh ? Math.round((state.pts - curThresh) / (nextThresh - curThresh) * 100) : 100;
+  const progEl = document.getElementById('u-prog');
+  const progHint = document.getElementById('u-prog-hint');
+  if (progEl) progEl.style.width = pct + '%';
+  if (progHint) progHint.textContent = pct + '% до уровня «' + nextName + '»';
+
+  // Объединяем каталог
+  const allEntries = [];
+  Object.entries(TREES).forEach(([id, t]) => {
+    allEntries.push({ id, name: t.name, pts: t.pts, rarity: t.rarity, found: state.scanned.includes(id) });
+  });
+  Object.entries(state.discovered).forEach(([id, t]) => {
+    allEntries.push({ id, name: t.name, pts: t.pts, rarity: 'discovered', found: true });
+  });
+  // Сортируем: сначала открытые, потом остальные
+  allEntries.sort((a, b) => {
+    if (a.found && !b.found) return -1;
+    if (!a.found && b.found) return 1;
+    return 0;
+  });
+
+  // Считаем все открытые: из каталога + из БД которых нет в каталоге
+  const openInCatalog = allEntries.filter(e => e.found).length;
+  const allKnownIds = Object.keys(TREES);
+  const extraScanned = state.scanned.filter(id => !allKnownIds.includes(id)).length;
+  const openCount = openInCatalog + extraScanned;
+  const totalCount = allEntries.length + extraScanned;
+  document.getElementById('cat-count').textContent = openCount + ' / ' + totalCount + ' открыто';
+
+  console.log('cedar pts:', TREES['cedar']?.pts, 'lotus pts:', TREES['lotus']?.pts);
+  const grid = document.getElementById('tree-grid');
+  grid.innerHTML = allEntries.map(entry => {
+    const { id, name, pts, rarity, found } = entry;
+    const isEpic = rarity === 'epic';
+    const isLeg = rarity === 'legendary';
+    let cls = '';
+    if (found) cls = isEpic ? 'found rare' : isLeg ? 'found legendary' : 'found';
+    else cls = isEpic ? 'rare' : isLeg ? 'legendary' : '';
+
+    const iconB64 = TREE_ICONS[id] || TREE_ICONS._default;
+    const imgStyle = found
+      ? 'width:32px;height:32px;object-fit:contain'
+      : 'width:32px;height:32px;object-fit:contain;filter:grayscale(1) brightness(0.2)';
+
+    const shortName = name.split(' ').slice(0, 2).join(' ');
+
+    return `<div class="tile ${cls}" onclick="openTreeModal('${id}')" role="button" aria-label="${name}">
+      ${found ? '<div class="glow"></div>' : ''}
+      <div class="tile-pts">+${pts}</div>
+      <div class="tile-icon"><img src="data:image/svg+xml;base64,${iconB64}" alt="${name}" style="${imgStyle}"></div>
+      <div class="tile-name">${shortName}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── МОДАЛЬНОЕ ОКНО ─────────────────────────────────────────────────────────
+function openTreeModal(id) {
+  if (tg) tg.HapticFeedback?.impactOccurred('light');
+
+  // Ищем данные — сначала в TREES, потом в discovered
+  let t = null;
+  let found = false;
+
+  if (TREES[id]) {
+    t = TREES[id];
+    found = state.scanned.includes(id);
+  } else if (state.discovered[id]) {
+    t = state.discovered[id];
+    t.name = t.name; // уже есть
+    found = true;
+  }
+  if (!t) return;
+
+  const iconB64 = TREE_ICONS[id] || TREE_ICONS._default;
+  const imgEl = document.getElementById('modal-photo');
+  imgEl.src = 'data:image/svg+xml;base64,' + iconB64;
+  imgEl.style.filter = found ? 'none' : 'grayscale(1) brightness(0.25)';
+
+  // Редкость
+  const rb = document.getElementById('modal-rarity-badge');
+  const rLabel = RARITY_LABELS[t.rarity] || 'Вид';
+  const rStyle = t.rarity === 'epic'
+    ? 'background:rgba(26,18,8,.9);border:.5px solid #5c3a10;color:#c4844a'
+    : t.rarity === 'legendary'
+    ? 'background:rgba(20,10,32,.9);border:.5px solid #4a2080;color:#9060d0'
+    : 'background:rgba(6,10,7,.85);border:.5px solid #1a2e20;color:#3a7a52';
+  rb.textContent = rLabel;
+  rb.style.cssText = rStyle;
+
+  document.getElementById('modal-name').textContent = t.name || id;
+  document.getElementById('modal-latin').textContent = t.latin || '';
+
+  // CO2
+  const co2el = document.getElementById('modal-co2');
+  let co2html = '';
+  if (found) {
+    if (t.co2)     co2html += `<div class="modal-co2-chip"><div class="modal-co2-n">${t.co2} кг</div><div class="modal-co2-l">CO₂<br>в год</div></div>`;
+    if (t.max_age) co2html += `<div class="modal-co2-chip"><div class="modal-co2-n">${t.max_age}</div><div class="modal-co2-l">лет<br>живёт</div></div>`;
+  }
+  co2html += `<div class="modal-co2-chip"><div class="modal-co2-n">+${t.pts || 3}</div><div class="modal-co2-l">очков<br>за скан</div></div>`;
+  co2el.innerHTML = co2html;
+
+  // Факты
+  const factsEl = document.getElementById('modal-facts');
+  if (found && t.facts && t.facts.length) {
+    factsEl.innerHTML = t.facts.map(f => `<div class="fact"><div class="fact-bar"></div><div class="fact-txt">${f}</div></div>`).join('');
+    factsEl.style.display = 'flex';
+  } else {
+    factsEl.style.display = 'none';
+  }
+
+  // Угроза
+  const threatWrap = document.getElementById('modal-threat');
+  if (found && t.threat) {
+    document.getElementById('modal-threat-txt').textContent = t.threat;
+    threatWrap.style.display = 'block';
+  } else {
+    threatWrap.style.display = 'none';
+  }
+
+  // Заблокировано
+  document.getElementById('modal-locked').style.display = found ? 'none' : 'block';
+
+  document.getElementById('tree-modal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModalOutside(e) {
+  if (e.target.id === 'tree-modal') closeModal();
+}
+
+function closeModal() {
+  document.getElementById('tree-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// ─── ПОДЕЛИТЬСЯ ─────────────────────────────────────────────────────────────
+function getRefLink() {
+  const id = state.telegramId;
+  return id ? `https://t.me/ForestSherlockBot?start=${id}` : 'https://t.me/ForestSherlockBot';
+}
+
+function copyLink() {
+  const url = getRefLink();
+  navigator.clipboard?.writeText(url).then(() => {
+    const b = document.getElementById('copy-badge');
+    b.textContent = 'скопировано';
+    setTimeout(() => b.textContent = 'копировать', 2000);
+  });
+  if (tg) tg.HapticFeedback?.notificationOccurred('success');
+}
+
+function shareToTelegram() {
+  const name = state.currentName || 'дерево';
+  window.open('https://t.me/share/url?url=' + encodeURIComponent(getRefLink()) + '&text=' + encodeURIComponent('Нашёл ' + name + ' с ботом Сохрани Лес! Попробуй: '));
+}
+
+function shareNative() {
+  if (navigator.share) {
+    navigator.share({ title: 'Сохрани Лес', text: 'Нашёл ' + (state.currentName || 'дерево') + '!', url: 'https://t.me/ForestSherlockBot' });
+  } else {
+    copyLink();
+  }
+}
+
+// ─── СИНХРОНИЗАЦИЯ ОЧКОВ ИЗ БД ─────────────────────────────────────────────
+async function loadTreesCatalog() {
+  try {
+    const resp = await fetch(SERVER_URL + '/trees');
+    const data = await resp.json();
+    if (!data.trees || !data.trees.length) return;
+    data.trees.forEach(t => {
+      if (TREES[t.tree_id]) {
+        TREES[t.tree_id].pts = t.points;
+        TREES[t.tree_id].rarity = t.rarity;
+      }
+    });
+    console.log('Каталог синхронизирован из БД: ' + data.trees.length + ' деревьев');
+  } catch(e) {
+    console.log('loadTreesCatalog error:', e);
+  }
+}
+
+// ─── ОНБОРДИНГ ──────────────────────────────────────────────────────────────
+const ONBOARD_SLIDES = [
+  {
+    icon: '🌲',
+    title: 'Добро пожаловать\nв Сохрани Лес',
+    desc: 'Определяй деревья и растения с помощью ИИ. Собирай коллекцию видов и помогай природе.',
+    content: ''
+  },
+  {
+    icon: '📷',
+    title: 'Как зарабатывать очки',
+    desc: '',
+    steps: [
+      {icon:'📷', txt:'Сканируй новые виды — каждый новый вид приносит очки'},
+      {icon:'🌲', txt:'Сажай деревья — 100 ₽ = 5 очков в нацпарках России'},
+      {icon:'👥', txt:'Приглашай друзей — +5 очков за каждого нового пользователя'},
+    ]
+  },
+  {
+    icon: '🏆',
+    title: 'Уровни эксперта',
+    desc: 'Чем больше видов найдёшь — тем выше уровень',
+    levels: [
+      {name:'🌆 Горожанин', pts:'0 очков'},
+      {name:'🌿 Любитель природы', pts:'50 очков'},
+      {name:'🦶 Следопыт', pts:'150 очков'},
+      {name:'🌳 Лесничий', pts:'300 очков'},
+      {name:'🛡️ Хранитель леса', pts:'600 очков'},
+      {name:'⭐ Легенда леса', pts:'1000 очков'},
+    ]
+  }
+];
+let onboardStep = 0;
+
+function renderOnboardSlide() {
+  const s = ONBOARD_SLIDES[onboardStep];
+  const slide = document.getElementById('onboard-slide');
+  let html = `<div class="onboard-icon">${s.icon}</div>
+    <div class="onboard-title">${s.title.replace('\n','<br>')}</div>`;
+  if (s.desc) html += `<div class="onboard-desc">${s.desc}</div>`;
+  if (s.steps) {
+    html += `<div class="onboard-steps">` + s.steps.map(st =>
+      `<div class="onboard-step"><div class="onboard-step-icon">${st.icon}</div><div class="onboard-step-txt">${st.txt}</div></div>`
+    ).join('') + `</div>`;
+  }
+  if (s.levels) {
+    html += `<div class="onboard-levels">` + s.levels.map(l =>
+      `<div class="onboard-level"><span class="onboard-level-name">${l.name}</span><span class="onboard-level-pts">${l.pts}</span></div>`
+    ).join('') + `</div>`;
+  }
+  slide.innerHTML = html;
+  slide.style.animation = 'none';
+  setTimeout(() => slide.style.animation = 'slideIn .3s ease', 10);
+  // Dots
+  ONBOARD_SLIDES.forEach((_, i) => {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'onboard-dot' + (i === onboardStep ? ' active' : '');
+  });
+  const btn = document.getElementById('onboard-btn');
+  if (btn) btn.textContent = onboardStep < ONBOARD_SLIDES.length - 1 ? 'Далее →' : 'Начать 🌿';
+}
+
+function onboardNext() {
+  if (onboardStep < ONBOARD_SLIDES.length - 1) {
+    onboardStep++;
+    renderOnboardSlide();
+  } else {
+    onboardFinish();
+  }
+}
+
+function onboardFinish() {
+  document.getElementById('onboarding').classList.add('hidden');
+  try {
+    if (tg?.CloudStorage) {
+      tg.CloudStorage.setItem('onboard_done', '1');
+    } else {
+      localStorage.setItem('onboard_done', '1');
+    }
+  } catch(e) {}
+}
+
+function showOnboardingIfNeeded() {
+  try {
+    if (tg?.CloudStorage) {
+      tg.CloudStorage.getItem('onboard_done', (err, value) => {
+        if (!value) {
+          const el = document.getElementById('onboarding');
+          el.classList.remove('hidden');
+          renderOnboardSlide();
+        }
+      });
+    } else {
+      if (!localStorage.getItem('onboard_done')) {
+        const el = document.getElementById('onboarding');
+        el.classList.remove('hidden');
+        renderOnboardSlide();
+      }
+    }
+  } catch(e) {
+    // если всё сломалось — не показываем онбординг
+  }
+}
+
+// ─── ПОЗДРАВЛЕНИЕ ────────────────────────────────────────────────────────────
+function showCongrats(name, pts, isRareFind) {
+  // Скрываем онбординг если он показан
+  document.getElementById('onboarding').classList.add('hidden');
+  const overlay = document.getElementById('congrats-overlay');
+  const box = document.getElementById('congrats-box');
+
+  if (isRareFind) {
+    box.style.borderColor = 'var(--g2)';
+    overlay.querySelector('.congrats-emoji').textContent = '🌟';
+    overlay.querySelector('.congrats-title').textContent = 'Редкая находка!';
+    overlay.querySelector('.congrats-title').style.color = 'var(--g3)';
+  } else {
+    box.style.borderColor = '';
+    overlay.querySelector('.congrats-emoji').textContent = '🌿';
+    overlay.querySelector('.congrats-title').textContent = 'Новый вид открыт!';
+    overlay.querySelector('.congrats-title').style.color = '';
+  }
+
+  document.getElementById('congrats-pts').textContent = '+' + pts + ' очков';
+  document.getElementById('congrats-name').textContent = name;
+  overlay.classList.remove('hidden');
+  // Плавающие очки
+  const el = document.createElement('div');
+  el.className = 'float-pts';
+  el.textContent = '+' + pts;
+  el.style.cssText = `left:${40 + Math.random()*20}%;top:40%;`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1400);
+  // Автозакрытие через 3 секунды
+  clearTimeout(window._congratsTimer);
+  window._congratsTimer = setTimeout(() => closeCongratsOverlay(), 3000);
+  if (tg) tg.HapticFeedback?.notificationOccurred('success');
+}
+
+function closeCongratsOverlay() {
+  document.getElementById('congrats-overlay').classList.add('hidden');
+  clearTimeout(window._congratsTimer);
+}
+
+// ─── ПЕРВЫЙ ЗАПУСК ──────────────────────────────────────────────────────────
+showOnboardingIfNeeded();
+loadTreesCatalog().then(() => {
+  renderAchievements();
+  loadUserData().then(() => loadRecentScans());
+});
+</script>
+</body>
+</html>
