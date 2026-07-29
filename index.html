@@ -133,6 +133,14 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
 .lb-row.me .lb-name{color:var(--g3)}
 .lb-pts{font-size:12px;color:var(--g3)}
 .lb-empty{padding:22px 14px;text-align:center;color:var(--t2);font-size:11px;line-height:1.6}
+.lb-sorts{padding-top:0}
+.lb-sorts .lb-tab{font-size:10px;padding:7px 6px}
+.lb-medal{font-size:15px;line-height:1;min-width:26px;text-align:center}
+.lb-metric{font-size:9px;color:var(--t2);margin-top:1px}
+.lb-invite{width:100%;padding:12px;border-radius:var(--rs);background:var(--bg3);
+  border:.5px solid var(--g1);color:var(--g3);font-size:12px;font-family:inherit;
+  cursor:pointer;margin-top:2px}
+.lb-invite:active{opacity:.7}
 .lb-back{display:inline-flex;align-items:center;gap:5px;background:none;border:none;
   color:var(--g3);font-size:12px;cursor:pointer;padding:0 0 10px;font-family:inherit}
 .user-pts-wrap{margin-left:auto;text-align:right}
@@ -448,10 +456,17 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
     <div><div class="hdr-title">Рейтинг</div><div class="hdr-sub" id="lb-sub">Кто собрал больше видов</div></div>
   </div>
   <div class="lb-tabs">
-    <div class="lb-tab on" id="lb-tab-global" onclick="loadLeaderboard('global')">Общий</div>
-    <div class="lb-tab" id="lb-tab-friends" onclick="loadLeaderboard('friends')">Мои друзья</div>
+    <div class="lb-tab on" id="lb-tab-global" onclick="setLbScope('global')">Общий</div>
+    <div class="lb-tab" id="lb-tab-friends" onclick="setLbScope('friends')">Мои друзья</div>
+  </div>
+  <div class="lb-tabs lb-sorts">
+    <div class="lb-tab on" id="lb-sort-points" onclick="setLbSort('points')">По очкам</div>
+    <div class="lb-tab" id="lb-sort-species" onclick="setLbSort('species')">По видам</div>
   </div>
   <div class="card"><div id="lb-list"><div class="lb-empty">Загружаю…</div></div></div>
+  <button class="lb-invite" id="lb-invite" onclick="switchTab('share')" style="display:none">
+    Пригласить друга — +5 очков
+  </button>
 </div><!-- /screen-leaderboard -->
 
 <div class="screen" id="screen-about">
@@ -668,7 +683,8 @@ async function loadUserData() {
   const nameEl = document.getElementById('user-name-display');
   if (nameEl) nameEl.textContent = state.firstName;
   try {
-    const resp = await fetch(SERVER_URL + '/user?telegram_id=' + tgUser.id);
+    const nameParam = state.firstName ? '&name=' + encodeURIComponent(state.firstName) : '';
+    const resp = await fetch(SERVER_URL + '/user?telegram_id=' + tgUser.id + nameParam);
     const data = await resp.json();
     if (data.found) {
       state.pts = data.total_points || 0;
@@ -781,15 +797,30 @@ function switchTab(t) {
 // ─── РЕЙТИНГ ────────────────────────────────────────────────────────────────
 function openLeaderboard() {
   switchTab('leaderboard');
-  loadLeaderboard(state.lbScope || 'global');
+  loadLeaderboard();
 }
 
-async function loadLeaderboard(scope) {
-  state.lbScope = scope;
+function setLbScope(scope) { state.lbScope = scope; loadLeaderboard(); }
+function setLbSort(sort)   { state.lbSort  = sort;  loadLeaderboard(); }
+
+const LB_MEDALS = ['🥇', '🥈', '🥉'];
+
+async function loadLeaderboard() {
+  const scope = state.lbScope || 'global';
+  const sort  = state.lbSort  || 'points';
+
   document.getElementById('lb-tab-global').classList.toggle('on', scope === 'global');
   document.getElementById('lb-tab-friends').classList.toggle('on', scope === 'friends');
-  document.getElementById('lb-sub').textContent =
-    scope === 'friends' ? 'Ты и приглашённые тобой' : 'Кто собрал больше видов';
+  document.getElementById('lb-sort-points').classList.toggle('on', sort === 'points');
+  document.getElementById('lb-sort-species').classList.toggle('on', sort === 'species');
+
+  const byPoints = sort === 'points';
+  document.getElementById('lb-sub').textContent = scope === 'friends'
+    ? (byPoints ? 'Ты и приглашённые — по очкам' : 'Ты и приглашённые — по видам')
+    : (byPoints ? 'У кого больше очков' : 'У кого больше видов');
+
+  const invite = document.getElementById('lb-invite');
+  invite.style.display = scope === 'friends' ? 'block' : 'none';
 
   const list = document.getElementById('lb-list');
   list.innerHTML = '<div class="lb-empty">Загружаю…</div>';
@@ -799,39 +830,52 @@ async function loadLeaderboard(scope) {
     return;
   }
   try {
-    const resp = await fetch(SERVER_URL + '/leaderboard?telegram_id=' + state.telegramId + '&scope=' + scope);
+    const resp = await fetch(SERVER_URL + '/leaderboard?telegram_id=' + state.telegramId +
+                             '&scope=' + scope + '&sort=' + sort);
     const data = await resp.json();
     const items = data.items || [];
 
-    if (!items.length) {
+    if (!items.length || (scope === 'friends' && items.length === 1)) {
       list.innerHTML = scope === 'friends'
-        ? '<div class="lb-empty">Пока никого нет.<br>Пригласи друзей на вкладке «Поделиться» —<br>за каждого +5 очков.</div>'
+        ? '<div class="lb-empty">Ты пока никого не пригласил.<br>За каждого друга +5 очков.</div>'
         : '<div class="lb-empty">Рейтинг пока пуст</div>';
-      return;
+      if (scope === 'friends' && items.length === 1) return;
+      if (!items.length) return;
     }
 
     list.innerHTML = items.map(it => {
-      const topCls = it.place <= 3 ? ' top' : '';
+      const medal = it.place <= 3 ? LB_MEDALS[it.place - 1] : null;
       const meCls = it.is_me ? ' me' : '';
       const name = escapeHtml(it.name) + (it.is_me ? ' — это ты' : '');
+      const main = byPoints ? it.points : it.species;
+      const sub  = byPoints
+        ? (it.species + ' ' + plural(it.species, 'вид', 'вида', 'видов'))
+        : (it.points + ' ' + plural(it.points, 'очко', 'очка', 'очков'));
       return `<div class="lb-row${meCls}">
-        <div class="lb-place${topCls}">${it.place}</div>
-        <div class="lb-name">${name}</div>
-        <div class="lb-pts">${it.points}</div>
+        <div class="${medal ? 'lb-medal' : 'lb-place'}">${medal || it.place}</div>
+        <div class="lb-name">${name}<div class="lb-metric">${sub}</div></div>
+        <div class="lb-pts">${main}</div>
       </div>`;
     }).join('');
 
-    // Если сам не попал в показанную часть — дописываем строку про своё место
     if (data.my_place && !items.some(i => i.is_me)) {
       list.innerHTML += `<div class="lb-row me">
         <div class="lb-place">${data.my_place}</div>
         <div class="lb-name">Твоё место</div>
-        <div class="lb-pts">${state.pts || 0}</div>
+        <div class="lb-pts">${byPoints ? (state.pts || 0) : (state.scanned || []).length}</div>
       </div>`;
     }
   } catch(e) {
     list.innerHTML = '<div class="lb-empty">Не удалось загрузить рейтинг.<br>Попробуй ещё раз.</div>';
   }
+}
+
+function plural(n, one, few, many) {
+  const a = Math.abs(n) % 100, b = a % 10;
+  if (a > 10 && a < 20) return many;
+  if (b > 1 && b < 5) return few;
+  if (b === 1) return one;
+  return many;
 }
 
 function escapeHtml(str) {
