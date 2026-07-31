@@ -241,6 +241,146 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
 .fb-btn.up{background:#0c1a10;border:.5px solid var(--g1);color:var(--g3)}
 .fb-btn.down{background:#100c0c;border:.5px solid #3a1a1a;color:#c4844a}
 .fb-btn.sent{opacity:.5;pointer-events:none}
+
+/* ─── ЯЩИКИ, КУПОНЫ, КОНКУРСЫ ──────────────────────────────────────────── */
+.tier-common{--tc:#5dbb85;--tcb:#243828;--tcbg:#0b1710}
+.tier-rare  {--tc:#c4844a;--tcb:#5c3a10;--tcbg:#1a1208}
+.tier-legend{--tc:#9060d0;--tcb:#4a2080;--tcbg:#140a20}
+
+.contest{background:var(--bg1);border:.5px solid var(--b1);border-radius:var(--r);padding:13px;margin-bottom:9px}
+.contest-eyebrow{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--t4);margin-bottom:5px}
+.contest-title{font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--t1);letter-spacing:-.02em;margin-bottom:9px}
+.contest-clock{display:flex;gap:4px;margin-bottom:10px}
+.clock-cell{flex:1;background:var(--bg0);border:.5px solid var(--b1);border-radius:9px;padding:7px 4px;text-align:center}
+.clock-n{font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--g3);font-variant-numeric:tabular-nums;line-height:1.1}
+.clock-l{font-size:7.5px;color:var(--t4);letter-spacing:.06em;text-transform:uppercase;margin-top:3px}
+.cprize{display:flex;align-items:center;gap:9px;padding:6px 0;border-top:.5px solid var(--b1)}
+.cprize-pl{font-size:14px;line-height:1;width:20px;text-align:center;flex-shrink:0}
+.cprize-txt{font-size:10.5px;color:var(--t3);line-height:1.45}
+.contest.main{border-color:var(--g1);background:linear-gradient(180deg,#0b1710 0%,var(--bg1) 60%)}
+.contest.main .contest-eyebrow{color:var(--g3)}
+.contest-note{font-size:9px;color:var(--t4);line-height:1.5;margin-top:8px;padding-top:8px;border-top:.5px solid var(--b1)}
+.contest-live{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--g3);margin-right:5px;vertical-align:middle;animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+.coupon{position:relative;background:var(--tcbg);border:.5px solid var(--tcb);border-radius:12px;padding:11px 12px;display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.coupon::before,.coupon::after{content:'';position:absolute;left:52px;width:10px;height:10px;border-radius:50%;background:var(--bg0)}
+.coupon::before{top:-6px}
+.coupon::after{bottom:-6px}
+.cpn-ico{width:34px;height:34px;border-radius:9px;background:var(--bg0);border:.5px solid var(--tcb);color:var(--tc);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.cpn-body{flex:1;min-width:0;border-left:.5px dashed var(--tcb);padding-left:11px}
+.cpn-name{font-size:11px;font-weight:600;color:var(--tc)}
+.cpn-sub{font-size:8.5px;color:var(--t4);margin-top:2px;line-height:1.4}
+.cpn-bar{height:2px;background:var(--b1);border-radius:1px;overflow:hidden;margin-top:7px}
+.cpn-bar i{display:block;height:100%;background:var(--tc);border-radius:1px;transition:width .4s ease}
+.cpn-hint{font-size:8.5px;color:var(--t4);margin-top:4px}
+.cpn-n{font-family:var(--font-head);font-size:19px;font-weight:700;color:var(--tc);flex-shrink:0;font-variant-numeric:tabular-nums}
+
+.craft{width:100%;padding:10px;border-radius:10px;background:var(--bg2);border:.5px solid var(--tcb);color:var(--tc);font-family:var(--font-body);font-size:11px;font-weight:600;cursor:pointer;margin-bottom:9px;transition:opacity .15s}
+.craft:active{opacity:.7}
+.craft:disabled{opacity:.3;cursor:default}
+
+.crate-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:9px}
+.crate{background:var(--tcbg);border:.5px solid var(--tcb);border-radius:12px;padding:12px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;position:relative;transition:transform .12s;color:var(--tc)}
+.crate:active{transform:scale(.95)}
+.crate-name{font-size:8.5px;color:var(--tc);letter-spacing:.04em;text-align:center}
+.crate-badge{position:absolute;top:5px;right:5px;background:var(--bg0);border:.5px solid var(--tcb);color:var(--tc);border-radius:20px;font-size:8px;font-weight:700;padding:1px 6px;font-family:var(--font-head)}
+.crate.pulse{animation:halo 2.6s ease-in-out infinite}
+@keyframes halo{0%,100%{box-shadow:0 0 0 0 rgba(0,0,0,0)}50%{box-shadow:0 0 16px -3px var(--tc)}}
+
+.rw-empty{padding:20px 14px;text-align:center;color:var(--t4);font-size:10.5px;line-height:1.7}
+.plog{display:flex;align-items:center;gap:9px;padding:9px 13px;border-bottom:.5px solid var(--b1)}
+.plog:last-child{border-bottom:none}
+.plog-ico{width:28px;height:28px;border-radius:8px;background:var(--bg2);border:.5px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.plog-name{font-size:11px;color:var(--t2)}
+.plog-meta{font-size:9px;color:var(--t4);margin-top:1px}
+
+.streak{background:var(--bg1);border:.5px solid var(--b1);border-radius:var(--r);padding:13px;margin-bottom:9px}
+.streak-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+.streak-n{font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--g3)}
+.streak-sub{font-size:9px;color:var(--t4)}
+.streak-days{display:flex;gap:4px}
+.sday{flex:1;background:var(--bg0);border:.5px solid var(--b1);border-radius:8px;padding:7px 2px;text-align:center;position:relative}
+.sday.done{border-color:var(--g1);background:#0b1710}
+.sday.today{border-color:var(--g3)}
+.sday-n{font-size:10px;color:var(--t4);font-family:var(--font-head);font-weight:700}
+.sday.done .sday-n{color:var(--g3)}
+.sday-g{font-size:9px;margin-top:3px;line-height:1;opacity:.75}
+
+.quest{background:var(--bg1);border:.5px solid var(--b1);border-radius:var(--r);padding:13px;margin-bottom:9px}
+.quest-top{display:flex;align-items:center;gap:10px}
+.quest-ico{width:34px;height:34px;border-radius:9px;background:var(--bg0);border:.5px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.quest-txt{flex:1;min-width:0}
+.quest-name{font-size:11.5px;font-weight:600;color:var(--t2);line-height:1.4}
+.quest-rw{font-size:9px;color:var(--t4);margin-top:2px}
+.quest-done{font-size:16px;color:var(--g3)}
+.quest-bar{height:2px;background:var(--b1);border-radius:1px;overflow:hidden;margin-top:10px}
+.quest-bar i{display:block;height:100%;background:var(--g2);border-radius:1px;transition:width .4s ease}
+
+.set-card{background:var(--bg1);border:.5px solid var(--b1);border-radius:12px;padding:11px 12px;margin-bottom:6px;cursor:pointer}
+.set-card.done{border-color:var(--g1);background:#0b1710}
+.set-top{display:flex;align-items:center;gap:9px}
+.set-name{flex:1;font-size:11.5px;font-weight:600;color:var(--t2)}
+.set-card.done .set-name{color:var(--g3)}
+.set-cnt{font-size:10px;color:var(--t4);font-variant-numeric:tabular-nums}
+.set-rw{font-size:9px;color:var(--t4);margin-top:3px}
+.set-bar{height:2px;background:var(--b1);border-radius:1px;overflow:hidden;margin-top:8px}
+.set-bar i{display:block;height:100%;background:var(--g2);border-radius:1px;transition:width .4s ease}
+.set-card.done .set-bar i{background:var(--g3)}
+.set-list{font-size:9px;color:var(--t4);line-height:1.6;margin-top:7px;display:none}
+.set-card.open .set-list{display:block}
+.set-have{color:var(--g2)}
+
+.pity{display:flex;align-items:center;gap:8px;background:var(--bg1);border:.5px solid var(--b1);border-radius:var(--rs);padding:9px 12px;margin-bottom:9px}
+.pity-txt{font-size:9.5px;color:var(--t4);line-height:1.5;flex:1}
+.pity-bar{height:2px;background:var(--b1);border-radius:1px;overflow:hidden;margin-top:5px}
+.pity-bar i{display:block;height:100%;background:var(--am);border-radius:1px}
+
+.faq{background:var(--bg1);border:.5px solid var(--b1);border-radius:var(--r);overflow:hidden;margin-bottom:9px}
+.faq details{border-bottom:.5px solid var(--b1)}
+.faq details:last-child{border-bottom:none}
+.faq summary{list-style:none;cursor:pointer;padding:12px 13px;font-size:11.5px;color:var(--t2);display:flex;align-items:center;gap:9px;line-height:1.45}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:'+';margin-left:auto;color:var(--t4);font-size:14px;flex-shrink:0;line-height:1}
+.faq details[open] summary{color:var(--g3)}
+.faq details[open] summary::after{content:'−';color:var(--g3)}
+.faq summary:focus-visible{outline:1px solid var(--g2);outline-offset:-2px}
+.faq-a{padding:0 13px 13px 13px;font-size:10.5px;color:var(--t3);line-height:1.7}
+.faq-a b{color:var(--t2);font-weight:600}
+
+.toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:var(--bg2);border:.5px solid var(--b2);color:var(--t2);font-size:11px;padding:9px 15px;border-radius:20px;z-index:450;animation:fadeUp .25s ease;max-width:86%;text-align:center}
+.congrats-coupon{margin-top:9px;font-size:10.5px;color:var(--am);border-top:.5px solid var(--b1);padding-top:9px}
+
+/* Открытие ящика */
+.open-stage{position:fixed;inset:0;z-index:500;background:rgba(4,7,5,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:18px}
+.open-stage.hidden{display:none}
+.open-hint{font-size:10px;color:var(--t4);letter-spacing:.06em;text-align:center}
+.open-crate{position:relative;width:130px;height:130px;color:var(--tc);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.open-crate.shake{animation:crateShake .65s ease-in-out}
+@keyframes crateShake{0%,100%{transform:translateX(0) rotate(0)}15%{transform:translateX(-4px) rotate(-3deg)}30%{transform:translateX(4px) rotate(3deg)}45%{transform:translateX(-6px) rotate(-4deg)}60%{transform:translateX(6px) rotate(4deg)}80%{transform:translateX(-2px) rotate(-1deg)}}
+.open-crate svg{width:130px;height:130px;overflow:visible}
+.open-crate .lid{transform-box:fill-box;transform-origin:center;transition:transform .55s cubic-bezier(.3,1.5,.4,1),opacity .55s ease}
+.open-crate.opened .lid{transform:translateY(-60px) rotate(-15deg);opacity:0}
+.beam{position:absolute;left:50%;bottom:50%;width:6px;height:0;transform:translateX(-50%);background:linear-gradient(to top,var(--tc),transparent);opacity:0;pointer-events:none}
+.beam.go{animation:beamUp .8s cubic-bezier(.2,.85,.2,1) forwards}
+@keyframes beamUp{0%{height:0;width:6px;opacity:1}55%{height:40vh;width:30px;opacity:.85}100%{height:48vh;width:150px;opacity:0}}
+.shard{position:absolute;left:50%;top:50%;width:4px;height:4px;border-radius:50%;background:var(--tc);opacity:0;pointer-events:none}
+.shard.go{animation:shardOut 1s ease-out forwards}
+@keyframes shardOut{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.2)}}
+.prize-card{background:var(--tcbg);border:.5px solid var(--tcb);border-radius:16px;padding:20px 22px;text-align:center;max-width:300px;opacity:0;transform:translateY(14px) scale(.92)}
+.prize-card.in{animation:prizeIn .45s cubic-bezier(.2,.9,.3,1.2) forwards}
+@keyframes prizeIn{to{opacity:1;transform:translateY(0) scale(1)}}
+.prize-tier{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--tc);margin-bottom:9px}
+.prize-ico{font-size:38px;margin-bottom:9px;line-height:1}
+.prize-name{font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--t1);letter-spacing:-.02em;margin-bottom:5px}
+.prize-desc{font-size:10.5px;color:var(--t3);line-height:1.55}
+.open-btn{width:100%;max-width:300px;padding:13px;border-radius:12px;background:var(--bg2);border:.5px solid var(--tcb);color:var(--tc);font-family:var(--font-body);font-size:12px;font-weight:600;cursor:pointer}
+.open-btn:active{opacity:.7}
+
+@media (prefers-reduced-motion:reduce){
+  .beam.go,.shard.go,.crate.pulse,.open-crate.shake{animation:none!important}
+  .open-crate .lid{transition:none}
+}
 </style>
 </head>
 <body>
@@ -456,6 +596,11 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
     <div><div class="hdr-title">Рейтинг</div><div class="hdr-sub" id="lb-sub">Кто собрал больше видов</div></div>
   </div>
   <div class="lb-tabs">
+    <div class="lb-tab" id="lb-period-week" onclick="setLbPeriod('week')">Неделя</div>
+    <div class="lb-tab" id="lb-period-month" onclick="setLbPeriod('month')">Месяц</div>
+    <div class="lb-tab on" id="lb-period-all" onclick="setLbPeriod('all')">Всё время</div>
+  </div>
+  <div class="lb-tabs">
     <div class="lb-tab on" id="lb-tab-global" onclick="setLbScope('global')">Общий</div>
     <div class="lb-tab" id="lb-tab-friends" onclick="setLbScope('friends')">Мои друзья</div>
   </div>
@@ -497,6 +642,99 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
   <a href="https://forest-save.ru" class="btn btn-ghost">forest-save.ru</a>
   <a href="https://forest-save.ru/pay/" class="btn btn-primary">Посадить дерево от 99 ₽</a>
 </div><!-- /screen-about -->
+
+<!-- ПРИЗЫ -->
+<div class="screen" id="screen-rewards">
+  <div class="hdr">
+    <img class="hdr-logo" id="logo-rew" alt="Сохрани Лес">
+    <div><div class="hdr-title">Призы</div><div class="hdr-sub">Купоны · Ящики · Конкурсы</div></div>
+  </div>
+
+  <div id="contest-list"></div>
+
+  <div class="sec-label">Серия дней</div>
+  <div id="streak-block"></div>
+
+  <div class="sec-label" style="margin-top:13px">Задание дня</div>
+  <div id="quest-block"></div>
+
+  <div class="sec-label" style="margin-top:13px">Мои купоны</div>
+  <div id="coupon-list"></div>
+
+  <div class="sec-label" style="margin-top:13px">Собрать ящик</div>
+  <div id="craft-list"></div>
+
+  <div class="sec-label" style="margin-top:13px">Мои ящики</div>
+  <div id="crate-list"></div>
+  <div id="pity-block"></div>
+
+  <div class="sec-label" style="margin-top:13px">Наборы</div>
+  <div id="set-list"></div>
+
+  <div class="sec-label" style="margin-top:13px">Что уже выпало</div>
+  <div class="card"><div id="prize-log"><div class="rw-empty">Пока ничего не открыто.<br>Найди новое растение — получишь купон.</div></div></div>
+
+  <div class="sec-label" style="margin-top:13px">Частые вопросы</div>
+  <div class="faq" id="faq">
+    <details>
+      <summary>Что такое купон и как его получить?</summary>
+      <div class="faq-a">Купон — это билет на сборку ящика. Он приходит, когда ты <b>впервые</b> определяешь новый для себя вид. Уровень купона зависит от редкости растения: за обычные и необычные виды — обычный купон, за эпические и за редкие находки вне каталога — редкий, за легендарные — легендарный.</div>
+    </details>
+    <details>
+      <summary>Почему за одно и то же дерево купон даёт только раз?</summary>
+      <div class="faq-a">Смысл игры — искать разное, а не фотографировать один куст под окном. Повторный скан того же вида не даёт ни очков, ни купонов. Зато купоны можно получать за серию дней, задания и наборы — там повтор не мешает.</div>
+    </details>
+    <details>
+      <summary>Как собрать ящик?</summary>
+      <div class="faq-a">Купоны одного уровня складываются в ящик того же уровня:<br>• 10 обычных → <b>2 обычных ящика</b><br>• 5 редких → 1 редкий ящик<br>• 3 легендарных → 1 легендарный ящик<br>Кнопка сборки станет активной, как только купонов хватит.</div>
+    </details>
+    <details>
+      <summary>Что выпадает из ящиков?</summary>
+      <div class="faq-a">Приз выбирается случайно, шансы зависят от уровня ящика — очки, промокод на посадку дерева или дополнительный купон более высокого уровня. Набор призов может пополняться, о новом объявим в боте.</div>
+    </details>
+    <details>
+      <summary>Открыл несколько ящиков и всё время выпадают очки</summary>
+      <div class="faq-a">Так бывает: розыгрыш случайный. Поэтому есть <b>гарантия</b> — счётчик под ящиками. Когда он дойдёт до конца, следующий ящик точно даст не очки, а предмет, купон или сертификат. Счётчик общий на все уровни ящиков и не сгорает между ящиками разного уровня.</div>
+    </details>
+    <details>
+      <summary>Что такое серия дней?</summary>
+      <div class="faq-a">Серия растёт, если ты определяешь хоть одно растение каждый день. Два дня подряд — обычный купон, три — редкий, пять — ещё редкий, семь — легендарный. Пропустил день — серия начинается заново с единицы.</div>
+    </details>
+    <details>
+      <summary>Что такое задание дня?</summary>
+      <div class="faq-a">Каждый день появляется одна задача — например, найти хвойное дерево или открыть три новых вида. Выполнил — получил купон. Задание меняется в полночь, невыполненное не переносится.</div>
+    </details>
+    <details>
+      <summary>Что такое наборы?</summary>
+      <div class="faq-a">Набор — это тематическая подборка видов: городская аллея, хвойный дозор, птичья столовая. Собрал все виды набора — сразу получишь ящик, минуя купоны. Нажми на набор, чтобы увидеть, каких видов не хватает.</div>
+    </details>
+    <details>
+      <summary>Как получить приз, если он выпал?</summary>
+      <div class="faq-a">Всё выпавшее остаётся в разделе «Что уже выпало» — ничего не потеряется. Промокоды и денежные призы за конкурс выдаёт владелец бота вручную по итогам — с тобой свяжутся в Telegram.</div>
+    </details>
+    <details>
+      <summary>Ящики из наборов влияют на место в конкурсе?</summary>
+      <div class="faq-a">Да, идёт в общий зачёт наравне с очками за растения. Поэтому не копи ящики: открывай их <b>до окончания конкурса</b>, иначе очки не успеют попасть в таблицу.</div>
+    </details>
+    <details>
+      <summary>Приложение не узнало растение или ошиблось</summary>
+      <div class="faq-a">Под карточкой результата есть кнопки «Верно» и «Неверно» — нажми, это помогает нам чинить распознавание. Снимай при дневном свете, ближе к листьям или хвое, без сильного размытия.</div>
+    </details>
+  </div>
+</div><!-- /screen-rewards -->
+
+<!-- ОТКРЫТИЕ ЯЩИКА -->
+<div class="open-stage hidden tier-common" id="open-stage">
+  <div class="open-hint" id="open-hint">Нажми на ящик</div>
+  <div class="open-crate" id="open-crate" onclick="doOpen()"></div>
+  <div class="prize-card" id="open-prize" style="display:none">
+    <div class="prize-tier" id="open-prize-tier"></div>
+    <div class="prize-ico" id="open-prize-ico"></div>
+    <div class="prize-name" id="open-prize-name"></div>
+    <div class="prize-desc" id="open-prize-desc"></div>
+  </div>
+  <button class="open-btn" id="open-close" style="display:none" onclick="closeOpenStage()">Забрать</button>
+</div>
 
 <!-- МОДАЛЬНОЕ ОКНО ДЕРЕВА -->
 <div id="tree-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(6,10,7,.95);padding:20px 16px;overflow-y:auto" onclick="closeModalOutside(event)">
@@ -548,6 +786,7 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
     <div class="congrats-title">Новый вид открыт!</div>
     <div class="congrats-pts" id="congrats-pts">+3</div>
     <div class="congrats-sub" id="congrats-name">Дуб черешчатый</div>
+    <div class="congrats-coupon" id="congrats-coupon" style="display:none"></div>
     <button onclick="closeCongratsOverlay()" style="margin-top:14px;width:100%;padding:10px;border-radius:10px;background:var(--bg2);border:.5px solid var(--g1);color:var(--g3);font-family:var(--font-body);font-size:12px;font-weight:600;cursor:pointer">Отлично! ✓</button>
   </div>
 </div>
@@ -565,6 +804,10 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
   <div class="ni" onclick="switchTab('share')" id="nav-share">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e3026" stroke-width="1.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
     <div class="ni-dot"></div><span class="ni-lbl">Поделиться</span>
+  </div>
+  <div class="ni" onclick="switchTab('rewards')" id="nav-rewards">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e3026" stroke-width="1.5"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 13h18M12 9v12"/><path d="M12 9C10 5 7 5 7 7s3 2 5 2Zm0 0c2-4 5-4 5-2s-3 2-5 2Z"/></svg>
+    <div class="ni-dot"></div><span class="ni-lbl">Призы</span>
   </div>
   <div class="ni" onclick="switchTab('about')" id="nav-about">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e3026" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -669,11 +912,20 @@ const state = {
   fpts: 0,
   uniqueTrees: 0,
   currentScanId: null,
+  rewards: null,        // снимок с /rewards: coupons, crates, pity, streak, quest, sets, recipes, prize_log
+  contests: [],         // список активных конкурсов с /contests
 };
 
 // ─── ИНИЦИАЛИЗАЦИЯ ──────────────────────────────────────────────────────────
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
+
+// Заголовок с подписанной строкой initData — сервер сам проверяет подпись
+// и достаёт telegram_id из неё. Раньше id передавался параметром запроса
+// и его можно было подделать; теперь сервер верит только подписи Telegram.
+function authHeaders() {
+  return { 'X-Telegram-Init-Data': (tg && tg.initData) || '' };
+}
 
 async function loadUserData() {
   const tgUser = tg?.initDataUnsafe?.user;
@@ -683,8 +935,7 @@ async function loadUserData() {
   const nameEl = document.getElementById('user-name-display');
   if (nameEl) nameEl.textContent = state.firstName;
   try {
-    const nameParam = state.firstName ? '&name=' + encodeURIComponent(state.firstName) : '';
-    const resp = await fetch(SERVER_URL + '/user?telegram_id=' + tgUser.id + nameParam);
+    const resp = await fetch(SERVER_URL + '/user', { headers: authHeaders() });
     const data = await resp.json();
     if (data.found) {
       state.pts = data.total_points || 0;
@@ -724,7 +975,7 @@ async function registerReferralOnce() {
   if (!ref || ref === state.telegramId) return;
   _refSent = true;
   try {
-    const resp = await fetch(SERVER_URL + '/referral?telegram_id=' + state.telegramId + '&ref=' + ref);
+    const resp = await fetch(SERVER_URL + '/referral?ref=' + ref, { headers: authHeaders() });
     const data = await resp.json();
     if (data.ok) {
       console.log('Приглашение засчитано');
@@ -736,7 +987,7 @@ async function registerReferralOnce() {
 // Логотип
 (function setLogo() {
   const LOGO_SRC = 'data:image/png;base64,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';
-  ['logo-scan','logo-share','logo-ach'].forEach(id => {
+  ['logo-scan','logo-share','logo-ach','logo-rew'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
     el.src = LOGO_SRC;
@@ -769,7 +1020,7 @@ async function registerReferralOnce() {
 async function loadRecentScans() {
   if (!state.telegramId) return;
   try {
-    const resp = await fetch(SERVER_URL + '/recent?telegram_id=' + state.telegramId);
+    const resp = await fetch(SERVER_URL + '/recent', { headers: authHeaders() });
     const data = await resp.json();
     if (!data.items || !data.items.length) return;
     // Запоминаем имена — по ним подпишем редкие находки в каталоге
@@ -819,6 +1070,7 @@ function switchTab(t) {
   if (nav) { nav.classList.add('on'); nav.setAttribute('aria-selected','true'); }
   state.tab = t;
   if (t === 'achievements') { loadTreesCatalog().then(() => loadUserData().then(() => renderAchievements())); }
+  if (t === 'rewards') { loadRewardsScreen(); }
   if (tg) tg.HapticFeedback?.selectionChanged();
 }
 
@@ -830,22 +1082,29 @@ function openLeaderboard() {
 
 function setLbScope(scope) { state.lbScope = scope; loadLeaderboard(); }
 function setLbSort(sort)   { state.lbSort  = sort;  loadLeaderboard(); }
+function setLbPeriod(p)    { state.lbPeriod = p;    loadLeaderboard(); }
 
 const LB_MEDALS = ['🥇', '🥈', '🥉'];
+const LB_PERIOD_LABEL = {week: ' · за неделю', month: ' · за месяц', pilot: ' · конкурс выходных', all: ''};
 
 async function loadLeaderboard() {
   const scope = state.lbScope || 'global';
   const sort  = state.lbSort  || 'points';
+  const period = state.lbPeriod || 'all';
 
+  ['week', 'month', 'all'].forEach(p => {
+    const el = document.getElementById('lb-period-' + p);
+    if (el) el.classList.toggle('on', p === period);
+  });
   document.getElementById('lb-tab-global').classList.toggle('on', scope === 'global');
   document.getElementById('lb-tab-friends').classList.toggle('on', scope === 'friends');
   document.getElementById('lb-sort-points').classList.toggle('on', sort === 'points');
   document.getElementById('lb-sort-species').classList.toggle('on', sort === 'species');
 
   const byPoints = sort === 'points';
-  document.getElementById('lb-sub').textContent = scope === 'friends'
+  document.getElementById('lb-sub').textContent = (scope === 'friends'
     ? (byPoints ? 'Ты и приглашённые — по очкам' : 'Ты и приглашённые — по видам')
-    : (byPoints ? 'У кого больше очков' : 'У кого больше видов');
+    : (byPoints ? 'У кого больше очков' : 'У кого больше видов')) + (LB_PERIOD_LABEL[period] || '');
 
   const invite = document.getElementById('lb-invite');
   invite.style.display = scope === 'friends' ? 'block' : 'none';
@@ -858,8 +1117,9 @@ async function loadLeaderboard() {
     return;
   }
   try {
-    const resp = await fetch(SERVER_URL + '/leaderboard?telegram_id=' + state.telegramId +
-                             '&scope=' + scope + '&sort=' + sort);
+    const resp = await fetch(SERVER_URL + '/leaderboard?scope=' + scope +
+                             '&sort=' + sort + '&period=' + period,
+                             { headers: authHeaders() });
     const data = await resp.json();
     const items = data.items || [];
 
@@ -968,8 +1228,7 @@ async function handlePhoto(e) {
     const fd = new FormData();
     fd.append('file', blob, 'photo.jpg');
 
-    const tid = state.telegramId ? '?telegram_id=' + state.telegramId : '';
-    const resp = await fetch(SERVER_URL + '/recognize' + tid, { method: 'POST', body: fd });
+    const resp = await fetch(SERVER_URL + '/recognize', { method: 'POST', body: fd, headers: authHeaders() });
     const data = await resp.json();
 
     document.getElementById('scan-loading').classList.remove('show');
@@ -1038,11 +1297,14 @@ function showKnownResult(treeId, confidence, data) {
     state.pts += ptsEarned;
     state.spts += ptsEarned;
     state.personalScans++;
-    if (ptsEarned > 0) setTimeout(() => showCongrats(t.name, ptsEarned), 600);
+    if (ptsEarned > 0) setTimeout(() => showCongrats(t.name, ptsEarned, false, data && data.rewards), 600);
   }
 
   _fillResultScreen(t.name, t.latin, confidence, t.rarity, t.co2, t.max_age, t.species, t.facts, t.threat, ptsEarned > 0 ? ptsEarned : t.pts);
-  if (state.telegramId) setTimeout(() => { loadUserData(); loadRecentScans(); }, 2000);
+  if (state.telegramId) {
+    setTimeout(() => { loadUserData(); loadRecentScans(); }, 2000);
+    rewardsApi.pull().then(() => { if (state.tab === 'rewards') renderRewards(); });
+  }
 }
 
 // Показать результат для неизвестного дерева (ИИ распознал, но нет в каталоге) — редкая находка
@@ -1084,10 +1346,13 @@ function showRawResult(res, isRareFind, data) {
     if (pts > 0) {
       state.pts += pts;
       state.spts += pts;
-      setTimeout(() => showCongrats(res.name_ru || 'Растение', pts, isRareFind), 600);
+      setTimeout(() => showCongrats(res.name_ru || 'Растение', pts, isRareFind, data && data.rewards), 600);
     }
   }
-  if (state.telegramId) setTimeout(() => { loadUserData(); loadRecentScans(); }, 2000);
+  if (state.telegramId) {
+    setTimeout(() => { loadUserData(); loadRecentScans(); }, 2000);
+    rewardsApi.pull().then(() => { if (state.tab === 'rewards') renderRewards(); });
+  }
 
   _fillResultScreen(
     res.name_ru,
@@ -1490,6 +1755,390 @@ async function loadTreesCatalog() {
   }
 }
 
+// ─── ПРИЗЫ: КУПОНЫ, ЯЩИКИ, КОНКУРСЫ ─────────────────────────────────────────
+// Вся игровая механика теперь считается на сервере (см. rewards.py) — здесь
+// только отображение того, что он прислал, и вызовы API. Ни розыгрыш приза,
+// ни счётчики купонов/ящиков в браузере больше не хранятся и не считаются.
+
+const TIERS = {
+  common: {label: 'Обычный',     cls: 'tier-common'},
+  rare:   {label: 'Редкий',      cls: 'tier-rare'},
+  legend: {label: 'Легендарный', cls: 'tier-legend'},
+};
+const TIER_ORDER = ['common', 'rare', 'legend'];
+const TIER_SOURCE_TXT = {
+  common: 'обычные и необычные виды',
+  rare:   'эпические виды и редкие находки',
+  legend: 'легендарные виды',
+};
+
+function crateSvg(size) {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 48 48" fill="none"
+    stroke="currentColor" stroke-width="1.3" stroke-linejoin="round">
+    <path d="M8 18h32v20a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4V18Z"/>
+    <path class="lid" d="M5 10h38v8H5z"/>
+    <path d="M20 18h8v9h-8z" fill="currentColor" fill-opacity=".15"/>
+    <path d="M24 27v6" stroke-linecap="round"/>
+  </svg>`;
+}
+
+function toast(text) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = text;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2600);
+}
+
+const rewardsApi = {
+  async pull() {
+    if (!state.telegramId) return null;
+    try {
+      const resp = await fetch(SERVER_URL + '/rewards', { headers: authHeaders() });
+      const data = await resp.json();
+      if (data && !data.error) { state.rewards = data; return data; }
+    } catch(e) { console.log('rewards pull error:', e); }
+    return null;
+  },
+  async contests() {
+    try {
+      const resp = await fetch(SERVER_URL + '/contests');
+      const data = await resp.json();
+      return data.contests || [];
+    } catch(e) { return []; }
+  },
+  async craft(tier) {
+    try {
+      const resp = await fetch(SERVER_URL + '/craft', {
+        method: 'POST',
+        headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tier })
+      });
+      return await resp.json();
+    } catch(e) { return { error: 'network' }; }
+  },
+  async open(tier) {
+    try {
+      const resp = await fetch(SERVER_URL + '/crate/open', {
+        method: 'POST',
+        headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tier })
+      });
+      return await resp.json();
+    } catch(e) { return { error: 'network' }; }
+  },
+};
+
+async function loadRewardsScreen() {
+  if (!state.telegramId) {
+    document.getElementById('coupon-list').innerHTML = '';
+    document.getElementById('craft-list').innerHTML = '';
+    document.getElementById('crate-list').innerHTML =
+      '<div class="card"><div class="rw-empty">Призы доступны только внутри Telegram</div></div>';
+    return;
+  }
+  const [, contestsData] = await Promise.all([rewardsApi.pull(), rewardsApi.contests()]);
+  state.contests = contestsData;
+  renderRewards();
+}
+
+function renderRewards() {
+  const cl = document.getElementById('coupon-list');
+  const kl = document.getElementById('craft-list');
+  const rl = document.getElementById('crate-list');
+  const pl = document.getElementById('prize-log');
+  if (!cl) return;
+  const rw = state.rewards;
+  if (!rw) {
+    rl.innerHTML = `<div class="card"><div class="rw-empty">Загружаю…</div></div>`;
+    renderExtras();
+    return;
+  }
+
+  cl.innerHTML = TIER_ORDER.map(k => {
+    const t = TIERS[k], n = rw.coupons[k] || 0, need = rw.recipes[k].need;
+    const pct = n >= need ? 100 : Math.round((n % need) / need * 100);
+    const left = n >= need ? 'можно собрать ящик' : `ещё ${need - n} до ящика`;
+    return `<div class="coupon ${t.cls}">
+      <div class="cpn-ico">🎫</div>
+      <div class="cpn-body">
+        <div class="cpn-name">${t.label} купон</div>
+        <div class="cpn-sub">за ${TIER_SOURCE_TXT[k]}</div>
+        <div class="cpn-bar"><i style="width:${pct}%"></i></div>
+        <div class="cpn-hint">${left}</div>
+      </div>
+      <div class="cpn-n">${n}</div>
+    </div>`;
+  }).join('');
+
+  kl.innerHTML = TIER_ORDER.map(k => {
+    const t = TIERS[k], n = rw.coupons[k] || 0, r = rw.recipes[k], ok = n >= r.need;
+    const word = r.out > 1 ? `${r.out} ящика` : '1 ящик';
+    return `<button class="craft ${t.cls}" ${ok ? '' : 'disabled'} onclick="craftCrate('${k}')">
+      ${r.need} ${t.label.toLowerCase()}х — ${word} · ${n}/${r.need}
+    </button>`;
+  }).join('');
+
+  const owned = TIER_ORDER.filter(k => rw.crates[k] > 0);
+  rl.innerHTML = owned.length
+    ? `<div class="crate-grid">` + owned.map(k => {
+        const t = TIERS[k];
+        return `<div class="crate ${t.cls}${k === 'legend' ? ' pulse' : ''}" onclick="openCrateStage('${k}')">
+          <div class="crate-badge">${rw.crates[k]}</div>
+          ${crateSvg(42)}
+          <div class="crate-name">${t.label.toUpperCase()}</div>
+        </div>`;
+      }).join('') + `</div>`
+    : `<div class="card"><div class="rw-empty">Ящиков пока нет.<br>Собери их из купонов выше.</div></div>`;
+
+  pl.innerHTML = rw.prize_log.length
+    ? rw.prize_log.map(p => `<div class="plog">
+        <div class="plog-ico">${p.icon}</div>
+        <div><div class="plog-name">${escapeHtml(p.name)}</div>
+        <div class="plog-meta">${p.tier} ящик · ${formatDate(new Date(p.at))}</div></div>
+      </div>`).join('')
+    : `<div class="rw-empty">Пока ничего не открыто.<br>Найди новое растение — получишь купон.</div>`;
+
+  renderExtras();
+}
+
+async function craftCrate(tier) {
+  const t = TIERS[tier];
+  const data = await rewardsApi.craft(tier);
+  if (data.error === 'not_enough_coupons') {
+    toast(`Не хватает купонов: ${data.have}/${data.need}`);
+    return;
+  }
+  if (data.error) {
+    toast('Не получилось собрать ящик, попробуй ещё раз');
+    return;
+  }
+  state.rewards = data;
+  renderRewards();
+  if (tg) tg.HapticFeedback?.notificationOccurred('success');
+  toast(`Собран ${t.label.toLowerCase()} ящик`);
+}
+
+// ─── Открытие ящика ─────────────────────────────────────────────────────────
+let _openTier = null, _openBusy = false;
+
+function openCrateStage(tier) {
+  if (!state.rewards || !state.rewards.crates[tier]) return;
+  _openTier = tier; _openBusy = false;
+  const stage = document.getElementById('open-stage');
+  stage.className = 'open-stage ' + TIERS[tier].cls;
+  document.getElementById('open-hint').textContent = 'Нажми на ящик';
+  const crateEl = document.getElementById('open-crate');
+  crateEl.className = 'open-crate';
+  crateEl.innerHTML = '<div class="beam"></div>' + crateSvg(130);
+  document.getElementById('open-prize').style.display = 'none';
+  document.getElementById('open-prize').classList.remove('in');
+  document.getElementById('open-close').style.display = 'none';
+  stage.classList.remove('hidden');
+  if (tg) tg.HapticFeedback?.impactOccurred('light');
+}
+
+async function doOpen() {
+  if (_openBusy || !_openTier) return;
+  _openBusy = true;
+  const tier = _openTier;
+  const crate = document.getElementById('open-crate');
+  const hint = document.getElementById('open-hint');
+  hint.textContent = '';
+  crate.classList.add('shake');
+  if (tg) tg.HapticFeedback?.impactOccurred('medium');
+
+  // Запрос уходит сразу, а раскрытие ждёт большее из двух: минимальное время
+  // тряски (чтобы анимация не дёргалась) или реальный ответ сервера.
+  const dataPromise = rewardsApi.open(tier);
+  const shakeDone = new Promise(resolve => setTimeout(resolve, 650));
+  const [data] = await Promise.all([dataPromise, shakeDone]);
+
+  crate.classList.remove('shake');
+
+  if (data.error || !data.prize) {
+    hint.textContent = data.error === 'no_crates'
+      ? 'Ящик уже открыт'
+      : 'Не получилось открыть ящик, попробуй ещё раз';
+    _openBusy = false;
+    return;
+  }
+
+  crate.classList.add('opened');
+  crate.querySelector('.beam')?.classList.add('go');
+  burstShards(crate);
+  if (tg) tg.HapticFeedback?.notificationOccurred('success');
+
+  state.rewards = data;
+  const prize = data.prize;
+  setTimeout(() => {
+    const card = document.getElementById('open-prize');
+    document.getElementById('open-prize-tier').textContent = TIERS[tier].label + ' ящик';
+    document.getElementById('open-prize-ico').textContent = prize.icon;
+    document.getElementById('open-prize-name').textContent = prize.name;
+    document.getElementById('open-prize-desc').textContent = prize.desc || '';
+    card.style.display = 'block';
+    card.classList.add('in');
+    document.getElementById('open-close').style.display = 'block';
+  }, 600);
+}
+
+function burstShards(host) {
+  for (let i = 0; i < 12; i++) {
+    const s = document.createElement('div');
+    s.className = 'shard';
+    const a = (Math.PI * 2 * i) / 12 + Math.random() * 0.4;
+    const d = 70 + Math.random() * 60;
+    s.style.setProperty('--dx', Math.cos(a) * d + 'px');
+    s.style.setProperty('--dy', (Math.sin(a) * d - 40) + 'px');
+    host.appendChild(s);
+    requestAnimationFrame(() => s.classList.add('go'));
+    setTimeout(() => s.remove(), 1100);
+  }
+}
+
+function closeOpenStage() {
+  document.getElementById('open-stage').classList.add('hidden');
+  _openTier = null; _openBusy = false;
+  renderRewards();
+}
+
+// ─── Конкурсы ───────────────────────────────────────────────────────────────
+function clockHtml(target) {
+  let ms = new Date(target) - new Date();
+  if (ms < 0) ms = 0;
+  const dd = Math.floor(ms / 864e5);
+  const hh = Math.floor(ms / 36e5) % 24;
+  const mm = Math.floor(ms / 6e4) % 60;
+  const cell = (n, l) => `<div class="clock-cell"><div class="clock-n">${n}</div><div class="clock-l">${l}</div></div>`;
+  return cell(dd, plural(dd, 'день', 'дня', 'дней')) +
+         cell(hh, plural(hh, 'час', 'часа', 'часов')) +
+         cell(mm, plural(mm, 'минута', 'минуты', 'минут'));
+}
+
+function contestCard(c) {
+  const over = new Date(c.ends_at) <= new Date();
+  const clock = over
+    ? `<div class="rw-empty" style="padding:10px 0">Приём закончен, подводим итоги</div>`
+    : `<div class="contest-clock">${clockHtml(c.ends_at)}</div>`;
+  return `<div class="contest${c.main ? ' main' : ''}">
+    <div class="contest-eyebrow">${c.main && !over ? '<span class="contest-live"></span>' : ''}${escapeHtml(c.eyebrow)}</div>
+    <div class="contest-title">${escapeHtml(c.title)}</div>
+    ${clock}
+    ${c.prizes.map(p => `<div class="cprize"><div class="cprize-pl">${p.place}</div><div class="cprize-txt">${escapeHtml(p.text)}</div></div>`).join('')}
+    ${c.note ? `<div class="contest-note">${escapeHtml(c.note)}</div>` : ''}
+    <button class="craft tier-common" style="margin-top:9px;margin-bottom:0"
+            onclick="setLbPeriod('${c.period}');switchTab('leaderboard')">Смотреть таблицу</button>
+  </div>`;
+}
+
+function renderContests() {
+  const box = document.getElementById('contest-list');
+  if (!box) return;
+  box.innerHTML = (state.contests || []).map(contestCard).join('');
+}
+
+function tickClocks() { renderContests(); }
+setInterval(() => { if (state.tab === 'rewards') tickClocks(); }, 30000);
+
+// ─── Серия, задание дня, наборы, гарантия ──────────────────────────────────
+function renderStreak() {
+  const box = document.getElementById('streak-block');
+  if (!box) return;
+  const rw = state.rewards;
+  if (!rw) { box.innerHTML = ''; return; }
+  const s = rw.streak;
+  const cells = [];
+  for (let i = 1; i <= 7; i++) {
+    const done = i <= s.days;
+    const isToday = i === s.days && s.today_done;
+    const rewardTier = s.rewards[String(i)];
+    cells.push(`<div class="sday${done ? ' done' : ''}${isToday ? ' today' : ''}">
+      <div class="sday-n">${i}</div>
+      <div class="sday-g">${rewardTier ? '🎁' : '·'}</div>
+    </div>`);
+  }
+  const next = [2, 3, 5, 7].find(d => d > s.days);
+  box.innerHTML = `<div class="streak">
+    <div class="streak-top">
+      <div class="streak-n">${s.days} ${plural(s.days,'день','дня','дней')} подряд</div>
+      <div class="streak-sub">${s.today_done ? 'сегодня засчитан' : 'сегодня ещё нет скана'}</div>
+    </div>
+    <div class="streak-days">${cells.join('')}</div>
+    <div class="cpn-hint" style="margin-top:8px">${
+      next ? `на ${next}-й день — ${TIERS[s.rewards[String(next)]].label.toLowerCase()} купон`
+           : 'все награды серии получены'}</div>
+  </div>`;
+}
+
+function renderQuest() {
+  const box = document.getElementById('quest-block');
+  if (!box) return;
+  const rw = state.rewards;
+  if (!rw) { box.innerHTML = ''; return; }
+  const q = rw.quest;
+  box.innerHTML = `<div class="quest">
+    <div class="quest-top">
+      <div class="quest-ico">${q.icon}</div>
+      <div class="quest-txt">
+        <div class="quest-name">${escapeHtml(q.name)}</div>
+        <div class="quest-rw">Награда: ${TIERS[q.reward].label.toLowerCase()} купон · ${q.progress}/${q.goal}</div>
+      </div>
+      ${q.done ? '<div class="quest-done">✓</div>' : ''}
+    </div>
+    <div class="quest-bar"><i style="width:${Math.round(q.progress / q.goal * 100)}%"></i></div>
+  </div>`;
+}
+
+function renderSets() {
+  const box = document.getElementById('set-list');
+  if (!box) return;
+  const rw = state.rewards;
+  if (!rw) { box.innerHTML = ''; return; }
+  box.innerHTML = rw.sets.map(s => {
+    const have = s.found.length, all = s.total;
+    const names = s.ids.map((id, i) =>
+      s.found.includes(id) ? `<span class="set-have">${escapeHtml(s.names[i])}</span>` : escapeHtml(s.names[i])
+    ).join(' · ');
+    return `<div class="set-card${s.done ? ' done' : ''}" id="set-${s.key}" onclick="toggleSet('${s.key}')">
+      <div class="set-top">
+        <div class="quest-ico" style="width:28px;height:28px;font-size:14px">${s.icon}</div>
+        <div class="set-name">${escapeHtml(s.name)}${s.done ? ' ✓' : ''}</div>
+        <div class="set-cnt">${have}/${all}</div>
+      </div>
+      <div class="set-rw">Награда: ${s.reward.n > 1 ? s.reward.n + ' ' : ''}${TIERS[s.reward.tier].label.toLowerCase()} ${s.reward.n > 1 ? 'ящика' : 'ящик'}</div>
+      <div class="set-bar"><i style="width:${Math.round(have / all * 100)}%"></i></div>
+      <div class="set-list">${names}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleSet(key) {
+  const el = document.getElementById('set-' + key);
+  if (el) el.classList.toggle('open');
+}
+
+function renderPity() {
+  const box = document.getElementById('pity-block');
+  if (!box) return;
+  const rw = state.rewards;
+  if (!rw) { box.innerHTML = ''; return; }
+  const n = rw.pity.counter, limit = rw.pity.limit, left = Math.max(0, limit - n);
+  box.innerHTML = `<div class="pity">
+    <div class="pity-txt">Гарантия: ещё ${left} ${plural(left,'ящик','ящика','ящиков')} — и вместо очков точно выпадет предмет, купон или сертификат
+      <div class="pity-bar"><i style="width:${Math.min(100, Math.round(n / limit * 100))}%"></i></div>
+    </div>
+  </div>`;
+}
+
+function renderExtras() {
+  renderContests();
+  renderStreak();
+  renderQuest();
+  renderSets();
+  renderPity();
+}
+
 // ─── ОНБОРДИНГ ──────────────────────────────────────────────────────────────
 const ONBOARD_SLIDES = [
   {
@@ -1595,7 +2244,9 @@ function showOnboardingIfNeeded() {
 }
 
 // ─── ПОЗДРАВЛЕНИЕ ────────────────────────────────────────────────────────────
-function showCongrats(name, pts, isRareFind) {
+// rewardsInfo — блок "rewards" из ответа /recognize: {coupon, streak, quest, sets}.
+// Всё, что там пришло, посчитал и уже сохранил сервер — здесь только показываем.
+function showCongrats(name, pts, isRareFind, rewardsInfo) {
   // Скрываем онбординг если он показан
   document.getElementById('onboarding').classList.add('hidden');
   const overlay = document.getElementById('congrats-overlay');
@@ -1615,6 +2266,16 @@ function showCongrats(name, pts, isRareFind) {
 
   document.getElementById('congrats-pts').textContent = '+' + pts + ' очков';
   document.getElementById('congrats-name').textContent = name;
+
+  const cpnEl = document.getElementById('congrats-coupon');
+  const coupon = rewardsInfo && rewardsInfo.coupon;
+  if (coupon && TIERS[coupon.tier]) {
+    cpnEl.textContent = '🎫 +1 ' + TIERS[coupon.tier].label.toLowerCase() + ' купон';
+    cpnEl.style.display = 'block';
+  } else {
+    cpnEl.style.display = 'none';
+  }
+
   overlay.classList.remove('hidden');
   // Плавающие очки
   const el = document.createElement('div');
@@ -1627,6 +2288,22 @@ function showCongrats(name, pts, isRareFind) {
   clearTimeout(window._congratsTimer);
   window._congratsTimer = setTimeout(() => closeCongratsOverlay(), 3000);
   if (tg) tg.HapticFeedback?.notificationOccurred('success');
+
+  // Серия / задание дня / наборы — отдельными всплывашками после поздравления,
+  // чтобы не перегружать одну карточку сразу всем сразу.
+  if (rewardsInfo && rewardsInfo.streak && TIERS[rewardsInfo.streak.tier]) {
+    const s = rewardsInfo.streak;
+    setTimeout(() => toast(`Серия ${s.days} ${plural(s.days,'день','дня','дней')} — ${TIERS[s.tier].label.toLowerCase()} купон`), 3200);
+  }
+  if (rewardsInfo && rewardsInfo.quest && TIERS[rewardsInfo.quest.tier]) {
+    setTimeout(() => toast(`Задание дня выполнено — ${TIERS[rewardsInfo.quest.tier].label.toLowerCase()} купон`), 3800);
+  }
+  if (rewardsInfo && rewardsInfo.sets && rewardsInfo.sets.length) {
+    rewardsInfo.sets.forEach((s, i) => {
+      const word = s.n > 1 ? 'ящика' : 'ящик';
+      setTimeout(() => toast(`Набор «${s.name}» собран — ${s.n > 1 ? s.n + ' ' : ''}${TIERS[s.tier].label.toLowerCase()} ${word}`), 4400 + i * 700);
+    });
+  }
 }
 
 function closeCongratsOverlay() {
