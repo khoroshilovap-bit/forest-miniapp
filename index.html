@@ -596,11 +596,6 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
     <div><div class="hdr-title">Рейтинг</div><div class="hdr-sub" id="lb-sub">Кто собрал больше видов</div></div>
   </div>
   <div class="lb-tabs">
-    <div class="lb-tab" id="lb-period-week" onclick="setLbPeriod('week')">Неделя</div>
-    <div class="lb-tab" id="lb-period-month" onclick="setLbPeriod('month')">Месяц</div>
-    <div class="lb-tab on" id="lb-period-all" onclick="setLbPeriod('all')">Всё время</div>
-  </div>
-  <div class="lb-tabs">
     <div class="lb-tab on" id="lb-tab-global" onclick="setLbScope('global')">Общий</div>
     <div class="lb-tab" id="lb-tab-friends" onclick="setLbScope('friends')">Мои друзья</div>
   </div>
@@ -1085,17 +1080,13 @@ function setLbSort(sort)   { state.lbSort  = sort;  loadLeaderboard(); }
 function setLbPeriod(p)    { state.lbPeriod = p;    loadLeaderboard(); }
 
 const LB_MEDALS = ['🥇', '🥈', '🥉'];
-const LB_PERIOD_LABEL = {week: ' · за неделю', month: ' · за месяц', pilot: ' · конкурс выходных', all: ''};
+const LB_PERIOD_LABEL = {pilot: ' · конкурс выходных', all: ''};
 
 async function loadLeaderboard() {
   const scope = state.lbScope || 'global';
   const sort  = state.lbSort  || 'points';
   const period = state.lbPeriod || 'all';
 
-  ['week', 'month', 'all'].forEach(p => {
-    const el = document.getElementById('lb-period-' + p);
-    if (el) el.classList.toggle('on', p === period);
-  });
   document.getElementById('lb-tab-global').classList.toggle('on', scope === 'global');
   document.getElementById('lb-tab-friends').classList.toggle('on', scope === 'friends');
   document.getElementById('lb-sort-points').classList.toggle('on', sort === 'points');
