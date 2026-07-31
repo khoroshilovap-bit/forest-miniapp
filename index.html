@@ -712,6 +712,10 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
       <div class="faq-a">Да, идёт в общий зачёт наравне с очками за растения. Поэтому не копи ящики: открывай их <b>до окончания конкурса</b>, иначе очки не успеют попасть в таблицу.</div>
     </details>
     <details>
+      <summary>Как работает конкурс на выходные?</summary>
+      <div class="faq-a">С 31 июля 12:30 до 3 августа 12:00 в зачёт идут все очки, заработанные за это время — за сканы, ящики, серию дней и задания. Топ-5 по очкам получают призы: 1 место — 3 000 ₽ и худи «Сохрани Лес», 2 место — 2 000 ₽ и дождевик, 3 место — 1 000 ₽ и майка, 4 и 5 места — по 1 000 ₽. Таблицу за это время смотри по кнопке «Смотреть таблицу» на карточке конкурса вверху этого экрана.</div>
+    </details>
+    <details>
       <summary>Приложение не узнало растение или ошиблось</summary>
       <div class="faq-a">Под карточкой результата есть кнопки «Верно» и «Неверно» — нажми, это помогает нам чинить распознавание. Снимай при дневном свете, ближе к листьям или хвое, без сильного размытия.</div>
     </details>
@@ -764,6 +768,8 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
     <div class="onboard-dot active" id="dot-0"></div>
     <div class="onboard-dot" id="dot-1"></div>
     <div class="onboard-dot" id="dot-2"></div>
+    <div class="onboard-dot" id="dot-3"></div>
+    <div class="onboard-dot" id="dot-4"></div>
   </div>
   <div class="onboard-slide" id="onboard-slide">
     <!-- заполняется JS -->
@@ -2149,6 +2155,16 @@ const ONBOARD_SLIDES = [
     ]
   },
   {
+    icon: '🎁',
+    title: 'Купоны и ящики',
+    desc: '',
+    steps: [
+      {icon:'🎫', txt:'Новый вид даёт не только очки, но и купон — уровень зависит от редкости растения'},
+      {icon:'📦', txt:'Собери купоны одного уровня в ящик: 10 обычных → 2 обычных ящика, 5 редких → 1 редкий, 3 легендарных → 1 легендарный'},
+      {icon:'✨', txt:'Открой ящик — внутри очки, купон повыше или промокод на посадку дерева. Есть гарантия: после нескольких ящиков без предмета следующий точно даст не очки'},
+    ]
+  },
+  {
     icon: '🏆',
     title: 'Уровни эксперта',
     desc: 'Чем больше видов найдёшь — тем выше уровень',
@@ -2159,6 +2175,19 @@ const ONBOARD_SLIDES = [
       {name:'🌳 Лесничий', pts:'300 очков'},
       {name:'🛡️ Хранитель леса', pts:'600 очков'},
       {name:'⭐ Легенда леса', pts:'1000 очков'},
+    ]
+  },
+  {
+    // Даты и призы — как в rewards.py: PILOT_STARTS_AT/PILOT_ENDS_AT/PILOT_PRIZES.
+    // Конкурс разовый и захардкожен там же — при следующем конкурсе поправить в обоих местах.
+    icon: '🎉',
+    title: 'Конкурс на выходные',
+    desc: 'С 31 июля 12:30 до 3 августа 12:00 — у кого больше очков за это время, тот выигрывает. В зачёт идут все очки, включая из ящиков.',
+    steps: [
+      {icon:'🥇', txt:'3 000 ₽ и худи «Сохрани Лес»'},
+      {icon:'🥈', txt:'2 000 ₽ и дождевик «Сохрани Лес»'},
+      {icon:'🥉', txt:'1 000 ₽ и майка «Сохрани Лес»'},
+      {icon:'🏅', txt:'4 и 5 место — по 1 000 ₽'},
     ]
   }
 ];
@@ -2205,9 +2234,9 @@ function onboardFinish() {
   document.getElementById('onboarding').classList.add('hidden');
   try {
     if (tg?.CloudStorage) {
-      tg.CloudStorage.setItem('onboard_done', '1');
+      tg.CloudStorage.setItem('onboard_done_v2', '1');
     } else {
-      localStorage.setItem('onboard_done', '1');
+      localStorage.setItem('onboard_done_v2', '1');
     }
   } catch(e) {}
 }
@@ -2215,7 +2244,7 @@ function onboardFinish() {
 function showOnboardingIfNeeded() {
   try {
     if (tg?.CloudStorage) {
-      tg.CloudStorage.getItem('onboard_done', (err, value) => {
+      tg.CloudStorage.getItem('onboard_done_v2', (err, value) => {
         if (!value) {
           const el = document.getElementById('onboarding');
           el.classList.remove('hidden');
@@ -2223,7 +2252,7 @@ function showOnboardingIfNeeded() {
         }
       });
     } else {
-      if (!localStorage.getItem('onboard_done')) {
+      if (!localStorage.getItem('onboard_done_v2')) {
         const el = document.getElementById('onboarding');
         el.classList.remove('hidden');
         renderOnboardSlide();
