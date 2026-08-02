@@ -1209,16 +1209,22 @@ async function triggerCamera() {
   } catch (e) {
     console.log('camera error:', e);
     closeCameraStage();
-    // ВРЕМЕННО для диагностики: показываем настоящую причину отказа.
-    alert('Камера не открылась: ' + e.name + ' — ' + e.message);
     // Разрешение не дали / камеры нет — старый способ как запасной вариант
     document.getElementById('input-camera').click();
   }
 }
 
 async function startCameraStream() {
+  // Без width/height браузер сам выбирает разрешение потока — часто
+  // низкое (порядка 640×480), заметно хуже, чем родная камера телефона.
+  // ideal (не exact) — если камера не потянет запрошенное, отдаст
+  // максимум, что может, а не откажет ошибкой.
   _cameraStream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: { ideal: _cameraFacing } },
+    video: {
+      facingMode: { ideal: _cameraFacing },
+      width: { ideal: 1920 },
+      height: { ideal: 1080 }
+    },
     audio: false
   });
   const video = document.getElementById('camera-video');
