@@ -352,6 +352,17 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
 .congrats-coupon{margin-top:9px;font-size:10.5px;color:var(--am);border-top:.5px solid var(--b1);padding-top:9px}
 
 /* Открытие ящика */
+.camera-stage{position:fixed;inset:0;z-index:520;background:#000}
+.camera-stage.hidden{display:none}
+.camera-stage video{width:100%;height:100%;object-fit:cover;background:#000;display:block}
+.camera-stage video.mirror{transform:scaleX(-1)}
+.camera-close,.camera-flip{position:absolute;top:max(14px,env(safe-area-inset-top));width:36px;height:36px;border-radius:50%;background:rgba(6,10,7,.6);border:.5px solid rgba(255,255,255,.25);color:#e4efe8;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;line-height:1}
+.camera-close{left:14px}
+.camera-flip{right:14px}
+.camera-shutter{position:absolute;bottom:max(30px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:66px;height:66px;border-radius:50%;background:#fff;border:4px solid rgba(255,255,255,.4);cursor:pointer;padding:0}
+.camera-shutter:active{transform:translateX(-50%) scale(.92)}
+.camera-hint{position:absolute;top:max(58px,calc(env(safe-area-inset-top) + 44px));left:0;right:0;text-align:center;font-size:10px;color:rgba(228,239,232,.8);letter-spacing:.04em}
+
 .open-stage{position:fixed;inset:0;z-index:500;background:rgba(4,7,5,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:18px}
 .open-stage.hidden{display:none}
 .open-hint{font-size:10px;color:var(--t4);letter-spacing:.06em;text-align:center}
@@ -721,6 +732,17 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
     </details>
   </div>
 </div><!-- /screen-rewards -->
+
+<!-- КАМЕРА (свой предпросмотр — в обход системного выбора файла) -->
+<div class="camera-stage hidden" id="camera-stage">
+  <div class="camera-hint">Наведи на лист, кору или дерево целиком</div>
+  <video id="camera-video" autoplay playsinline muted></video>
+  <button class="camera-close" onclick="closeCameraStage()" aria-label="Закрыть">×</button>
+  <button class="camera-flip" onclick="flipCamera()" aria-label="Сменить камеру">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e4efe8" stroke-width="1.8"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+  </button>
+  <button class="camera-shutter" onclick="shootPhoto()" aria-label="Снять фото"></button>
+</div>
 
 <!-- ОТКРЫТИЕ ЯЩИКА -->
 <div class="open-stage hidden tier-common" id="open-stage">
@@ -1170,8 +1192,63 @@ function escapeHtml(str) {
 }
 
 // ─── СКАНИРОВАНИЕ ──────────────────────────────────────────────────────────
-function triggerCamera() {
-  document.getElementById('input-camera').click();
+// Своя камера через getUserMedia — на части Android (в т.ч. многих Samsung)
+// системный выбор файла внутри WebView Telegram не предлагает камеру вообще,
+// только галерею/файлы. Обходим это: просим камеру прямо на странице.
+let _cameraStream = null;
+let _cameraFacing = 'environment';
+
+async function triggerCamera() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    document.getElementById('input-camera').click();
+    return;
+  }
+  document.getElementById('camera-stage').classList.remove('hidden');
+  try {
+    await startCameraStream();
+  } catch (e) {
+    console.log('camera error:', e);
+    closeCameraStage();
+    // Разрешение не дали / камеры нет — старый способ как запасной вариант
+    document.getElementById('input-camera').click();
+  }
+}
+
+async function startCameraStream() {
+  _cameraStream = await navigator.mediaDevices.getUserMedia({
+    video: { facingMode: { ideal: _cameraFacing } },
+    audio: false
+  });
+  const video = document.getElementById('camera-video');
+  video.srcObject = _cameraStream;
+  video.classList.toggle('mirror', _cameraFacing === 'user');
+}
+
+function closeCameraStage() {
+  document.getElementById('camera-stage').classList.add('hidden');
+  if (_cameraStream) {
+    _cameraStream.getTracks().forEach(t => t.stop());
+    _cameraStream = null;
+  }
+}
+
+async function flipCamera() {
+  _cameraFacing = _cameraFacing === 'environment' ? 'user' : 'environment';
+  if (_cameraStream) _cameraStream.getTracks().forEach(t => t.stop());
+  try { await startCameraStream(); } catch (e) { console.log('flip camera error:', e); }
+}
+
+function shootPhoto() {
+  const video = document.getElementById('camera-video');
+  if (!video.videoWidth) return;
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  closeCameraStage();
+  canvas.toBlob(blob => {
+    if (blob) processPhotoFile(blob);
+  }, 'image/jpeg', 0.92);
 }
 
 function resetFileInput(id) {
@@ -1212,7 +1289,12 @@ async function compressImage(file, maxDim, quality) {
 async function handlePhoto(e) {
   const file = e.target.files[0];
   if (!file) return;
+  await processPhotoFile(file);
+}
 
+// Общий путь для фото из галереи (input-gallery), старого способа камеры
+// (input-camera, запасной вариант) и снимка со своей камеры (shootPhoto).
+async function processPhotoFile(file) {
   // Скрываем главный экран, показываем спиннер
   document.getElementById('scan-home').style.display = 'none';
   document.getElementById('scan-result').style.display = 'none';
