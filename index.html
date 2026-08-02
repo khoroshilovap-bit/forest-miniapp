@@ -1209,6 +1209,8 @@ async function triggerCamera() {
   } catch (e) {
     console.log('camera error:', e);
     closeCameraStage();
+    // ВРЕМЕННО для диагностики: показываем настоящую причину отказа.
+    alert('Камера не открылась: ' + e.name + ' — ' + e.message);
     // Разрешение не дали / камеры нет — старый способ как запасной вариант
     document.getElementById('input-camera').click();
   }
@@ -1222,6 +1224,13 @@ async function startCameraStream() {
   const video = document.getElementById('camera-video');
   video.srcObject = _cameraStream;
   video.classList.toggle('mirror', _cameraFacing === 'user');
+  // Атрибут autoplay не всегда срабатывает внутри WebView Telegram —
+  // запускаем воспроизведение явно, иначе поток есть, а картинки нет.
+  try {
+    await video.play();
+  } catch (e) {
+    console.log('video.play() error:', e);
+  }
 }
 
 function closeCameraStage() {
