@@ -658,6 +658,18 @@ html,body{background:var(--bg0);color:var(--t1);font-family:var(--font-body);hei
 
   <div id="contest-list"></div>
 
+  <div class="contest main">
+    <div class="contest-eyebrow">🏁 Конкурс выходных завершён</div>
+    <div class="contest-title">Поздравляем победителей!</div>
+    <div style="font-size:9px;color:var(--t4);margin-bottom:10px">31 июля 14:30 — 3 августа 12:00 (МСК)</div>
+    <div class="cprize"><div class="cprize-pl">🥇</div><div class="cprize-txt"><b>Simon</b> — 1158 очков<br>3 000 ₽ и худи «Сохрани Лес»</div></div>
+    <div class="cprize"><div class="cprize-pl">🥈</div><div class="cprize-txt"><b>V</b> — 933 очка<br>2 000 ₽ и дождевик «Сохрани Лес»</div></div>
+    <div class="cprize"><div class="cprize-pl">🥉</div><div class="cprize-txt"><b>Марина</b> — 810 очков<br>1 000 ₽ и майка «Сохрани Лес»</div></div>
+    <div class="cprize"><div class="cprize-pl">4</div><div class="cprize-txt"><b>Измайлова</b> — 770 очков<br>1 000 ₽</div></div>
+    <div class="cprize"><div class="cprize-pl">5</div><div class="cprize-txt"><b>Natalia</b> — 745 очков<br>1 000 ₽</div></div>
+    <div class="contest-note">Спасибо всем, кто участвовал! Очки и коллекция остаются с тобой — сканировать и открывать ящики можно и дальше. Совсем скоро объявим новый конкурс 🌳</div>
+  </div>
+
   <div class="sec-label">Серия дней</div>
   <div id="streak-block"></div>
 
@@ -868,9 +880,7 @@ const TREES = {
   poplar:    {name:"Тополь белый",      latin:"Populus alba · семейство ивовых",        pts:2,  rarity:"common",    co2:100, max_age:400,  species:0,   facts:["Самое быстрорастущее дерево России","Поглощает до 100 кг CO₂ в год","Живёт до 400 лет","Пух тополя — природный распространитель семян"], threat:"Массовые вырубки в городах России."},
   chestnut:  {name:"Каштан конский",    latin:"Aesculus hippocastanum",                 pts:4,  rarity:"uncommon",  co2:110, max_age:300,  species:0,   facts:["Живёт до 300 лет, украшает парки всей России","Поглощает до 110 кг CO₂ в год","Каштановые свечи — символ европейских парков"], threat:"Каштановая минирующая моль повреждает листья по всей Европе."},
   walnut:    {name:"Орех грецкий",      latin:"Juglans regia · семейство ореховых",     pts:5,  rarity:"uncommon",  co2:120, max_age:400,  species:0,   facts:["Живёт до 400 лет, плодоносит до 200 лет","Поглощает до 120 кг CO₂ в год","Древесина ореха — одна из ценнейших в мире"], threat:""},
-  hawthorn:  {name:"Боярышник",         latin:"Crataegus sanguinea · семейство розовых",pts:3,  rarity:"common",    co2:30,  max_age:400,  species:0,   facts:["Живёт до 400 лет — долгожитель среди кустарников","Ягоды — лекарство для сердца","Острые шипы защищают гнёзда птиц"], threat:""},
   larch:     {name:"Лиственница сибирская",latin:"Larix sibirica · семейство сосновых", pts:6,  rarity:"uncommon",  co2:115, max_age:800,  species:0,   facts:["Единственное хвойное дерево сбрасывающее хвою","Живёт до 800 лет","Древесина тонет в воде и практически не гниёт"], threat:""},
-  juniper:   {name:"Можжевельник",      latin:"Juniperus communis · семейство кипарисовых",pts:5,rarity:"uncommon", co2:25,  max_age:600,  species:0,   facts:["Живёт до 600 лет","Самый сильный природный антисептик среди деревьев","Одно растение очищает воздух 300 кв. метров","Ягоды используются в кулинарии и медицине"], threat:"Сокращение популяций из-за лесных пожаров."},
   yew:       {name:"Тис ягодный",       latin:"Taxus baccata · семейство тисовых",      pts:12, rarity:"epic",      co2:40,  max_age:4000, species:0,   facts:["Живёт до 4000 лет — одно из старейших деревьев Земли","Всё дерево ядовито кроме мякоти ягод","Древесина использовалась для луков Робин Гуда","Занесён в Красную книгу России"], threat:"Критически редкий вид. Занесён в Красную книгу России."},
   ginkgo:    {name:"Гинкго двулопастное",latin:"Ginkgo biloba · семейство гинкговых",   pts:15, rarity:"epic",      co2:60,  max_age:3000, species:0,   facts:["Живое ископаемое — не изменилось за 200 млн лет","Живёт до 3000 лет","Листья используются для улучшения памяти","Дерево-одиночка — нет близких родственников в природе"], threat:"В природе встречается только в Китае."},
   magnolia:  {name:"Магнолия",          latin:"Magnolia kobus · семейство магнолиевых",  pts:8,  rarity:"epic",      co2:50,  max_age:1000, species:0,   facts:["Один из древнейших цветковых родов — 100 млн лет","Цветёт до появления листьев в апреле","Живёт до 1000 лет"], threat:"Сокращение в дикой природе из-за вырубки."},
@@ -879,24 +889,13 @@ const TREES = {
   plane:     {name:"Платан восточный",  latin:"Platanus orientalis · семейство платановых",pts:5,rarity:"uncommon", co2:140, max_age:2000, species:0,   facts:["Живёт до 2000 лет — один из долгожителей планеты","Поглощает до 140 кг CO₂ в год","Даёт самую широкую тень среди всех деревьев"], threat:""},
   mulberry:  {name:"Шелковица белая",   latin:"Morus alba · семейство тутовых",         pts:5,  rarity:"uncommon",  co2:75,  max_age:500,  species:0,   facts:["Живёт до 500 лет","Листья — единственный корм гусеницы шелкопряда","Завезена из Китая по Великому шёлковому пути"], threat:""},
   acacia:    {name:"Акация белая",      latin:"Robinia pseudoacacia · семейство бобовых",pts:4, rarity:"uncommon",  co2:90,  max_age:300,  species:0,   facts:["Живёт до 300 лет, цветы — ценный медонос","Обогащает почву азотом","Поглощает до 90 кг CO₂ в год"], threat:""},
-  sea_buckthorn:{name:"Облепиха",       latin:"Hippophae rhamnoides · семейство лоховых",pts:4, rarity:"uncommon",  co2:25,  max_age:30,   species:0,   facts:["Ягоды содержат в 15 раз больше витамина C чем лимон","Единственный фрукт содержащий омега-7","Быстро укрепляет берега рек"], threat:""},
   bird_cherry:   {name:"Черёмуха",          latin:"Prunus padus · семейство розовых",        pts:3,  rarity:"common",    co2:35,  max_age:100,  species:0,   facts:["Цветёт с характерным запахом в мае","Ягоды обладают антибактериальными свойствами","Одно из первых деревьев зацветающих весной"], threat:""},
-  elder:     {name:"Бузина чёрная",     latin:"Sambucus nigra · семейство адоксовых",   pts:2,  rarity:"common",    co2:15,  max_age:100,  species:0,   facts:["Цветы и ягоды используются в кулинарии и медицине","Ягоды — корм для более 60 видов птиц","В народной медицине применяется тысячи лет"], threat:""},
-  lilac:     {name:"Сирень",            latin:"Syringa vulgaris · семейство маслиновых", pts:2,  rarity:"common",    co2:20,  max_age:100,  species:0,   facts:["Символ русской весны","Живёт до 100 лет","Цветы используются в парфюмерии"], threat:""},
-  viburnum:  {name:"Калина",            latin:"Viburnum opulus · семейство адоксовых",   pts:3,  rarity:"common",    co2:15,  max_age:50,   species:0,   facts:["Символ России в народной культуре","Ягоды после мороза становятся слаще","Кора и ягоды — народное лекарство"], threat:""},
-  caragana:  {name:"Карагана",          latin:"Caragana arborescens · семейство бобовых",pts:3, rarity:"common",    co2:25,  max_age:60,   species:0,   facts:["Выживает при морозах до -60°C","Обогащает почву азотом","Используется для создания лесополос в степях"], threat:""},
-  barberry:  {name:"Барбарис",          latin:"Berberis vulgaris · семейство барбарисовых",pts:3,rarity:"common",   co2:15,  max_age:50,   species:0,   facts:["Ягоды богаты витамином C и антиоксидантами","Основа приправ — входит в состав плова","Живёт до 50 лет"], threat:""},
   catalpa:   {name:"Катальпа",          latin:"Catalpa bignonioides · семейство бигнониевых",pts:4,rarity:"uncommon",co2:85, max_age:150,  species:0,   facts:["Самые крупные листья среди парковых деревьев России","Экзотические белые цветы в июне","Плоды — длинные стручки до 40 см"], threat:""},
-  dogwood:   {name:"Кизил",             latin:"Cornus mas · семейство кизиловых",        pts:4,  rarity:"uncommon",  co2:30,  max_age:250,  species:0,   facts:["Живёт до 250 лет","Ягоды содержат больше витамина C чем лимон","Цветёт одним из первых — в феврале-марте"], threat:""},
-  tamarisk:  {name:"Тамарикс",          latin:"Tamarix ramosissima · семейство тамарисковых",pts:6,rarity:"uncommon",co2:20, max_age:100,  species:0,   facts:["Выживает в пустынях и засолённых почвах","Розовые цветы — уникальное зрелище","Закрепляет пески и предотвращает эрозию"], threat:""},
   pear:      {name:"Груша лесная",      latin:"Pyrus pyraster · семейство розовых",      pts:3,  rarity:"uncommon",  co2:55,  max_age:300,  species:0,   facts:["Живёт до 300 лет","Предок культурных груш","Ценнейшая древесина — плотнее дуба"], threat:""},
   apple:     {name:"Яблоня лесная",     latin:"Malus sylvestris · семейство розовых",    pts:3,  rarity:"common",    co2:50,  max_age:200,  species:0,   facts:["Предок всех культурных яблонь","Живёт до 200 лет","Плоды служат пищей для кабанов, лис и птиц"], threat:""},
   cherry:    {name:"Черешня",           latin:"Prunus avium · семейство розовых",        pts:3,  rarity:"common",    co2:45,  max_age:100,  species:0,   facts:["Одно из первых плодовых деревьев весной","Живёт до 100 лет","Ценнейшая древесина для мебели"], threat:""},
   plum:      {name:"Слива колючая",     latin:"Prunus spinosa · семейство розовых",      pts:2,  rarity:"common",    co2:35,  max_age:50,   species:0,   facts:["Терн — основа для настоек и варенья","Цветёт до появления листьев","Плоды содержат больше сахара после морозов"], threat:""},
   thuja:     {name:"Туя западная",      latin:"Thuja occidentalis · семейство кипарисовых",pts:3,rarity:"common",   co2:40,  max_age:800,  species:0,   facts:["Живёт до 800 лет","Выделяет до 6 кг фитонцидов в сутки","Не теряет декоративности зимой"], threat:""},
-  mock_orange:{name:"Чубушник",         latin:"Philadelphus coronarius",                  pts:2,  rarity:"common",    co2:10,  max_age:30,   species:0,   facts:["Аромат цветов напоминает жасмин","Один из самых ароматных кустарников России"], threat:""},
-  serviceberry:{name:"Ирга колосистая", latin:"Amelanchier spicata · семейство розовых", pts:2,  rarity:"common",    co2:20,  max_age:30,   species:0,   facts:["Одна из первых ягод созревающих в России","Ягоды богаты антиоксидантами","Переносит морозы до -50°C"], threat:""},
-  cotoneaster:{name:"Кизильник",        latin:"Cotoneaster lucidus · семейство розовых",  pts:2,  rarity:"common",    co2:15,  max_age:50,   species:0,   facts:["Один из самых морозостойких декоративных кустарников","Красные ягоды сохраняются всю зиму","Не требует ухода"], threat:""},
 };
 
 // SVG иконки для каталога
