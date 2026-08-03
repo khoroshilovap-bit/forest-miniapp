@@ -915,8 +915,94 @@ const TREE_ICONS = {
   _default:'PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgeD0iMjkiIHk9IjQwIiB3aWR0aD0iNiIgaGVpZ2h0PSIxNiIgcng9IjIiIGZpbGw9IiM1ZDQwMzciLz48ZWxsaXBzZSBjeD0iMzIiIGN5PSIyNCIgcng9IjE0IiByeT0iMTQiIGZpbGw9IiMyZTdkMzIiLz48ZWxsaXBzZSBjeD0iMjIiIGN5PSIyOCIgcng9IjkiIHJ5PSI5IiBmaWxsPSIjMzg4ZTNjIi8+PGVsbGlwc2UgY3g9IjQyIiBjeT0iMjgiIHJ4PSI5IiByeT0iOSIgZmlsbD0iIzM4OGUzYyIvPjxlbGxpcHNlIGN4PSIzMiIgY3k9IjE4IiByeD0iMTAiIHJ5PSIxMCIgZmlsbD0iIzQzYTA0NyIvPjwvc3ZnPg=='
 };
 
-const RARITY_LABELS = {common:'Обычный',uncommon:'Необычный',epic:'Эпический',legendary:'Легендарный',discovered:'Открыто',rare_find:'🌟 Редкая находка',not_tree:'Не дерево'};
-const RARITY_CLASS  = {common:'r-common',uncommon:'r-common',epic:'r-epic',legendary:'r-legendary',discovered:'r-common',rare_find:'r-rare',not_tree:'r-not-tree'};
+// Генератор иконок для видов без ручной SVG — силуэт по типу семейства, цвет
+// по семейству, кора светлая/тёмная. Ручные 12 из TREE_ICONS выше в приоритете,
+// формула нужна как раз для остальных ~988 видов из расширенного каталога.
+const FAMILY_STYLE = {
+  'Сосновые':        {shape:'tiered',   crown:['#1b5e20','#2e7d32','#388e3c'], bark:'#4e342e'},
+  'Кипарисовые':     {shape:'tiered',   crown:['#00695c','#00796b','#00897b'], bark:'#4e342e'},
+  'Тисовые':         {shape:'round',    crown:['#00695c','#00796b'],           bark:'#4e342e'},
+  'Головчатотисовые':{shape:'round',    crown:['#00695c','#00796b'],           bark:'#4e342e'},
+  'Подокарповые':    {shape:'tiered',   crown:['#1b5e20','#2e7d32'],           bark:'#4e342e'},
+  'Араукариевые':    {shape:'tiered',   crown:['#1b5e20','#2e7d32'],           bark:'#5d4037'},
+  'Нотофагусовые':   {shape:'round',    crown:['#33691e','#558b2f'],           bark:'#5d4037'},
+  'Берёзовые':       {shape:'drooping', crown:['#79b46a','#8cc17c'],           bark:'#e9e5da', barkMarks:true},
+  'Ивовые':          {shape:'columnar', crown:['#5f9e5f','#74b374'],           bark:'#6d5a44'},
+  'Буковые':         {shape:'round',    crown:['#3f7d43','#4a8c4d','#5aa35c'], bark:'#5a4632'},
+  'Вязовые':         {shape:'round',    crown:['#4a8c4d','#5aa35c'],           bark:'#5a4632'},
+  'Коноплёвые':      {shape:'round',    crown:['#4a8c4d','#5aa35c'],           bark:'#5a4632'},
+  'Розовые':         {shape:'round',    crown:['#66a35a','#7cb96e'],           bark:'#6d5a44'},
+  'Маслиновые':      {shape:'round',    crown:['#7a8f4d','#8fa860'],           bark:'#6d5a44'},
+  'Сапиндовые':      {shape:'round',    crown:['#4a8c4d','#5aa35c'],           bark:'#5a4632'},
+  'Мальвовые':       {shape:'round',    crown:['#6c8f4a','#82a75d'],           bark:'#8d6e63'},
+  'Бобовые':         {shape:'round',    crown:['#5a9350','#6fab63'],           bark:'#6d5a44'},
+  'Ореховые':        {shape:'round',    crown:['#4a8c4d','#5aa35c'],           bark:'#5a4632'},
+  'Тутовые':         {shape:'round',    crown:['#5a9350','#6fab63'],           bark:'#6d5a44'},
+  'Пальмовые':       {shape:'fan',      crown:['#2e7d32','#43a047'],           bark:'#8d6e63'},
+  'Спаржевые':       {shape:'fan',      crown:['#2e7d32','#43a047'],           bark:'#8d6e63'},
+  'Магнолиевые':     {shape:'round',    crown:['#7cb87a','#f8bbd0'],           bark:'#5d4037'},
+  'Миртовые':        {shape:'drooping', crown:['#7a9e5a','#8fb56d'],           bark:'#d7ccc8'},
+  'Протейные':       {shape:'round',    crown:['#5a9350','#6fab63'],           bark:'#6d5a44'},
+  'Лавровые':        {shape:'round',    crown:['#33691e','#43772a'],           bark:'#5d4037'},
+  'Кактусовые':      {shape:'columnar', crown:['#2e7d32','#43a047'],           bark:'#43a047'},
+  'default':         {shape:'round',    crown:['#2e7d32','#388e3c','#43a047'], bark:'#5d4037'},
+};
+
+function hashSeed(str) {
+  let h = 0;
+  for (let i = 0; i < String(str).length; i++) h = (h * 31 + String(str).charCodeAt(i)) >>> 0;
+  return h;
+}
+
+function generateTreeIcon(family, seed) {
+  const style = FAMILY_STYLE[family] || FAMILY_STYLE.default;
+  const h = hashSeed(seed || family || 'x');
+  const c1 = style.crown[0], c2 = style.crown[1] || c1, c3 = style.crown[2] || c2;
+  let body;
+  if (style.shape === 'tiered') {
+    body = `<rect x="30" y="${44 + h % 4}" width="4" height="${14 - h % 4}" rx="1" fill="${style.bark}"/>
+      <polygon points="32,4 ${38 + h % 6},18 ${26 - h % 6},18" fill="${c1}"/>
+      <polygon points="32,12 ${43 + h % 4},28 ${21 - h % 4},28" fill="${c2}"/>
+      <polygon points="32,20 ${47 + h % 3},44 ${17 - h % 3},44" fill="${c3}"/>`;
+  } else if (style.shape === 'drooping') {
+    body = `<rect x="30" y="16" width="4" height="42" rx="2" fill="${style.bark}"/>
+      ${style.barkMarks ? '<rect x="30" y="25" width="4" height="2" fill="#6b675c"/><rect x="30" y="35" width="4" height="2" fill="#6b675c"/><rect x="30" y="45" width="4" height="2" fill="#6b675c"/>' : ''}
+      <ellipse cx="32" cy="${16 + h % 3}" rx="9" ry="11" fill="${c1}"/>
+      <ellipse cx="${23 - h % 3}" cy="20" rx="7" ry="9" fill="${c2}"/>
+      <ellipse cx="${41 + h % 3}" cy="20" rx="7" ry="9" fill="${c2}"/>`;
+  } else if (style.shape === 'columnar') {
+    body = `<rect x="29" y="34" width="6" height="24" rx="2" fill="${style.bark}"/>
+      <ellipse cx="32" cy="${20 - h % 4}" rx="${10 + h % 3}" ry="20" fill="${c1}"/>
+      <ellipse cx="32" cy="${16 - h % 4}" rx="7" ry="14" fill="${c2}"/>`;
+  } else if (style.shape === 'fan') {
+    body = `<rect x="29" y="40" width="6" height="18" rx="2" fill="${style.bark}"/>
+      <ellipse cx="32" cy="26" rx="4" ry="16" fill="${c1}" transform="rotate(${-30 - h % 20} 32 40)"/>
+      <ellipse cx="32" cy="26" rx="4" ry="16" fill="${c1}" transform="rotate(${-10 - h % 10} 32 40)"/>
+      <ellipse cx="32" cy="26" rx="4" ry="16" fill="${c2}" transform="rotate(${10 + h % 10} 32 40)"/>
+      <ellipse cx="32" cy="26" rx="4" ry="16" fill="${c2}" transform="rotate(${30 + h % 20} 32 40)"/>`;
+  } else {
+    body = `<rect x="29" y="${38 + h % 3}" width="6" height="${18 - h % 3}" rx="2" fill="${style.bark}"/>
+      <circle cx="32" cy="${23 - h % 3}" r="${14 + h % 3}" fill="${c1}"/>
+      <circle cx="${21 - h % 4}" cy="29" r="9" fill="${c2}"/>
+      <circle cx="${43 + h % 4}" cy="29" r="9" fill="${c2}"/>
+      <circle cx="32" cy="14" r="10" fill="${c3}"/>`;
+  }
+  const svg = `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
+  try { return btoa(svg); } catch (e) { return TREE_ICONS._default; }
+}
+
+// Единая точка получения иконки: ручные из TREE_ICONS в приоритете, иначе
+// формула по семейству из каталога БД (CATALOG заполняется в loadTreesCatalog),
+// иначе фолбэк на нынешнюю заглушку.
+function treeIconB64(id, family) {
+  if (TREE_ICONS[id]) return TREE_ICONS[id];
+  const fam = family || (typeof CATALOG !== 'undefined' && CATALOG[id] && CATALOG[id].family);
+  if (fam) return generateTreeIcon(fam, id);
+  return TREE_ICONS._default;
+}
+
+const RARITY_LABELS = {common:'Обычный',uncommon:'Необычный',rare:'Редкий',epic:'Эпический',legendary:'Легендарный',discovered:'Открыто',rare_find:'🌟 Редкая находка',not_tree:'Не дерево'};
+const RARITY_CLASS  = {common:'r-common',uncommon:'r-common',rare:'r-rare',epic:'r-epic',legendary:'r-legendary',discovered:'r-common',rare_find:'r-rare',not_tree:'r-not-tree'};
 
 // ─── СОСТОЯНИЕ ──────────────────────────────────────────────────────────────
 const state = {
@@ -1062,7 +1148,7 @@ async function loadRecentScans() {
       const date = item.scanned_at ? new Date(item.scanned_at) : null;
       const dateStr = date ? formatDate(date) : '';
       const color = RARITY_COLORS[item.rarity] || '#3a7a52';
-      const icon = TREE_ICONS[item.tree_id] || TREE_ICONS._default;
+      const icon = treeIconB64(item.tree_id, item.family);
       return `<div class="feed-item">
         <div class="feed-icon"><img src="data:image/svg+xml;base64,${icon}" alt="${item.name_ru}" style="width:32px;height:32px;object-fit:contain"></div>
         <div><div class="feed-name" style="color:${color}">${item.name_ru}</div><div class="feed-meta">${dateStr}</div></div>
@@ -1544,8 +1630,8 @@ function _fillResultScreen(name, latin, confidence, rarity, co2, max_age, specie
   const refWrap = document.getElementById('ref-photo-wrap');
   const refImg = document.getElementById('ref-tree-photo');
   const refIconId = state.currentTree;
-  if (refWrap && refImg && refIconId && (TREE_ICONS[refIconId] || TREE_ICONS._default)) {
-    refImg.src = 'data:image/svg+xml;base64,' + (TREE_ICONS[refIconId] || TREE_ICONS._default);
+  if (refWrap && refImg && refIconId) {
+    refImg.src = 'data:image/svg+xml;base64,' + treeIconB64(refIconId);
     refWrap.style.display = 'block';
   } else if (refWrap) {
     refWrap.style.display = 'none';
@@ -1694,7 +1780,7 @@ function renderAchievements() {
     if (found) cls = isEpic ? 'found rare' : isLeg ? 'found legendary' : 'found';
     else cls = isEpic ? 'rare' : isLeg ? 'legendary' : '';
 
-    const iconB64 = TREE_ICONS[id] || TREE_ICONS._default;
+    const iconB64 = treeIconB64(id);
     const imgStyle = found
       ? 'width:32px;height:32px;object-fit:contain'
       : 'width:32px;height:32px;object-fit:contain;filter:grayscale(1) brightness(0.2)';
@@ -1714,7 +1800,9 @@ function renderAchievements() {
 function openTreeModal(id) {
   if (tg) tg.HapticFeedback?.impactOccurred('light');
 
-  // Ищем данные — сначала в TREES, потом в discovered
+  // Ищем данные — сначала в TREES (кураторские карточки), потом в discovered
+  // (то, что открыл в этой сессии сканированием), и только для остальных ~965
+  // видов каталога — в CATALOG (пришёл из БД через /trees, там же facts/threat/regions).
   let t = null;
   let found = false;
 
@@ -1725,10 +1813,13 @@ function openTreeModal(id) {
     t = state.discovered[id];
     t.name = t.name; // уже есть
     found = true;
+  } else if (CATALOG[id]) {
+    t = CATALOG[id];
+    found = state.scanned.includes(id);
   }
   if (!t) return;
 
-  const iconB64 = TREE_ICONS[id] || TREE_ICONS._default;
+  const iconB64 = treeIconB64(id, t.family);
   const imgEl = document.getElementById('modal-photo');
   imgEl.src = 'data:image/svg+xml;base64,' + iconB64;
   imgEl.style.filter = found ? 'none' : 'grayscale(1) brightness(0.25)';
@@ -1838,8 +1929,14 @@ async function loadTreesCatalog() {
       }
       CATALOG[t.tree_id] = {
         name: t.name_ru || t.tree_id,
+        latin: t.name_latin || '',
+        family: t.family || '',
         pts: t.points,
-        rarity: t.rarity || 'common'
+        rarity: t.rarity || 'common',
+        max_age: t.max_age || 0,
+        co2: t.co2_per_year || 0,
+        facts: t.facts || [],
+        threat: t.threat || ''
       };
     });
     console.log('Каталог из БД: ' + Object.keys(CATALOG).length + ' видов');
